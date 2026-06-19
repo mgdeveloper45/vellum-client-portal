@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatStatus } from "@/lib/utils";
 
 type ProjectCardProps = {
     id: string;
@@ -27,7 +28,7 @@ export function ProjectCard({
                     </div>
 
                     <span className="rounded-full bg-muted px-3 py-1 text-xs text-accent">
-                        {status.charAt(0) + status.slice(1).toLowerCase()}
+                        {formatStatus(status)}
                     </span>
                 </div>
 

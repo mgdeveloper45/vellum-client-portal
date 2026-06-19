@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import { formatStatus } from "@/lib/utils";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
 
@@ -77,7 +77,7 @@ export default async function ProjectDetailPage({
             </h2>
 
             <p className="mt-2 text-foreground/70">
-              {project.status.charAt(0) + project.status.slice(1).toLowerCase()}
+              {formatStatus(project.status)}
             </p>
           </div>
 
@@ -101,7 +101,7 @@ export default async function ProjectDetailPage({
                     <h3 className="font-medium">{milestone.title}</h3>
 
                     <span className="text-sm text-foreground/70">
-                      {milestone.status.charAt(0) + milestone.status.slice(1).toLowerCase()}
+                      {formatStatus(milestone.status)}
                     </span>
                   </div>
 
