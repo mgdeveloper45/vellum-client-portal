@@ -80,6 +80,41 @@ export default async function ProjectDetailPage({
               {project.status.charAt(0) + project.status.slice(1).toLowerCase()}
             </p>
           </div>
+
+{/* =======================================================
+    PROJECT MILESTONES
+    Displays all milestones related to this project.
+    Data comes directly from PostgreSQL through Prisma.
+======================================================= */}
+          <div className="mt-10">
+            <h2 className="text-xl font-medium">
+              Milestones
+            </h2>
+
+            <div className="mt-4 grid gap-3">
+              {project.milestones.map((milestone) => (
+                <div
+                  key={milestone.id}
+                  className="rounded-xl border border-border p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium">{milestone.title}</h3>
+
+                    <span className="text-sm text-foreground/70">
+                      {milestone.status.charAt(0) + milestone.status.slice(1).toLowerCase()}
+                    </span>
+                  </div>
+
+                  {milestone.dueDate && (
+                    <p className="mt-2 text-sm text-foreground/60">
+                      Due {milestone.dueDate.toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </DashboardShell>
