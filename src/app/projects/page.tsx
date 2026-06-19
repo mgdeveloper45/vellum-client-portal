@@ -1,34 +1,22 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { ProjectCard } from "@/components/projects/project-card";
+import { prisma } from "@/lib/prisma";
 
-const projects = [
-  {
-    name: "Coffee Shop Brand Launch",
-    client: "Oak & Ember Coffee",
-    status: "Active" as const,
-    dueDate: "July 12, 2026",
-    description:
-      "Brand identity, landing page, launch assets, menu design, and client approval workflow.",
-  },
-  {
-    name: "Interior Design Portal",
-    client: "Luna Studio",
-    status: "Review" as const,
-    dueDate: "July 20, 2026",
-    description:
-      "Client dashboard for mood boards, revisions, invoices, and project milestones.",
-  },
-  {
-    name: "Consulting Proposal System",
-    client: "Northline Advisors",
-    status: "Planning" as const,
-    dueDate: "August 3, 2026",
-    description:
-      "Proposal builder, approval tracking, document delivery, and invoice management.",
-  },
-];
+/**
+ * Projects page.
+ * This is now a server component that fetches real project data from PostgreSQL.
+ */
+export default async function ProjectsPage() {
+  // Fetch projects from the database and include the related client.
+  const projects = await prisma.project.findMany({
+    include: {
+      client: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-export default function ProjectsPage() {
   return (
     <DashboardShell>
       <div className="flex items-start justify-between gap-6">
@@ -46,7 +34,14 @@ export default function ProjectsPage() {
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {projects.map((project) => (
-          <ProjectCard key={project.name} {...project} />
+          <ProjectCard
+            key={project.id}
+            name={project.name}
+            client={`${project.client.firstName} ${project.client.lastName}`}
+            status={project.status}
+            dueDate="No due date yet"
+            description={project.description}
+          />
         ))}
       </div>
     </DashboardShell>

@@ -1,7 +1,7 @@
 type ProjectCardProps = {
     name: string;
     client: string;
-    status: "Planning" | "Active" | "Review" | "Completed";
+    status: "PLANNING" | "ACTIVE" | "REVIEW" | "COMPLETED";
     dueDate: string;
     description: string;
 };
@@ -22,7 +22,7 @@ export function ProjectCard({
                 </div>
 
                 <span className="rounded-full bg-muted px-3 py-1 text-xs text-accent">
-                    {status}
+                    {status.charAt(0) + status.slice(1).toLowerCase()}
                 </span>
             </div>
 

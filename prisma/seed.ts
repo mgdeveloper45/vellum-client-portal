@@ -1,13 +1,21 @@
 import "dotenv/config";
+
 import { PrismaClient } from "../src/lib/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
+/**
+ * Database adapter used by Prisma 7.
+ */
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
 });
 
-// PrismaClient lets us talk to the database from TypeScript.
-const prisma = new PrismaClient({ adapter });
+/**
+ * Prisma client used for seeding.
+ */
+const prisma = new PrismaClient({
+  adapter,
+});
 
 async function main() {
   // Clear old development data so every seed starts clean.
