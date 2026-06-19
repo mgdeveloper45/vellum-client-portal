@@ -1,4 +1,5 @@
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -14,12 +15,16 @@ export default function HomePage() {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <button className="rounded-full border border-border px-5 py-2 text-sm text-foreground">
-              Sign in
-            </button>
-            <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
-              Get Started
-            </button>
+            <Link href="/sign-in">
+              <button className="rounded-full border border-border px-5 py-2 text-sm text-foreground">
+                Sign in
+              </button>
+            </Link>
+            <Link href="/projects">
+              <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+                Get Started
+              </button>
+            </Link>
           </div>
         </nav>
 
