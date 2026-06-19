@@ -171,6 +171,35 @@ export default async function ProjectDetailPage({
             </div>
           </div>
 
+{/* =======================================================
+    PROJECT PROPOSALS
+    Displays project proposals from PostgreSQL.
+======================================================= */}
+          <div className="mt-10">
+            <h2 className="text-xl font-medium">Proposals</h2>
+
+            <div className="mt-4 grid gap-3">
+              {project.proposals.map((proposal) => (
+                <div
+                  key={proposal.id}
+                  className="rounded-xl border border-border p-4"
+                >
+                  <h3 className="font-medium">
+                      Project Proposal
+                    </h3>
+
+                    <span className="text-sm text-foreground/70">
+                      {proposal.approved ? "Approved" : "Pending"}
+                    </span>
+
+                  <p className="mt-2 text-xs text-foreground/50">
+                    Created {proposal.createdAt.toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </DashboardShell>
