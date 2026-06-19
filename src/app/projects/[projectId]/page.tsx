@@ -140,6 +140,37 @@ export default async function ProjectDetailPage({
             </div>
           </div>
 
+{/* =======================================================
+    PROJECT INVOICES
+    Displays project invoices from PostgreSQL.
+======================================================= */}
+          <div className="mt-10">
+            <h2 className="text-xl font-medium">Invoices</h2>
+
+            <div className="mt-4 grid gap-3">
+              {project.invoices.map((invoice) => (
+                <div
+                  key={invoice.id}
+                  className="rounded-xl border border-border p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">
+                      ${invoice.amount.toLocaleString()}
+                    </p>
+
+                    <span className="text-sm text-foreground/70">
+                      {invoice.paid ? "Paid" : "Unpaid"}
+                    </span>
+                  </div>
+
+                  <p className="mt-2 text-xs text-foreground/50">
+                    Created {invoice.createdAt.toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </DashboardShell>
