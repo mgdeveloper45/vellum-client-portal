@@ -77,7 +77,7 @@ export default async function ProjectDetailPage({
             </h2>
 
             <p className="mt-2 text-foreground/70">
-              {project.status}
+              {project.status.charAt(0) + project.status.slice(1).toLowerCase()}
             </p>
           </div>
         </div>
