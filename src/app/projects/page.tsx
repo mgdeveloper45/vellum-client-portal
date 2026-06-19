@@ -35,6 +35,7 @@ export default async function ProjectsPage() {
       <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {projects.map((project) => (
           <ProjectCard
+            id={project.id}
             key={project.id}
             name={project.name}
             client={`${project.client.firstName} ${project.client.lastName}`}
