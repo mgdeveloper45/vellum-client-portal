@@ -115,6 +115,31 @@ export default async function ProjectDetailPage({
             </div>
           </div>
 
+{/* =======================================================
+    PROJECT MESSAGES
+    Displays recent project messages from PostgreSQL.
+======================================================= */}
+          <div className="mt-10">
+            <h2 className="text-xl font-medium">Messages</h2>
+
+            <div className="mt-4 grid gap-3">
+              {project.messages.map((message) => (
+                <div
+                  key={message.id}
+                  className="rounded-xl border border-border p-4"
+                >
+                  <p className="text-sm leading-6 text-foreground/70">
+                    {message.content}
+                  </p>
+
+                  <p className="mt-3 text-xs text-foreground/50">
+                    Sent {message.createdAt.toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </DashboardShell>
