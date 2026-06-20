@@ -21,6 +21,9 @@ export async function createInvoiceAction(formData: FormData) {
   redirect(`/projects/${projectId}`);
 }
 
+/**
+ * Toggles paid on an invoice for a project.
+ */
 export async function toggleInvoicePaidAction(
   formData: FormData
 ) {
@@ -48,6 +51,29 @@ export async function toggleInvoicePaidAction(
     },
     data: {
       paid: !invoice.paid,
+    },
+  });
+
+  redirect(`/projects/${projectId}`);
+}
+
+/**
+ * Deletes an invoice for a project.
+ */
+export async function deleteInvoiceAction(
+  formData: FormData
+) {
+  const invoiceId = String(
+    formData.get("invoiceId")
+  );
+
+  const projectId = String(
+    formData.get("projectId")
+  );
+
+  await prisma.invoice.delete({
+    where: {
+      id: invoiceId,
     },
   });
 

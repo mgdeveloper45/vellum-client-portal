@@ -4,6 +4,7 @@ import { createMessageAction } from "@/actions/message-actions";
 import {
   createInvoiceAction,
   toggleInvoicePaidAction,
+  deleteInvoiceAction,
 } from "@/actions/invoice-actions";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
@@ -315,6 +316,30 @@ export default async function ProjectDetailPage({
                   <p className="mt-2 text-xs text-foreground/50">
                     Created {invoice.createdAt.toLocaleDateString()}
                   </p>
+
+                  <form
+                    action={deleteInvoiceAction}
+                    className="mt-3"
+                  >
+                    <input
+                      type="hidden"
+                      name="invoiceId"
+                      value={invoice.id}
+                    />
+
+                    <input
+                      type="hidden"
+                      name="projectId"
+                      value={project.id}
+                    />
+
+                    <button
+                      className="text-xs text-red-400"
+                    >
+                      Delete Invoice
+                    </button>
+                  </form>
+
                 </div>
               ))}
             </div>
