@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatStatus } from "@/lib/utils";
+import { createMessageAction } from "@/actions/message-actions";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
 
@@ -81,7 +82,7 @@ export default async function ProjectDetailPage({
             </p>
           </div>
 
-{/* =======================================================
+          {/* =======================================================
     PROJECT MILESTONES
     Displays all milestones related to this project.
     Data comes directly from PostgreSQL through Prisma.
@@ -115,10 +116,35 @@ export default async function ProjectDetailPage({
             </div>
           </div>
 
-{/* =======================================================
+          {/* =======================================================
     PROJECT MESSAGES
     Displays recent project messages from PostgreSQL.
 ======================================================= */}
+
+          <div className="mt-4 rounded-2xl border border-border bg-card p-6">
+            <form
+              action={createMessageAction}
+              className="space-y-3"
+            >
+              <input
+                type="hidden"
+                name="projectId"
+                value={project.id}
+              />
+
+              <textarea
+                name="content"
+                required
+                placeholder="Write a message..."
+                className="min-h-24 w-full rounded-lg border border-border bg-background px-4 py-3"
+              />
+
+              <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+                Send Message
+              </button>
+            </form>
+          </div>
+
           <div className="mt-10">
             <h2 className="text-xl font-medium">Messages</h2>
 
@@ -140,7 +166,7 @@ export default async function ProjectDetailPage({
             </div>
           </div>
 
-{/* =======================================================
+          {/* =======================================================
     PROJECT INVOICES
     Displays project invoices from PostgreSQL.
 ======================================================= */}
@@ -171,7 +197,7 @@ export default async function ProjectDetailPage({
             </div>
           </div>
 
-{/* =======================================================
+          {/* =======================================================
     PROJECT PROPOSALS
     Displays project proposals from PostgreSQL.
 ======================================================= */}
@@ -185,12 +211,12 @@ export default async function ProjectDetailPage({
                   className="rounded-xl border border-border p-4"
                 >
                   <h3 className="font-medium">
-                      Project Proposal
-                    </h3>
+                    Project Proposal
+                  </h3>
 
-                    <span className="text-sm text-foreground/70">
-                      {proposal.approved ? "Approved" : "Pending"}
-                    </span>
+                  <span className="text-sm text-foreground/70">
+                    {proposal.approved ? "Approved" : "Pending"}
+                  </span>
 
                   <p className="mt-2 text-xs text-foreground/50">
                     Created {proposal.createdAt.toLocaleDateString()}
