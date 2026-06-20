@@ -38,6 +38,16 @@ async function main() {
     },
   });
 
+  const client = await prisma.user.create({
+  data: {
+    email: "client@oakembercoffee.com",
+    firstName: "Avery",
+    lastName: "Stone",
+    password: hashedPassword,
+    role: "CLIENT",
+  },
+});
+
   // Create one project connected to that client.
   await prisma.project.create({
     data: {
@@ -45,7 +55,8 @@ async function main() {
       description:
         "Brand identity, landing page, menu assets, launch planning, and approval workflow.",
       status: "ACTIVE",
-      clientId: admin.id,
+      ownerId: admin.id,
+      clientId: client.id,
 
       // These nested creates attach related records to the project.
       milestones: {
@@ -66,7 +77,7 @@ async function main() {
       messages: {
         create: [
           {
-            senderId: admin.id,
+            senderId: client.id,
             content: "Excited to review the first design direction.",
           },
         ],
