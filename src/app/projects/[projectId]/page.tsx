@@ -45,7 +45,40 @@ export default async function ProjectDetailPage({
       </DashboardShell>
     );
   }
+  const timelineItems = [
+    ...project.messages.map((message) => ({
+      id: message.id,
+      type: "Message",
+      title: `${message.sender.firstName} ${message.sender.lastName} sent a message`,
+      detail: message.content,
+      date: message.createdAt,
+    })),
 
+    ...project.invoices.map((invoice) => ({
+      id: invoice.id,
+      type: "Invoice",
+      title: invoice.paid ? "Invoice paid" : "Invoice created",
+      detail: `$${invoice.amount.toLocaleString()}`,
+      date: invoice.createdAt,
+    })),
+
+    ...project.proposals.map((proposal) => ({
+      id: proposal.id,
+      type: "Proposal",
+      title: proposal.approved ? "Proposal approved" : "Proposal pending",
+      detail: "Project proposal",
+      date: proposal.createdAt,
+    })),
+
+    ...project.milestones.map((milestone) => ({
+      id: milestone.id,
+      type: "Milestone",
+      title: milestone.title,
+      detail: formatStatus(milestone.status),
+      date: milestone.dueDate || milestone.createdAt,
+    })),
+  ].sort((a, b) => b.date.getTime() - a.date.getTime());
+  
   return (
     <DashboardShell>
       <Link
@@ -84,6 +117,35 @@ export default async function ProjectDetailPage({
             <p className="mt-2 text-foreground/70">
               {formatStatus(project.status)}
             </p>
+          </div>
+
+          <div className="mt-10">
+            <h2 className="text-xl font-medium">Activity Timeline</h2>
+
+            <div className="mt-4 grid gap-3">
+              {timelineItems.map((item) => (
+                <div
+                  key={`${item.type}-${item.id}`}
+                  className="rounded-xl border border-border p-4"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="font-medium">{item.title}</p>
+
+                    <span className="text-xs text-accent">
+                      {item.type}
+                    </span>
+                  </div>
+
+                  <p className="mt-2 text-sm text-foreground/70">
+                    {item.detail}
+                  </p>
+
+                  <p className="mt-3 text-xs text-foreground/50">
+                    {item.date.toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* =======================================================
