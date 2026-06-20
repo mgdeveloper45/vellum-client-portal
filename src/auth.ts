@@ -17,8 +17,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   callbacks: {
-    authorized({ auth }) {
-      return !!auth;
+  authorized({ auth }) {
+    return !!auth;
+  },
+
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+
+      return token;
+    },
+
+    session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as "ADMIN" | "CLIENT";
+      }
+
+      return session;
     },
   },
 
@@ -56,6 +74,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: user.id,
           name: `${user.firstName} ${user.lastName}`,
           email: user.email,
+          role: user.role,
         };
       },
     }),
