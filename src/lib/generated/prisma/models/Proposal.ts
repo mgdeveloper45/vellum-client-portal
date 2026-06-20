@@ -337,10 +337,6 @@ export type ProposalUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.ProposalScalarWhereInput | Prisma.ProposalScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type ProposalCreateWithoutProjectInput = {
   id?: string
   approved?: boolean

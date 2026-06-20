@@ -57,6 +57,8 @@ async function main() {
       lastName: "Stone",
       password: hashedPassword,
       role: "CLIENT",
+      notes: "Prefers email communication. Reviews designs every Friday.",
+      isBlacklisted: false,
     },
   });
 
@@ -70,6 +72,8 @@ async function main() {
       lastName: "Johnson",
       password: hashedPassword,
       role: "CLIENT",
+      notes: "VIP client. Fast approval turnaround.",
+      isBlacklisted: false,
     },
   });
 

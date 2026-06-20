@@ -17,7 +17,13 @@ export default async function ClientDetailPage({
       id: clientId,
     },
     include: {
-      clientProjects: true,
+      clientProjects: {
+        include: {
+          messages: true,
+          invoices: true,
+          proposals: true,
+        },
+      },
     },
   });
 
@@ -31,13 +37,92 @@ export default async function ClientDetailPage({
 
   return (
     <DashboardShell>
-      <div>
-        <h1 className="text-3xl font-light">
-          {client.firstName} {client.lastName}
-        </h1>
+      <div className="flex items-start justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-light">
+            {client.firstName} {client.lastName}
+          </h1>
 
-        <p className="mt-2 text-foreground/70">
-          {client.email}
+          <p className="mt-2 text-foreground/70">
+            {client.email}
+          </p>
+
+        </div>
+
+        <div
+          className={`rounded-full px-4 py-2 text-sm ${
+            client.isBlacklisted
+              ? "bg-red-500/20 text-red-400"
+              : "bg-green-500/20 text-green-400"
+          }`}
+        >
+          {client.isBlacklisted
+            ? "Blacklisted"
+            : "Active Client"}
+        </div>
+      </div>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-4">
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <p className="text-sm text-foreground/60">
+            Projects
+          </p>
+
+          <p className="mt-2 text-3xl font-light">
+            {client.clientProjects.length}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <p className="text-sm text-foreground/60">
+            Messages
+          </p>
+
+          <p className="mt-2 text-3xl font-light">
+            {client.clientProjects.reduce(
+              (total, project) =>
+                total + project.messages.length,
+              0
+            )}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <p className="text-sm text-foreground/60">
+            Invoices
+          </p>
+
+          <p className="mt-2 text-3xl font-light">
+            {client.clientProjects.reduce(
+              (total, project) =>
+                total + project.invoices.length,
+              0
+            )}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <p className="text-sm text-foreground/60">
+            Proposals
+          </p>
+
+          <p className="mt-2 text-3xl font-light">
+            {client.clientProjects.reduce(
+              (total, project) =>
+                total + project.proposals.length,
+              0
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-8 rounded-2xl border border-border bg-card p-6">
+        <h2 className="text-xl font-medium">
+          Client Notes
+        </h2>
+
+        <p className="mt-4 text-foreground/80">
+          {client.notes || "No notes available."}
         </p>
       </div>
 

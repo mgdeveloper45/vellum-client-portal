@@ -38,6 +38,9 @@ model User {
   password   String
   role       UserRole
 
+  notes      String?
+  isBlacklisted Boolean @default(false)
+
   ownedProjects  Project[] @relation("OwnedProjects")
   clientProjects Project[] @relation("ClientProjects")
 
