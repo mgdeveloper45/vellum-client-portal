@@ -15,9 +15,15 @@ export default async function ClientsPage() {
   }
 
   const clients = await prisma.user.findMany({
-    where: {
-      role: "CLIENT",
-    },
+    where:
+        session.user.role === "ADMIN"
+            ? {
+                role: "CLIENT",
+            }
+            : {
+                id: session.user.id,
+                role: "CLIENT",
+            },
     include: {
       clientProjects: true,
     },
