@@ -56,3 +56,19 @@ export async function updateClientAction(formData: FormData) {
 
   redirect(`/clients/${clientId}`);
 }
+
+/**
+ * Deletes a client account.
+ * This is admin-only behavior for now.
+ */
+export async function deleteClientAction(formData: FormData) {
+  const clientId = String(formData.get("clientId"));
+
+  await prisma.user.delete({
+    where: {
+      id: clientId,
+    },
+  });
+
+  redirect("/clients");
+}

@@ -1,4 +1,7 @@
-import { updateClientAction } from "@/actions/client-actions";
+import {
+  updateClientAction,
+  deleteClientAction,
+} from "@/actions/client-actions";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
 
@@ -75,6 +78,26 @@ export default async function EditClientPage({
           Save Changes
         </button>
       </form>
+
+      <form
+        action={deleteClientAction}
+        className="mt-6 max-w-xl rounded-2xl border border-red-500/30 bg-card p-6"
+      >
+        <input type="hidden" name="clientId" value={client.id} />
+
+        <h2 className="text-xl font-medium text-red-400">
+          Danger Zone
+        </h2>
+
+        <p className="mt-2 text-sm text-foreground/70">
+          Deleting this client permanently removes their account. Only do this for test clients right now.
+        </p>
+
+        <button className="mt-4 rounded-full bg-red-500 px-6 py-3 font-medium text-white">
+          Delete Client
+        </button>
+      </form>
+
     </DashboardShell>
   );
 }
