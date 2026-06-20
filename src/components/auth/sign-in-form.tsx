@@ -21,7 +21,6 @@ export function SignInForm() {
                 name="email"
                 type="email"
                 placeholder="Email"
-                defaultValue="admin@vellum.app"
                 className="w-full rounded-lg border border-border bg-background px-4 py-3"
             />
 
@@ -29,7 +28,6 @@ export function SignInForm() {
                 name="password"
                 type="password"
                 placeholder="Password"
-                defaultValue="password123"
                 className="w-full rounded-lg border border-border bg-background px-4 py-3"
             />
 

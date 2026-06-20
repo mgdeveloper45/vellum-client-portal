@@ -11,15 +11,22 @@ const adapter = new PrismaPg({
 });
 
 /**
- * Prisma client used for seeding.
+ * Prisma client used for seeding local development data.
  */
 const prisma = new PrismaClient({
   adapter,
 });
 
 async function main() {
-  // Clear old development data so every seed starts clean.
+  /**
+   * Shared demo password for local development accounts only.
+   * Never hardcode production passwords.
+   */
   const hashedPassword = await bcrypt.hash("password123", 10);
+
+  /**
+   * Clear old development data so every seed starts clean.
+   */
   await prisma.invoice.deleteMany();
   await prisma.proposal.deleteMany();
   await prisma.message.deleteMany();
@@ -27,7 +34,9 @@ async function main() {
   await prisma.project.deleteMany();
   await prisma.user.deleteMany();
 
-  // Create a sample client user.
+  /**
+   * Admin/business owner account.
+   */
   const admin = await prisma.user.create({
     data: {
       email: "admin@vellum.app",
@@ -38,17 +47,35 @@ async function main() {
     },
   });
 
-  const client = await prisma.user.create({
-  data: {
-    email: "client@oakembercoffee.com",
-    firstName: "Avery",
-    lastName: "Stone",
-    password: hashedPassword,
-    role: "CLIENT",
-  },
-});
+  /**
+   * Client account #1.
+   */
+  const clientOne = await prisma.user.create({
+    data: {
+      email: "client@oakembercoffee.com",
+      firstName: "Avery",
+      lastName: "Stone",
+      password: hashedPassword,
+      role: "CLIENT",
+    },
+  });
 
-  // Create one project connected to that client.
+  /**
+   * Client account #2.
+   */
+  const clientTwo = await prisma.user.create({
+    data: {
+      email: "client2@vellum.app",
+      firstName: "Sarah",
+      lastName: "Johnson",
+      password: hashedPassword,
+      role: "CLIENT",
+    },
+  });
+
+  /**
+   * Project #1 connected to client #1.
+   */
   await prisma.project.create({
     data: {
       name: "Coffee Shop Brand Launch",
@@ -56,9 +83,8 @@ async function main() {
         "Brand identity, landing page, menu assets, launch planning, and approval workflow.",
       status: "ACTIVE",
       ownerId: admin.id,
-      clientId: client.id,
+      clientId: clientOne.id,
 
-      // These nested creates attach related records to the project.
       milestones: {
         create: [
           {
@@ -77,7 +103,7 @@ async function main() {
       messages: {
         create: [
           {
-            senderId: client.id,
+            senderId: clientOne.id,
             content: "Excited to review the first design direction.",
           },
         ],
@@ -101,9 +127,65 @@ async function main() {
       },
     },
   });
+
+  /**
+   * Project #2 connected to client #2.
+   */
+  await prisma.project.create({
+    data: {
+      name: "Luxury Salon Website",
+      description:
+        "Website redesign, booking flow, SEO optimization, and launch support.",
+      status: "ACTIVE",
+      ownerId: admin.id,
+      clientId: clientTwo.id,
+
+      milestones: {
+        create: [
+          {
+            title: "Content Planning",
+            status: "COMPLETE",
+            dueDate: new Date("2026-07-05"),
+          },
+          {
+            title: "Booking Flow Design",
+            status: "IN_PROGRESS",
+            dueDate: new Date("2026-07-18"),
+          },
+        ],
+      },
+
+      messages: {
+        create: [
+          {
+            senderId: clientTwo.id,
+            content: "The booking page direction looks great so far.",
+          },
+        ],
+      },
+
+      invoices: {
+        create: [
+          {
+            amount: 4200,
+            paid: true,
+          },
+        ],
+      },
+
+      proposals: {
+        create: [
+          {
+            approved: true,
+          },
+        ],
+      },
+    },
+  });
+
+  console.log("Seed completed successfully.");
 }
 
-// Run the seed script.
 main()
   .then(async () => {
     await prisma.$disconnect();
