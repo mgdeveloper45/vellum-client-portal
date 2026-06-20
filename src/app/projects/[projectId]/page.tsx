@@ -2,6 +2,11 @@ import Link from "next/link";
 import { formatStatus } from "@/lib/utils";
 import { createMessageAction } from "@/actions/message-actions";
 import {
+  createProposalAction,
+  toggleProposalApprovalAction,
+  deleteProposalAction,
+} from "@/actions/proposal-actions";
+import {
   createInvoiceAction,
   toggleInvoicePaidAction,
   deleteInvoiceAction,
@@ -349,6 +354,24 @@ export default async function ProjectDetailPage({
     PROJECT PROPOSALS
     Displays project proposals from PostgreSQL.
 ======================================================= */}
+
+          <div className="mt-4 rounded-2xl border border-border bg-card p-6">
+            <form
+              action={createProposalAction}
+              className="space-y-3"
+            >
+              <input
+                type="hidden"
+                name="projectId"
+                value={project.id}
+              />
+
+              <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+                Create Proposal
+              </button>
+            </form>
+          </div>
+
           <div className="mt-10">
             <h2 className="text-xl font-medium">Proposals</h2>
 
@@ -362,13 +385,53 @@ export default async function ProjectDetailPage({
                     Project Proposal
                   </h3>
 
-                  <span className="text-sm text-foreground/70">
-                    {proposal.approved ? "Approved" : "Pending"}
-                  </span>
+                  <form action={toggleProposalApprovalAction}>
+                    <input
+                      type="hidden"
+                      name="proposalId"
+                      value={proposal.id}
+                    />
+
+                    <input
+                      type="hidden"
+                      name="projectId"
+                      value={project.id}
+                    />
+
+                    <button className="text-sm text-accent">
+                      {proposal.approved
+                        ? "Approved"
+                        : "Approve Proposal"}
+                    </button>
+                  </form>
 
                   <p className="mt-2 text-xs text-foreground/50">
                     Created {proposal.createdAt.toLocaleDateString()}
                   </p>
+
+                  <form
+                    action={deleteProposalAction}
+                    className="mt-3"
+                  >
+                    <input
+                      type="hidden"
+                      name="proposalId"
+                      value={proposal.id}
+                    />
+
+                    <input
+                      type="hidden"
+                      name="projectId"
+                      value={project.id}
+                    />
+
+                    <button
+                      className="text-xs text-red-400"
+                    >
+                      Delete Proposal
+                    </button>
+                  </form>
+
                 </div>
               ))}
             </div>
