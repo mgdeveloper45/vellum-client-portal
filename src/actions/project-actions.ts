@@ -28,3 +28,40 @@ export async function createProjectAction(
 
   redirect("/projects");
 }
+
+export async function updateProjectAction(
+  formData: FormData
+) {
+  const projectId = String(
+    formData.get("projectId")
+  );
+
+  const name = String(
+    formData.get("name")
+  );
+
+  const description = String(
+    formData.get("description")
+  );
+
+  const status = String(
+    formData.get("status")
+  ) as
+    | "PLANNING"
+    | "ACTIVE"
+    | "REVIEW"
+    | "COMPLETED";
+
+  await prisma.project.update({
+    where: {
+      id: projectId,
+    },
+    data: {
+      name,
+      description,
+      status,
+    },
+  });
+
+  redirect("/projects");
+}
