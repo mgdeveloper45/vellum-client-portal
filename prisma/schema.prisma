@@ -46,6 +46,8 @@ model User {
 
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
+
+  messages Message[]
 }
 
 model Project {
@@ -91,6 +93,7 @@ model Message {
   content    String
 
   senderId   String
+  sender    User     @relation(fields: [senderId], references: [id])
 
   projectId  String
   project    Project           @relation(fields: [projectId], references: [id])

@@ -28,7 +28,11 @@ export default async function ProjectDetailPage({
       milestones: true,
       invoices: true,
       proposals: true,
-      messages: true,
+      messages: {
+        include: {
+          sender: true,
+        },
+      },
     },
   });
 
@@ -154,6 +158,15 @@ export default async function ProjectDetailPage({
                   key={message.id}
                   className="rounded-xl border border-border p-4"
                 >
+
+                  <p className="text-sm font-medium">
+                    {message.sender.firstName} {message.sender.lastName}
+                  </p>
+
+                  <p className="text-xs text-foreground/50">
+                    {message.sender.role}
+                  </p>
+
                   <p className="text-sm leading-6 text-foreground/70">
                     {message.content}
                   </p>
