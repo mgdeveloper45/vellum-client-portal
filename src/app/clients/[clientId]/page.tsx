@@ -1,5 +1,6 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 interface Props {
   params: Promise<{
@@ -49,17 +50,24 @@ export default async function ClientDetailPage({
 
         </div>
 
-        <div
-          className={`rounded-full px-4 py-2 text-sm ${
-            client.isBlacklisted
-              ? "bg-red-500/20 text-red-400"
-              : "bg-green-500/20 text-green-400"
-          }`}
-        >
-          {client.isBlacklisted
-            ? "Blacklisted"
-            : "Active Client"}
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/clients/${client.id}/edit`}
+            className="rounded-full border border-border px-4 py-2 text-sm"
+          >
+            Edit Client
+          </Link>
+
+          <div
+            className={`rounded-full px-4 py-2 text-sm ${client.isBlacklisted
+                ? "bg-red-500/20 text-red-400"
+                : "bg-green-500/20 text-green-400"
+              }`}
+          >
+            {client.isBlacklisted ? "Blacklisted" : "Active Client"}
+          </div>
         </div>
+
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-4">

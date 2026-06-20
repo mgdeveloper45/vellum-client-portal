@@ -29,3 +29,30 @@ export async function createClientAction(formData: FormData) {
 
   redirect("/clients");
 }
+
+/**
+ * Updates an existing client profile.
+ */
+export async function updateClientAction(formData: FormData) {
+  const clientId = String(formData.get("clientId"));
+  const firstName = String(formData.get("firstName"));
+  const lastName = String(formData.get("lastName"));
+  const email = String(formData.get("email"));
+  const notes = String(formData.get("notes") || "");
+  const isBlacklisted = formData.get("isBlacklisted") === "on";
+
+  await prisma.user.update({
+    where: {
+      id: clientId,
+    },
+    data: {
+      firstName,
+      lastName,
+      email,
+      notes,
+      isBlacklisted,
+    },
+  });
+
+  redirect(`/clients/${clientId}`);
+}
