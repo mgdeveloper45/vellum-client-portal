@@ -3,11 +3,21 @@ import Credentials from "next-auth/providers/credentials";
 
 /**
  * Auth.js configuration.
- * For now, this uses a simple credentials login so we can protect routes.
- * Later, we can connect this to real users in PostgreSQL.
+ * Uses a temporary credentials login while we build the app.
+ * Later, this will connect to users stored in PostgreSQL.
  */
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
+
+  pages: {
+    signIn: "/sign-in",
+  },
+
+  callbacks: {
+    authorized({ auth }) {
+      return !!auth;
+    },
+  },
 
   providers: [
     Credentials({
