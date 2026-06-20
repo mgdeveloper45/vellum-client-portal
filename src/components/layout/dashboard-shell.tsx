@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -54,7 +55,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                             <h2 className="text-xl font-medium">Client Operations</h2>
                         </div>
 
-                        <ThemeToggle />
+                        <div className="flex items-center gap-3">
+                            <ThemeToggle />
+                            <SignOutButton />
+                        </div>
+
                     </header>
 
                     <div className="flex-1 p-8">{children}</div>
