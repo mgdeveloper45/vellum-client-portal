@@ -3,6 +3,9 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
+/**
+ * Creates a project and redirects back to the projects list.
+ */
 export async function createProjectAction(
   formData: FormData
 ) {
@@ -29,6 +32,9 @@ export async function createProjectAction(
   redirect("/projects");
 }
 
+/**
+ * Updates a project and redirects back to the projects list.
+ */
 export async function updateProjectAction(
   formData: FormData
 ) {
@@ -60,6 +66,21 @@ export async function updateProjectAction(
       name,
       description,
       status,
+    },
+  });
+
+  redirect("/projects");
+}
+
+/**
+ * Deletes a project and redirects back to the projects list.
+ */
+export async function deleteProjectAction(formData: FormData) {
+  const projectId = String(formData.get("projectId"));
+
+  await prisma.project.delete({
+    where: {
+      id: projectId,
     },
   });
 

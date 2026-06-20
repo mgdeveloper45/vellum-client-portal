@@ -1,6 +1,9 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
-import { updateProjectAction } from "@/actions/project-actions";
+import {
+  updateProjectAction,
+  deleteProjectAction,
+} from "@/actions/project-actions";
 
 interface Props {
   params: Promise<{
@@ -81,6 +84,26 @@ export default async function EditProjectPage({
           Save Changes
         </button>
       </form>
+
+      <form
+        action={deleteProjectAction}
+        className="mt-6 max-w-2xl rounded-2xl border border-red-500/30 bg-card p-6"
+      >
+        <input type="hidden" name="projectId" value={project.id} />
+
+        <h2 className="text-xl font-medium text-red-400">
+          Danger Zone
+        </h2>
+
+        <p className="mt-2 text-sm text-foreground/70">
+          Deleting this project permanently removes it from the workspace.
+        </p>
+
+        <button className="mt-4 rounded-full bg-red-500 px-6 py-3 font-medium text-white">
+          Delete Project
+        </button>
+      </form>
+
     </DashboardShell>
   );
 }
