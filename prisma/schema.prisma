@@ -38,7 +38,8 @@ model User {
   password   String
   role       UserRole
 
-  projects   Project[]
+  ownedProjects  Project[] @relation("OwnedProjects")
+  clientProjects Project[] @relation("ClientProjects")
 
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -50,6 +51,9 @@ model Project {
   description  String
 
   status       ProjectStatus
+
+  ownerId     String
+  owner       User     @relation("OwnedProjects", fields: [ownerId], references: [id])
 
   clientId     String
   client       User            @relation(fields: [clientId], references: [id])
