@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { formatStatus } from "@/lib/utils";
 import { createMessageAction } from "@/actions/message-actions";
-import { createInvoiceAction } from "@/actions/invoice-actions";
+import {
+  createInvoiceAction,
+  toggleInvoicePaidAction,
+} from "@/actions/invoice-actions";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
 
@@ -288,9 +291,25 @@ export default async function ProjectDetailPage({
                       ${invoice.amount.toLocaleString()}
                     </p>
 
-                    <span className="text-sm text-foreground/70">
-                      {invoice.paid ? "Paid" : "Unpaid"}
-                    </span>
+                    <form action={toggleInvoicePaidAction}>
+                      <input
+                        type="hidden"
+                        name="invoiceId"
+                        value={invoice.id}
+                      />
+
+                      <input
+                        type="hidden"
+                        name="projectId"
+                        value={project.id}
+                      />
+
+                      <button
+                        className="text-sm text-accent"
+                      >
+                        {invoice.paid ? "Paid" : "Mark Paid"}
+                      </button>
+                    </form>
                   </div>
 
                   <p className="mt-2 text-xs text-foreground/50">

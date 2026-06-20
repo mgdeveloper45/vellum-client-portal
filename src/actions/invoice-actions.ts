@@ -20,3 +20,36 @@ export async function createInvoiceAction(formData: FormData) {
 
   redirect(`/projects/${projectId}`);
 }
+
+export async function toggleInvoicePaidAction(
+  formData: FormData
+) {
+  const invoiceId = String(
+    formData.get("invoiceId")
+  );
+
+  const projectId = String(
+    formData.get("projectId")
+  );
+
+  const invoice = await prisma.invoice.findUnique({
+    where: {
+      id: invoiceId,
+    },
+  });
+
+  if (!invoice) {
+    return;
+  }
+
+  await prisma.invoice.update({
+    where: {
+      id: invoiceId,
+    },
+    data: {
+      paid: !invoice.paid,
+    },
+  });
+
+  redirect(`/projects/${projectId}`);
+}
