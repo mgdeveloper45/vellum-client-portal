@@ -1,5 +1,5 @@
 import "dotenv/config";
-
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "../src/lib/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -19,6 +19,7 @@ const prisma = new PrismaClient({
 
 async function main() {
   // Clear old development data so every seed starts clean.
+  const hashedPassword = await bcrypt.hash("password123", 10);
   await prisma.invoice.deleteMany();
   await prisma.proposal.deleteMany();
   await prisma.message.deleteMany();
@@ -27,12 +28,13 @@ async function main() {
   await prisma.user.deleteMany();
 
   // Create a sample client user.
-  const client = await prisma.user.create({
+  const admin = await prisma.user.create({
     data: {
-      email: "client@oakembercoffee.com",
-      firstName: "Avery",
-      lastName: "Stone",
-      role: "CLIENT",
+      email: "admin@vellum.app",
+      firstName: "Vellum",
+      lastName: "Admin",
+      password: hashedPassword,
+      role: "ADMIN",
     },
   });
 
@@ -43,7 +45,7 @@ async function main() {
       description:
         "Brand identity, landing page, menu assets, launch planning, and approval workflow.",
       status: "ACTIVE",
-      clientId: client.id,
+      clientId: admin.id,
 
       // These nested creates attach related records to the project.
       milestones: {
@@ -64,7 +66,7 @@ async function main() {
       messages: {
         create: [
           {
-            senderId: client.id,
+            senderId: admin.id,
             content: "Excited to review the first design direction.",
           },
         ],

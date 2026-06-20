@@ -1,3 +1,6 @@
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
@@ -30,15 +33,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const email = credentials?.email as string;
         const password = credentials?.password as string;
 
-        if (email === "admin@vellum.app" && password === "password123") {
-          return {
-            id: "1",
-            name: "Vellum Admin",
-            email: "admin@vellum.app",
-          };
+        const user = await prisma.user.findUnique({
+          where: {
+            email,
+          },
+        });
+
+        if (!user) {
+          return null;
         }
 
-        return null;
+        const passwordMatches = await bcrypt.compare(
+          password,
+          user.password
+        );
+
+        if (!passwordMatches) {
+          return null;
+        }
+
+        return {
+          id: user.id,
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+        };
       },
     }),
   ],
