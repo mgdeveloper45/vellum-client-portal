@@ -13,6 +13,7 @@ const navItems = [
     { label: "Proposals", href: "/proposals" },
     { label: "Invoices", href: "/invoices" },
     { label: "Settings", href: "/settings" },
+    { label: "Clients", href: "/clients" },
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
