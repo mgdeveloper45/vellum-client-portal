@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { changePasswordAction } from "@/actions/security-actions";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 
 export default async function SettingsPage() {
@@ -73,9 +74,38 @@ export default async function SettingsPage() {
             Security
           </h2>
 
-          <p className="mt-2 text-sm text-foreground/70">
-            Password management and 2FA will be added in a future update.
-          </p>
+          <form
+            action={changePasswordAction}
+            className="mt-4 space-y-3"
+          >
+            <input
+              type="password"
+              name="currentPassword"
+              required
+              placeholder="Current password"
+              className="w-full rounded-lg border border-border bg-background px-4 py-3"
+            />
+
+            <input
+              type="password"
+              name="newPassword"
+              required
+              placeholder="New password"
+              className="w-full rounded-lg border border-border bg-background px-4 py-3"
+            />
+
+            <input
+              type="password"
+              name="confirmPassword"
+              required
+              placeholder="Confirm new password"
+              className="w-full rounded-lg border border-border bg-background px-4 py-3"
+            />
+
+            <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+              Change Password
+            </button>
+          </form>
         </div>
       </div>
     </DashboardShell>
