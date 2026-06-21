@@ -17,16 +17,16 @@ export default async function DashboardPage() {
     session.user.role === "ADMIN"
       ? {}
       : {
-          clientId: session.user.id,
-        };
+        clientId: session.user.id,
+      };
 
   const totalClients =
     session.user.role === "ADMIN"
       ? await prisma.user.count({
-          where: {
-            role: "CLIENT",
-          },
-        })
+        where: {
+          role: "CLIENT",
+        },
+      })
       : 1;
 
   const activeProjects = await prisma.project.count({
@@ -56,6 +56,20 @@ export default async function DashboardPage() {
     where: {
       approved: true,
       project: projectFilter,
+    },
+  });
+
+  const recentMessages = await prisma.message.findMany({
+    take: 5,
+    where: {
+      project: projectFilter,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      sender: true,
+      project: true,
     },
   });
 
@@ -117,6 +131,38 @@ export default async function DashboardPage() {
           </div>
         ))}
       </div>
+
+      <div className="mt-10">
+        <h2 className="text-2xl font-light">
+          Recent Activity
+        </h2>
+
+        <div className="mt-4 grid gap-3">
+          {recentMessages.map((message) => (
+            <div
+              key={message.id}
+              className="rounded-2xl border border-border bg-card p-4"
+            >
+              <p className="font-medium">
+                {message.sender.firstName} {message.sender.lastName}
+              </p>
+
+              <p className="text-sm text-foreground/60">
+                {message.project.name}
+              </p>
+
+              <p className="mt-2 text-sm">
+                {message.content}
+              </p>
+
+              <p className="mt-2 text-xs text-foreground/50">
+                {message.createdAt.toLocaleDateString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </DashboardShell>
   );
 }
