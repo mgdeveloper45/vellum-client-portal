@@ -13,8 +13,8 @@ export default async function ProposalsPage() {
     session.user.role === "ADMIN"
       ? {}
       : {
-          clientId: session.user.id,
-        };
+        clientId: session.user.id,
+      };
 
   const proposals = await prisma.proposal.findMany({
     where: {
