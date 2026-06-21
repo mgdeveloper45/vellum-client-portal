@@ -14,6 +14,7 @@ const navItems = [
     { label: "Invoices", href: "/invoices" },
     { label: "Settings", href: "/settings" },
     { label: "Clients", href: "/clients" },
+    { label: "Search", href: "/search" },
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
