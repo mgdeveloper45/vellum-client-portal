@@ -212,6 +212,7 @@ export type ProjectWhereInput = {
   messages?: Prisma.MessageListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
   proposals?: Prisma.ProposalListRelationFilter
+  files?: Prisma.ProjectFileListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -229,6 +230,7 @@ export type ProjectOrderByWithRelationInput = {
   messages?: Prisma.MessageOrderByRelationAggregateInput
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
   proposals?: Prisma.ProposalOrderByRelationAggregateInput
+  files?: Prisma.ProjectFileOrderByRelationAggregateInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -249,6 +251,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   messages?: Prisma.MessageListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
   proposals?: Prisma.ProposalListRelationFilter
+  files?: Prisma.ProjectFileListRelationFilter
 }, "id">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -292,6 +295,7 @@ export type ProjectCreateInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -307,6 +311,7 @@ export type ProjectUncheckedCreateInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -322,6 +327,7 @@ export type ProjectUpdateInput = {
   messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -337,6 +343,7 @@ export type ProjectUncheckedUpdateInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -506,6 +513,20 @@ export type EnumProjectStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProjectStatus
 }
 
+export type ProjectCreateNestedOneWithoutFilesInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutFilesInput, Prisma.ProjectUncheckedCreateWithoutFilesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutFilesInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutFilesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutFilesInput, Prisma.ProjectUncheckedCreateWithoutFilesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutFilesInput
+  upsert?: Prisma.ProjectUpsertWithoutFilesInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutFilesInput, Prisma.ProjectUpdateWithoutFilesInput>, Prisma.ProjectUncheckedUpdateWithoutFilesInput>
+}
+
 export type ProjectCreateNestedOneWithoutMilestonesInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutMilestonesInput, Prisma.ProjectUncheckedCreateWithoutMilestonesInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutMilestonesInput
@@ -574,6 +595,7 @@ export type ProjectCreateWithoutOwnerInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutOwnerInput = {
@@ -588,6 +610,7 @@ export type ProjectUncheckedCreateWithoutOwnerInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutOwnerInput = {
@@ -612,6 +635,7 @@ export type ProjectCreateWithoutClientInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutClientInput = {
@@ -626,6 +650,7 @@ export type ProjectUncheckedCreateWithoutClientInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutClientInput = {
@@ -684,6 +709,82 @@ export type ProjectUpdateManyWithWhereWithoutClientInput = {
   data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutClientInput>
 }
 
+export type ProjectCreateWithoutFilesInput = {
+  id?: string
+  name: string
+  description: string
+  status: $Enums.ProjectStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutFilesInput = {
+  id?: string
+  name: string
+  description: string
+  status: $Enums.ProjectStatus
+  ownerId: string
+  clientId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutFilesInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutFilesInput, Prisma.ProjectUncheckedCreateWithoutFilesInput>
+}
+
+export type ProjectUpsertWithoutFilesInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutFilesInput, Prisma.ProjectUncheckedUpdateWithoutFilesInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutFilesInput, Prisma.ProjectUncheckedCreateWithoutFilesInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutFilesInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutFilesInput, Prisma.ProjectUncheckedUpdateWithoutFilesInput>
+}
+
+export type ProjectUpdateWithoutFilesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutFilesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+}
+
 export type ProjectCreateWithoutMilestonesInput = {
   id?: string
   name: string
@@ -696,6 +797,7 @@ export type ProjectCreateWithoutMilestonesInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutMilestonesInput = {
@@ -710,6 +812,7 @@ export type ProjectUncheckedCreateWithoutMilestonesInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutMilestonesInput = {
@@ -740,6 +843,7 @@ export type ProjectUpdateWithoutMilestonesInput = {
   messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutMilestonesInput = {
@@ -754,6 +858,7 @@ export type ProjectUncheckedUpdateWithoutMilestonesInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutMessagesInput = {
@@ -768,6 +873,7 @@ export type ProjectCreateWithoutMessagesInput = {
   milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutMessagesInput = {
@@ -782,6 +888,7 @@ export type ProjectUncheckedCreateWithoutMessagesInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutMessagesInput = {
@@ -812,6 +919,7 @@ export type ProjectUpdateWithoutMessagesInput = {
   milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutMessagesInput = {
@@ -826,6 +934,7 @@ export type ProjectUncheckedUpdateWithoutMessagesInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutProposalsInput = {
@@ -840,6 +949,7 @@ export type ProjectCreateWithoutProposalsInput = {
   milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
   messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutProposalsInput = {
@@ -854,6 +964,7 @@ export type ProjectUncheckedCreateWithoutProposalsInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutProposalsInput = {
@@ -884,6 +995,7 @@ export type ProjectUpdateWithoutProposalsInput = {
   milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
   messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutProposalsInput = {
@@ -898,6 +1010,7 @@ export type ProjectUncheckedUpdateWithoutProposalsInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutInvoicesInput = {
@@ -912,6 +1025,7 @@ export type ProjectCreateWithoutInvoicesInput = {
   milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
   messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutInvoicesInput = {
@@ -926,6 +1040,7 @@ export type ProjectUncheckedCreateWithoutInvoicesInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutInvoicesInput = {
@@ -956,6 +1071,7 @@ export type ProjectUpdateWithoutInvoicesInput = {
   milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
   messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutInvoicesInput = {
@@ -970,6 +1086,7 @@ export type ProjectUncheckedUpdateWithoutInvoicesInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyOwnerInput = {
@@ -1004,6 +1121,7 @@ export type ProjectUpdateWithoutOwnerInput = {
   messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutOwnerInput = {
@@ -1018,6 +1136,7 @@ export type ProjectUncheckedUpdateWithoutOwnerInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutOwnerInput = {
@@ -1042,6 +1161,7 @@ export type ProjectUpdateWithoutClientInput = {
   messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutClientInput = {
@@ -1056,6 +1176,7 @@ export type ProjectUncheckedUpdateWithoutClientInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutClientInput = {
@@ -1078,6 +1199,7 @@ export type ProjectCountOutputType = {
   messages: number
   invoices: number
   proposals: number
+  files: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1085,6 +1207,7 @@ export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   messages?: boolean | ProjectCountOutputTypeCountMessagesArgs
   invoices?: boolean | ProjectCountOutputTypeCountInvoicesArgs
   proposals?: boolean | ProjectCountOutputTypeCountProposalsArgs
+  files?: boolean | ProjectCountOutputTypeCountFilesArgs
 }
 
 /**
@@ -1125,6 +1248,13 @@ export type ProjectCountOutputTypeCountProposalsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.ProposalWhereInput
 }
 
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountFilesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectFileWhereInput
+}
+
 
 export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1141,6 +1271,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   messages?: boolean | Prisma.Project$messagesArgs<ExtArgs>
   invoices?: boolean | Prisma.Project$invoicesArgs<ExtArgs>
   proposals?: boolean | Prisma.Project$proposalsArgs<ExtArgs>
+  files?: boolean | Prisma.Project$filesArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1189,6 +1320,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   messages?: boolean | Prisma.Project$messagesArgs<ExtArgs>
   invoices?: boolean | Prisma.Project$invoicesArgs<ExtArgs>
   proposals?: boolean | Prisma.Project$proposalsArgs<ExtArgs>
+  files?: boolean | Prisma.Project$filesArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1209,6 +1341,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     messages: Prisma.$MessagePayload<ExtArgs>[]
     invoices: Prisma.$InvoicePayload<ExtArgs>[]
     proposals: Prisma.$ProposalPayload<ExtArgs>[]
+    files: Prisma.$ProjectFilePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1619,6 +1752,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   messages<T extends Prisma.Project$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoices<T extends Prisma.Project$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   proposals<T extends Prisma.Project$proposalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$proposalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  files<T extends Prisma.Project$filesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$filesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2150,6 +2284,30 @@ export type Project$proposalsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.ProposalScalarFieldEnum | Prisma.ProposalScalarFieldEnum[]
+}
+
+/**
+ * Project.files
+ */
+export type Project$filesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectFile
+   */
+  select?: Prisma.ProjectFileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectFile
+   */
+  omit?: Prisma.ProjectFileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectFileInclude<ExtArgs> | null
+  where?: Prisma.ProjectFileWhereInput
+  orderBy?: Prisma.ProjectFileOrderByWithRelationInput | Prisma.ProjectFileOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectFileWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectFileScalarFieldEnum | Prisma.ProjectFileScalarFieldEnum[]
 }
 
 /**

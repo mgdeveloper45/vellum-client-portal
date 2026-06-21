@@ -2,6 +2,10 @@ import Link from "next/link";
 import { formatStatus } from "@/lib/utils";
 import { createMessageAction } from "@/actions/message-actions";
 import {
+  createProjectFileAction,
+  deleteProjectFileAction,
+} from "@/actions/file-actions";
+import {
   createMilestoneAction,
   cycleMilestoneStatusAction,
   deleteMilestoneAction,
@@ -43,6 +47,7 @@ export default async function ProjectDetailPage({
       milestones: true,
       invoices: true,
       proposals: true,
+      files: true,
       messages: {
         include: {
           sender: true,
@@ -149,6 +154,82 @@ export default async function ProjectDetailPage({
                   {item.date.toLocaleDateString()}
                 </p>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* PROJECT FILES */}
+        <div className="mt-10">
+          <h2 className="text-xl font-medium">Files</h2>
+
+          <div className="mt-4 rounded-2xl border border-border bg-card p-6">
+            <form action={createProjectFileAction} className="space-y-3">
+              <input type="hidden" name="projectId" value={project.id} />
+
+              <input
+                name="name"
+                required
+                placeholder="File name"
+                className="w-full rounded-lg border border-border bg-background px-4 py-3"
+              />
+
+              <input
+                name="url"
+                type="url"
+                required
+                placeholder="File URL"
+                className="w-full rounded-lg border border-border bg-background px-4 py-3"
+              />
+
+              <input
+                name="fileType"
+                required
+                placeholder="File type, e.g. PDF, Contract, Design"
+                className="w-full rounded-lg border border-border bg-background px-4 py-3"
+              />
+
+              <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+                Add File
+              </button>
+            </form>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            {project.files.map((file) => (
+              <a
+                key={file.id}
+                href={file.url}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl border border-border p-4 transition hover:border-accent"
+              >
+                <p className="font-medium">{file.name}</p>
+                <p className="mt-1 text-sm text-foreground/60">{file.fileType}</p>
+                <p className="mt-2 text-xs text-accent">Open file</p>
+
+                <form
+                  action={deleteProjectFileAction}
+                  className="mt-3"
+                >
+                  <input
+                    type="hidden"
+                    name="fileId"
+                    value={file.id}
+                  />
+
+                  <input
+                    type="hidden"
+                    name="projectId"
+                    value={project.id}
+                  />
+
+                  <button
+                    className="text-xs text-red-400"
+                  >
+                    Delete File
+                  </button>
+                </form>
+              </a>
             ))}
           </div>
         </div>

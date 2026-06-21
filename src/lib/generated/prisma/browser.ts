@@ -28,6 +28,11 @@ export type User = Prisma.UserModel
  */
 export type Project = Prisma.ProjectModel
 /**
+ * Model ProjectFile
+ * 
+ */
+export type ProjectFile = Prisma.ProjectFileModel
+/**
  * Model Milestone
  * 
  */

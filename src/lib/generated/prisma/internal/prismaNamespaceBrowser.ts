@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Project: 'Project',
+  ProjectFile: 'ProjectFile',
   Milestone: 'Milestone',
   Message: 'Message',
   Proposal: 'Proposal',
@@ -103,6 +104,18 @@ export const ProjectScalarFieldEnum = {
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const ProjectFileScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  url: 'url',
+  fileType: 'fileType',
+  projectId: 'projectId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectFileScalarFieldEnum = (typeof ProjectFileScalarFieldEnum)[keyof typeof ProjectFileScalarFieldEnum]
 
 
 export const MilestoneScalarFieldEnum = {

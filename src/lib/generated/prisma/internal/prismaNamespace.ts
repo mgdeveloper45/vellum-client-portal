@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Project: 'Project',
+  ProjectFile: 'ProjectFile',
   Milestone: 'Milestone',
   Message: 'Message',
   Proposal: 'Proposal',
@@ -405,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "milestone" | "message" | "proposal" | "invoice"
+    modelProps: "user" | "project" | "projectFile" | "milestone" | "message" | "proposal" | "invoice"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -554,6 +555,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProjectCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProjectCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProjectFile: {
+      payload: Prisma.$ProjectFilePayload<ExtArgs>
+      fields: Prisma.ProjectFileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectFileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectFileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectFileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectFileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload>
+        }
+        findMany: {
+          args: Prisma.ProjectFileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload>[]
+        }
+        create: {
+          args: Prisma.ProjectFileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload>
+        }
+        createMany: {
+          args: Prisma.ProjectFileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectFileCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectFileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload>
+        }
+        update: {
+          args: Prisma.ProjectFileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectFileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectFileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectFileUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectFileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFilePayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectFileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectFile>
+        }
+        groupBy: {
+          args: Prisma.ProjectFileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectFileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectFileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectFileCountAggregateOutputType> | number
         }
       }
     }
@@ -922,6 +997,18 @@ export const ProjectScalarFieldEnum = {
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
+export const ProjectFileScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  url: 'url',
+  fileType: 'fileType',
+  projectId: 'projectId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectFileScalarFieldEnum = (typeof ProjectFileScalarFieldEnum)[keyof typeof ProjectFileScalarFieldEnum]
+
+
 export const MilestoneScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -1212,6 +1299,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   project?: Prisma.ProjectOmit
+  projectFile?: Prisma.ProjectFileOmit
   milestone?: Prisma.MilestoneOmit
   message?: Prisma.MessageOmit
   proposal?: Prisma.ProposalOmit
