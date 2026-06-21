@@ -33,6 +33,7 @@ export type UserMinAggregateOutputType = {
   role: $Enums.UserRole | null
   notes: string | null
   isBlacklisted: boolean | null
+  isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +47,7 @@ export type UserMaxAggregateOutputType = {
   role: $Enums.UserRole | null
   notes: string | null
   isBlacklisted: boolean | null
+  isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +61,7 @@ export type UserCountAggregateOutputType = {
   role: number
   notes: number
   isBlacklisted: number
+  isActive: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,6 +77,7 @@ export type UserMinAggregateInputType = {
   role?: true
   notes?: true
   isBlacklisted?: true
+  isActive?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,6 +91,7 @@ export type UserMaxAggregateInputType = {
   role?: true
   notes?: true
   isBlacklisted?: true
+  isActive?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +105,7 @@ export type UserCountAggregateInputType = {
   role?: true
   notes?: true
   isBlacklisted?: true
+  isActive?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -186,6 +192,7 @@ export type UserGroupByOutputType = {
   role: $Enums.UserRole
   notes: string | null
   isBlacklisted: boolean
+  isActive: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -220,6 +227,7 @@ export type UserWhereInput = {
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   notes?: Prisma.StringNullableFilter<"User"> | string | null
   isBlacklisted?: Prisma.BoolFilter<"User"> | boolean
+  isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   ownedProjects?: Prisma.ProjectListRelationFilter
@@ -237,6 +245,7 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   ownedProjects?: Prisma.ProjectOrderByRelationAggregateInput
@@ -257,6 +266,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   notes?: Prisma.StringNullableFilter<"User"> | string | null
   isBlacklisted?: Prisma.BoolFilter<"User"> | boolean
+  isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   ownedProjects?: Prisma.ProjectListRelationFilter
@@ -274,6 +284,7 @@ export type UserOrderByWithAggregationInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -293,6 +304,7 @@ export type UserScalarWhereWithAggregatesInput = {
   role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   notes?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isBlacklisted?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -306,6 +318,7 @@ export type UserCreateInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
@@ -323,6 +336,7 @@ export type UserUncheckedCreateInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
@@ -340,6 +354,7 @@ export type UserUpdateInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
@@ -357,6 +372,7 @@ export type UserUncheckedUpdateInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
@@ -374,6 +390,7 @@ export type UserCreateManyInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -387,6 +404,7 @@ export type UserUpdateManyMutationInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -400,6 +418,7 @@ export type UserUncheckedUpdateManyInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -413,6 +432,7 @@ export type UserCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -426,6 +446,7 @@ export type UserMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -439,6 +460,7 @@ export type UserMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -533,6 +555,7 @@ export type UserCreateWithoutOwnedProjectsInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   clientProjects?: Prisma.ProjectCreateNestedManyWithoutClientInput
@@ -549,6 +572,7 @@ export type UserUncheckedCreateWithoutOwnedProjectsInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   clientProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutClientInput
@@ -570,6 +594,7 @@ export type UserCreateWithoutClientProjectsInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
@@ -586,6 +611,7 @@ export type UserUncheckedCreateWithoutClientProjectsInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
@@ -618,6 +644,7 @@ export type UserUpdateWithoutOwnedProjectsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clientProjects?: Prisma.ProjectUpdateManyWithoutClientNestedInput
@@ -634,6 +661,7 @@ export type UserUncheckedUpdateWithoutOwnedProjectsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clientProjects?: Prisma.ProjectUncheckedUpdateManyWithoutClientNestedInput
@@ -661,6 +689,7 @@ export type UserUpdateWithoutClientProjectsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
@@ -677,6 +706,7 @@ export type UserUncheckedUpdateWithoutClientProjectsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
@@ -693,6 +723,7 @@ export type UserCreateWithoutNotificationsInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
@@ -709,6 +740,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
@@ -741,6 +773,7 @@ export type UserUpdateWithoutNotificationsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
@@ -757,6 +790,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
@@ -773,6 +807,7 @@ export type UserCreateWithoutMessagesInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
@@ -789,6 +824,7 @@ export type UserUncheckedCreateWithoutMessagesInput = {
   role: $Enums.UserRole
   notes?: string | null
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
@@ -821,6 +857,7 @@ export type UserUpdateWithoutMessagesInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
@@ -837,6 +874,7 @@ export type UserUncheckedUpdateWithoutMessagesInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
@@ -911,6 +949,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean
   notes?: boolean
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   ownedProjects?: boolean | Prisma.User$ownedProjectsArgs<ExtArgs>
@@ -929,6 +968,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   notes?: boolean
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -942,6 +982,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   notes?: boolean
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -955,11 +996,12 @@ export type UserSelectScalar = {
   role?: boolean
   notes?: boolean
   isBlacklisted?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "firstName" | "lastName" | "password" | "role" | "notes" | "isBlacklisted" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "firstName" | "lastName" | "password" | "role" | "notes" | "isBlacklisted" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ownedProjects?: boolean | Prisma.User$ownedProjectsArgs<ExtArgs>
   clientProjects?: boolean | Prisma.User$clientProjectsArgs<ExtArgs>
@@ -987,6 +1029,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: $Enums.UserRole
     notes: string | null
     isBlacklisted: boolean
+    isActive: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1424,6 +1467,7 @@ export interface UserFieldRefs {
   readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly notes: Prisma.FieldRef<"User", 'String'>
   readonly isBlacklisted: Prisma.FieldRef<"User", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
