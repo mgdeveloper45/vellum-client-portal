@@ -2,6 +2,11 @@ import Link from "next/link";
 import { formatStatus } from "@/lib/utils";
 import { createMessageAction } from "@/actions/message-actions";
 import {
+  createMilestoneAction,
+  cycleMilestoneStatusAction,
+  deleteMilestoneAction,
+} from "@/actions/milestone-actions";
+import {
   createProposalAction,
   toggleProposalApprovalAction,
   deleteProposalAction,
@@ -21,8 +26,8 @@ type ProjectDetailPageProps = {
 };
 
 /**
- * Individual project page.
- * Loads a project directly from PostgreSQL.
+ * Project detail page.
+ * Loads one project and all related workspace data from PostgreSQL.
  */
 export default async function ProjectDetailPage({
   params,
@@ -49,12 +54,15 @@ export default async function ProjectDetailPage({
   if (!project) {
     return (
       <DashboardShell>
-        <h1 className="text-2xl font-light">
-          Project not found
-        </h1>
+        <h1 className="text-2xl font-light">Project not found</h1>
       </DashboardShell>
     );
   }
+
+  /**
+   * Combined project activity feed.
+   * This builds a timeline from existing related records.
+   */
   const timelineItems = [
     ...project.messages.map((message) => ({
       id: message.id,
@@ -91,122 +99,151 @@ export default async function ProjectDetailPage({
 
   return (
     <DashboardShell>
-      <Link
-        href="/projects"
-        className="text-sm text-accent"
-      >
+      <Link href="/projects" className="text-sm text-accent">
         ← Back to Projects
       </Link>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-8">
-        <h1 className="text-4xl font-light">
-          {project.name}
-        </h1>
+        {/* PROJECT HEADER */}
+        <h1 className="text-4xl font-light">{project.name}</h1>
 
-        <p className="mt-4 text-foreground/70">
-          {project.description}
-        </p>
+        <p className="mt-4 text-foreground/70">{project.description}</p>
 
+        {/* PROJECT SUMMARY */}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <div>
-            <h2 className="font-medium">
-              Client
-            </h2>
-
+            <h2 className="font-medium">Client</h2>
             <p className="mt-2 text-foreground/70">
-              {project.client.firstName}{" "}
-              {project.client.lastName}
+              {project.client.firstName} {project.client.lastName}
             </p>
           </div>
 
           <div>
-            <h2 className="font-medium">
-              Status
-            </h2>
-
+            <h2 className="font-medium">Status</h2>
             <p className="mt-2 text-foreground/70">
               {formatStatus(project.status)}
             </p>
           </div>
+        </div>
 
-          <div className="mt-10">
-            <h2 className="text-xl font-medium">Activity Timeline</h2>
+        {/* ACTIVITY TIMELINE */}
+        <div className="mt-10">
+          <h2 className="text-xl font-medium">Activity Timeline</h2>
 
-            <div className="mt-4 grid gap-3">
-              {timelineItems.map((item) => (
-                <div
-                  key={`${item.type}-${item.id}`}
-                  className="rounded-xl border border-border p-4"
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <p className="font-medium">{item.title}</p>
-
-                    <span className="text-xs text-accent">
-                      {item.type}
-                    </span>
-                  </div>
-
-                  <p className="mt-2 text-sm text-foreground/70">
-                    {item.detail}
-                  </p>
-
-                  <p className="mt-3 text-xs text-foreground/50">
-                    {item.date.toLocaleDateString()}
-                  </p>
+          <div className="mt-4 grid gap-3">
+            {timelineItems.map((item) => (
+              <div
+                key={`${item.type}-${item.id}`}
+                className="rounded-xl border border-border p-4"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <p className="font-medium">{item.title}</p>
+                  <span className="text-xs text-accent">{item.type}</span>
                 </div>
-              ))}
-            </div>
+
+                <p className="mt-2 text-sm text-foreground/70">
+                  {item.detail}
+                </p>
+
+                <p className="mt-3 text-xs text-foreground/50">
+                  {item.date.toLocaleDateString()}
+                </p>
+              </div>
+            ))}
           </div>
+        </div>
 
-          {/* =======================================================
-    PROJECT MILESTONES
-    Displays all milestones related to this project.
-    Data comes directly from PostgreSQL through Prisma.
-======================================================= */}
-          <div className="mt-10">
-            <h2 className="text-xl font-medium">
-              Milestones
-            </h2>
-
-            <div className="mt-4 grid gap-3">
-              {project.milestones.map((milestone) => (
-                <div
-                  key={milestone.id}
-                  className="rounded-xl border border-border p-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium">{milestone.title}</h3>
-
-                    <span className="text-sm text-foreground/70">
-                      {formatStatus(milestone.status)}
-                    </span>
-                  </div>
-
-                  {milestone.dueDate && (
-                    <p className="mt-2 text-sm text-foreground/60">
-                      Due {milestone.dueDate.toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* =======================================================
-    PROJECT MESSAGES
-    Displays recent project messages from PostgreSQL.
-======================================================= */}
+        {/* PROJECT MILESTONES */}
+        <div className="mt-10">
+          <h2 className="text-xl font-medium">Milestones</h2>
 
           <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-            <form
-              action={createMessageAction}
-              className="space-y-3"
-            >
+            <form action={createMilestoneAction} className="space-y-3">
+              <input type="hidden" name="projectId" value={project.id} />
+
               <input
-                type="hidden"
-                name="projectId"
-                value={project.id}
+                name="title"
+                required
+                placeholder="Milestone title"
+                className="w-full rounded-lg border border-border bg-background px-4 py-3"
               />
+
+              <input
+                name="dueDate"
+                type="date"
+                className="w-full rounded-lg border border-border bg-background px-4 py-3"
+              />
+
+              <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+                Create Milestone
+              </button>
+            </form>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            {project.milestones.map((milestone) => (
+              <div
+                key={milestone.id}
+                className="rounded-xl border border-border p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium">{milestone.title}</h3>
+
+                  <form action={cycleMilestoneStatusAction}>
+                    <input
+                      type="hidden"
+                      name="milestoneId"
+                      value={milestone.id}
+                    />
+                    <input type="hidden" name="projectId" value={project.id} />
+
+                    <button className="text-sm text-accent">
+                      {formatStatus(milestone.status)}
+                    </button>
+                  </form>
+                </div>
+
+                {milestone.dueDate && (
+                  <p className="mt-2 text-sm text-foreground/60">
+                    Due {milestone.dueDate.toLocaleDateString()}
+                  </p>
+                )}
+
+                <form
+                  action={deleteMilestoneAction}
+                  className="mt-3"
+                >
+                  <input
+                    type="hidden"
+                    name="milestoneId"
+                    value={milestone.id}
+                  />
+
+                  <input
+                    type="hidden"
+                    name="projectId"
+                    value={project.id}
+                  />
+
+                  <button
+                    className="text-xs text-red-400"
+                  >
+                    Delete Milestone
+                  </button>
+                </form>
+
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* PROJECT MESSAGES */}
+        <div className="mt-10">
+          <h2 className="text-xl font-medium">Messages</h2>
+
+          <div className="mt-4 rounded-2xl border border-border bg-card p-6">
+            <form action={createMessageAction} className="space-y-3">
+              <input type="hidden" name="projectId" value={project.id} />
 
               <textarea
                 name="content"
@@ -221,51 +258,39 @@ export default async function ProjectDetailPage({
             </form>
           </div>
 
-          <div className="mt-10">
-            <h2 className="text-xl font-medium">Messages</h2>
+          <div className="mt-4 grid gap-3">
+            {project.messages.map((message) => (
+              <div
+                key={message.id}
+                className="rounded-xl border border-border p-4"
+              >
+                <p className="text-sm font-medium">
+                  {message.sender.firstName} {message.sender.lastName}
+                </p>
 
-            <div className="mt-4 grid gap-3">
-              {project.messages.map((message) => (
-                <div
-                  key={message.id}
-                  className="rounded-xl border border-border p-4"
-                >
+                <p className="text-xs text-foreground/50">
+                  {message.sender.role}
+                </p>
 
-                  <p className="text-sm font-medium">
-                    {message.sender.firstName} {message.sender.lastName}
-                  </p>
+                <p className="mt-3 text-sm leading-6 text-foreground/70">
+                  {message.content}
+                </p>
 
-                  <p className="text-xs text-foreground/50">
-                    {message.sender.role}
-                  </p>
-
-                  <p className="text-sm leading-6 text-foreground/70">
-                    {message.content}
-                  </p>
-
-                  <p className="mt-3 text-xs text-foreground/50">
-                    Sent {message.createdAt.toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-            </div>
+                <p className="mt-3 text-xs text-foreground/50">
+                  Sent {message.createdAt.toLocaleDateString()}
+                </p>
+              </div>
+            ))}
           </div>
+        </div>
 
-          {/* =======================================================
-    PROJECT INVOICES
-    Displays project invoices from PostgreSQL.
-======================================================= */}
+        {/* PROJECT INVOICES */}
+        <div className="mt-10">
+          <h2 className="text-xl font-medium">Invoices</h2>
 
           <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-            <form
-              action={createInvoiceAction}
-              className="space-y-3"
-            >
-              <input
-                type="hidden"
-                name="projectId"
-                value={project.id}
-              />
+            <form action={createInvoiceAction} className="space-y-3">
+              <input type="hidden" name="projectId" value={project.id} />
 
               <input
                 name="amount"
@@ -283,88 +308,55 @@ export default async function ProjectDetailPage({
             </form>
           </div>
 
-          <div className="mt-10">
-            <h2 className="text-xl font-medium">Invoices</h2>
-
-            <div className="mt-4 grid gap-3">
-              {project.invoices.map((invoice) => (
-                <div
-                  key={invoice.id}
-                  className="rounded-xl border border-border p-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">
-                      ${invoice.amount.toLocaleString()}
-                    </p>
-
-                    <form action={toggleInvoicePaidAction}>
-                      <input
-                        type="hidden"
-                        name="invoiceId"
-                        value={invoice.id}
-                      />
-
-                      <input
-                        type="hidden"
-                        name="projectId"
-                        value={project.id}
-                      />
-
-                      <button
-                        className="text-sm text-accent"
-                      >
-                        {invoice.paid ? "Paid" : "Mark Paid"}
-                      </button>
-                    </form>
-                  </div>
-
-                  <p className="mt-2 text-xs text-foreground/50">
-                    Created {invoice.createdAt.toLocaleDateString()}
+          <div className="mt-4 grid gap-3">
+            {project.invoices.map((invoice) => (
+              <div
+                key={invoice.id}
+                className="rounded-xl border border-border p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="font-medium">
+                    ${invoice.amount.toLocaleString()}
                   </p>
 
-                  <form
-                    action={deleteInvoiceAction}
-                    className="mt-3"
-                  >
+                  <form action={toggleInvoicePaidAction}>
                     <input
                       type="hidden"
                       name="invoiceId"
                       value={invoice.id}
                     />
+                    <input type="hidden" name="projectId" value={project.id} />
 
-                    <input
-                      type="hidden"
-                      name="projectId"
-                      value={project.id}
-                    />
-
-                    <button
-                      className="text-xs text-red-400"
-                    >
-                      Delete Invoice
+                    <button className="text-sm text-accent">
+                      {invoice.paid ? "Paid" : "Mark Paid"}
                     </button>
                   </form>
-
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* =======================================================
-    PROJECT PROPOSALS
-    Displays project proposals from PostgreSQL.
-======================================================= */}
+                <p className="mt-2 text-xs text-foreground/50">
+                  Created {invoice.createdAt.toLocaleDateString()}
+                </p>
+
+                <form action={deleteInvoiceAction} className="mt-3">
+                  <input type="hidden" name="invoiceId" value={invoice.id} />
+                  <input type="hidden" name="projectId" value={project.id} />
+
+                  <button className="text-xs text-red-400">
+                    Delete Invoice
+                  </button>
+                </form>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* PROJECT PROPOSALS */}
+        <div className="mt-10">
+          <h2 className="text-xl font-medium">Proposals</h2>
 
           <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-            <form
-              action={createProposalAction}
-              className="space-y-3"
-            >
-              <input
-                type="hidden"
-                name="projectId"
-                value={project.id}
-              />
+            <form action={createProposalAction} className="space-y-3">
+              <input type="hidden" name="projectId" value={project.id} />
 
               <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
                 Create Proposal
@@ -372,71 +364,46 @@ export default async function ProjectDetailPage({
             </form>
           </div>
 
-          <div className="mt-10">
-            <h2 className="text-xl font-medium">Proposals</h2>
+          <div className="mt-4 grid gap-3">
+            {project.proposals.map((proposal) => (
+              <div
+                key={proposal.id}
+                className="rounded-xl border border-border p-4"
+              >
+                <h3 className="font-medium">Project Proposal</h3>
 
-            <div className="mt-4 grid gap-3">
-              {project.proposals.map((proposal) => (
-                <div
-                  key={proposal.id}
-                  className="rounded-xl border border-border p-4"
-                >
-                  <h3 className="font-medium">
-                    Project Proposal
-                  </h3>
+                <form action={toggleProposalApprovalAction} className="mt-2">
+                  <input
+                    type="hidden"
+                    name="proposalId"
+                    value={proposal.id}
+                  />
+                  <input type="hidden" name="projectId" value={project.id} />
 
-                  <form action={toggleProposalApprovalAction}>
-                    <input
-                      type="hidden"
-                      name="proposalId"
-                      value={proposal.id}
-                    />
+                  <button className="text-sm text-accent">
+                    {proposal.approved ? "Approved" : "Approve Proposal"}
+                  </button>
+                </form>
 
-                    <input
-                      type="hidden"
-                      name="projectId"
-                      value={project.id}
-                    />
+                <p className="mt-2 text-xs text-foreground/50">
+                  Created {proposal.createdAt.toLocaleDateString()}
+                </p>
 
-                    <button className="text-sm text-accent">
-                      {proposal.approved
-                        ? "Approved"
-                        : "Approve Proposal"}
-                    </button>
-                  </form>
+                <form action={deleteProposalAction} className="mt-3">
+                  <input
+                    type="hidden"
+                    name="proposalId"
+                    value={proposal.id}
+                  />
+                  <input type="hidden" name="projectId" value={project.id} />
 
-                  <p className="mt-2 text-xs text-foreground/50">
-                    Created {proposal.createdAt.toLocaleDateString()}
-                  </p>
-
-                  <form
-                    action={deleteProposalAction}
-                    className="mt-3"
-                  >
-                    <input
-                      type="hidden"
-                      name="proposalId"
-                      value={proposal.id}
-                    />
-
-                    <input
-                      type="hidden"
-                      name="projectId"
-                      value={project.id}
-                    />
-
-                    <button
-                      className="text-xs text-red-400"
-                    >
-                      Delete Proposal
-                    </button>
-                  </form>
-
-                </div>
-              ))}
-            </div>
+                  <button className="text-xs text-red-400">
+                    Delete Proposal
+                  </button>
+                </form>
+              </div>
+            ))}
           </div>
-
         </div>
       </div>
     </DashboardShell>
