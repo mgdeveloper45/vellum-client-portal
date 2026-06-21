@@ -50,6 +50,7 @@ model User {
 
   messages Message[]
   notifications Notification[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Project {
@@ -129,6 +130,19 @@ model Message {
   project    Project           @relation(fields: [projectId], references: [id])
 
   createdAt  DateTime          @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+
+  token     String   @unique
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
 }
 
 model Proposal {

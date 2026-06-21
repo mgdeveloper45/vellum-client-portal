@@ -72,6 +72,11 @@ export type Milestone = Prisma.MilestoneModel
  */
 export type Message = Prisma.MessageModel
 /**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
  * Model Proposal
  * 
  */

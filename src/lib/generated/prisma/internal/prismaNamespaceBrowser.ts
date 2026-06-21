@@ -57,6 +57,7 @@ export const ModelName = {
   ProjectFile: 'ProjectFile',
   Milestone: 'Milestone',
   Message: 'Message',
+  PasswordResetToken: 'PasswordResetToken',
   Proposal: 'Proposal',
   Invoice: 'Invoice'
 } as const
@@ -153,6 +154,17 @@ export const MessageScalarFieldEnum = {
 } as const
 
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
+export const PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  userId: 'userId',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
 
 
 export const ProposalScalarFieldEnum = {
