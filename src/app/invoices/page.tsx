@@ -1,12 +1,30 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 /**
  * Invoices page.
  * Shows all invoices across all projects from PostgreSQL.
  */
+
+
 export default async function InvoicesPage() {
+  const session = await auth();
+
+  if (!session?.user) {
+    return null;
+  }
+  const projectFilter =
+    session.user.role === "ADMIN"
+      ? {}
+      : {
+        clientId: session.user.id,
+      };
+
   const invoices = await prisma.invoice.findMany({
+    where: {
+      project: projectFilter,
+    },
     include: {
       project: {
         include: {
