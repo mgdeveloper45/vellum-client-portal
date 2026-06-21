@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 /**
  * Dashboard page.
- * Shows real workspace metrics based on the signed-in user's role.
+ * Shows real business metrics from PostgreSQL.
  */
 export default async function DashboardPage() {
   const session = await auth();
@@ -20,8 +20,20 @@ export default async function DashboardPage() {
           clientId: session.user.id,
         };
 
+  const totalClients =
+    session.user.role === "ADMIN"
+      ? await prisma.user.count({
+          where: {
+            role: "CLIENT",
+          },
+        })
+      : 1;
+
   const activeProjects = await prisma.project.count({
-    where: projectFilter,
+    where: {
+      ...projectFilter,
+      status: "ACTIVE",
+    },
   });
 
   const openInvoices = await prisma.invoice.count({
@@ -31,24 +43,32 @@ export default async function DashboardPage() {
     },
   });
 
-  const pendingProposals = await prisma.proposal.count({
+  const pendingMilestones = await prisma.milestone.count({
     where: {
-      approved: false,
+      status: {
+        in: ["PENDING", "IN_PROGRESS"],
+      },
       project: projectFilter,
     },
   });
 
-  const unreadMessages = await prisma.message.count({
+  const approvedProposals = await prisma.proposal.count({
     where: {
+      approved: true,
       project: projectFilter,
     },
   });
 
   const metrics = [
     {
+      label: "Clients",
+      value: totalClients,
+      helper: "Total client accounts",
+    },
+    {
       label: "Active Projects",
       value: activeProjects,
-      helper: "Projects currently in progress",
+      helper: "Projects currently active",
     },
     {
       label: "Open Invoices",
@@ -56,14 +76,14 @@ export default async function DashboardPage() {
       helper: "Invoices awaiting payment",
     },
     {
-      label: "Pending Approvals",
-      value: pendingProposals,
-      helper: "Proposals awaiting approval",
+      label: "Pending Milestones",
+      value: pendingMilestones,
+      helper: "Milestones still in progress",
     },
     {
-      label: "Messages",
-      value: unreadMessages,
-      helper: "Project messages on file",
+      label: "Approved Proposals",
+      value: approvedProposals,
+      helper: "Accepted client proposals",
     },
   ];
 
@@ -71,12 +91,13 @@ export default async function DashboardPage() {
     <DashboardShell>
       <div>
         <h1 className="text-3xl font-light">Dashboard</h1>
+
         <p className="mt-2 text-foreground/70">
-          Overview of projects, approvals, invoices, and client activity.
+          A real-time overview of clients, projects, invoices, and milestones.
         </p>
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         {metrics.map((metric) => (
           <div
             key={metric.label}
