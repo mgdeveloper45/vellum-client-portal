@@ -3,34 +3,62 @@
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 
-/**
- * Allows a signed-in user to change their own password.
- */
-export async function changePasswordAction(formData: FormData) {
+export type ChangePasswordState = {
+  error?: string;
+  success?: string;
+};
+
+export async function changePasswordAction(
+  _prevState: ChangePasswordState,
+  formData: FormData,
+): Promise<ChangePasswordState> {
   const session = await auth();
 
   if (!session?.user) {
-    return;
+    return { error: "You must be signed in." };
   }
 
-  const currentPassword = String(formData.get("currentPassword"));
-  const newPassword = String(formData.get("newPassword"));
-  const confirmPassword = String(formData.get("confirmPassword"));
+  const currentPassword = String(formData.get("currentPassword")).trim();
+  const newPassword = String(formData.get("newPassword")).trim();
+  const confirmPassword = String(formData.get("confirmPassword")).trim();
+
+  if (newPassword.length < 12) {
+    return { error: "Password must be at least 12 characters." };
+  }
+
+  if (newPassword.length > 128) {
+    return { error: "Password is too long." };
+  }
+
+  if (!/[A-Z]/.test(newPassword)) {
+    return { error: "Password must contain at least one uppercase letter." };
+  }
+
+  if (!/[a-z]/.test(newPassword)) {
+    return { error: "Password must contain at least one lowercase letter." };
+  }
+
+  if (!/[0-9]/.test(newPassword)) {
+    return { error: "Password must contain at least one number." };
+  }
 
   if (newPassword !== confirmPassword) {
-    throw new Error("New passwords do not match.");
+    return { error: "New passwords do not match." };
+  }
+
+  if (currentPassword === newPassword) {
+    return {
+      error: "New password must be different from your current password.",
+    };
   }
 
   const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
+    where: { id: session.user.id },
   });
 
   if (!user) {
-    return;
+    return { error: "User not found." };
   }
 
   const currentPasswordMatches = await bcrypt.compare(
@@ -39,19 +67,15 @@ export async function changePasswordAction(formData: FormData) {
   );
 
   if (!currentPasswordMatches) {
-    throw new Error("Current password is incorrect.");
+    return { error: "Current password is incorrect." };
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
   await prisma.user.update({
-    where: {
-      id: session.user.id,
-    },
-    data: {
-      password: hashedPassword,
-    },
+    where: { id: session.user.id },
+    data: { password: hashedPassword },
   });
 
-  redirect("/settings");
+  return { success: "Password updated successfully." };
 }
