@@ -27,29 +27,29 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     const query = q?.trim() || "";
 
     const clients = query
-  ? await prisma.user.findMany({
-      where:
-        session.user.role === "ADMIN"
-          ? {
-              role: "CLIENT",
-              OR: [
-                { firstName: { contains: query, mode: "insensitive" } },
-                { lastName: { contains: query, mode: "insensitive" } },
-                { email: { contains: query, mode: "insensitive" } },
-              ],
-            }
-          : {
-              id: session.user.id,
-              role: "CLIENT",
-              OR: [
-                { firstName: { contains: query, mode: "insensitive" } },
-                { lastName: { contains: query, mode: "insensitive" } },
-                { email: { contains: query, mode: "insensitive" } },
-              ],
-            },
-      take: 5,
-    })
-  : [];
+        ? await prisma.user.findMany({
+            where:
+                session.user.role === "ADMIN"
+                    ? {
+                        role: "CLIENT",
+                        OR: [
+                            { firstName: { contains: query, mode: "insensitive" } },
+                            { lastName: { contains: query, mode: "insensitive" } },
+                            { email: { contains: query, mode: "insensitive" } },
+                        ],
+                    }
+                    : {
+                        id: session.user.id,
+                        role: "CLIENT",
+                        OR: [
+                            { firstName: { contains: query, mode: "insensitive" } },
+                            { lastName: { contains: query, mode: "insensitive" } },
+                            { email: { contains: query, mode: "insensitive" } },
+                        ],
+                    },
+            take: 5,
+        })
+        : [];
 
     const projects = query
         ? await prisma.project.findMany({
