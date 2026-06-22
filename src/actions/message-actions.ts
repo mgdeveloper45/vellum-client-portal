@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { sendProjectMessageEmail } from "@/lib/email";
 
 /**
  * Creates a project message from the signed-in user.
@@ -29,6 +30,10 @@ export async function createMessageAction(formData: FormData) {
     where: {
       id: projectId,
     },
+    include: {
+      client: true,
+      owner: true,
+    },
   });
 
   if (project) {
@@ -44,6 +49,19 @@ export async function createMessageAction(formData: FormData) {
             ? `${createdMessage.content.slice(0, 100)}...`
             : createdMessage.content,
       },
+    });
+
+    const recipient =
+      session.user.id === project.clientId ? project.owner : project.client;
+
+    const senderName = session.user.name || "Vellum User";
+
+    await sendProjectMessageEmail({
+      email: recipient.email,
+      projectName: project.name,
+      senderName,
+      message: createdMessage.content,
+      projectUrl: `${process.env.APP_URL}/projects/${project.id}`,
     });
   }
 

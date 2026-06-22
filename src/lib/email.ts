@@ -30,3 +30,46 @@ export async function sendPasswordResetEmail({
     `,
   });
 }
+
+type SendProjectMessageEmailParams = {
+  email: string;
+  projectName: string;
+  senderName: string;
+  message: string;
+  projectUrl: string;
+};
+
+export async function sendProjectMessageEmail({
+  email,
+  projectName,
+  senderName,
+  message,
+  projectUrl,
+}: SendProjectMessageEmailParams) {
+  await resend.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to: email,
+    subject: `New message on ${projectName}`,
+    html: `
+      <h1>New project message</h1>
+
+      <p>
+        <strong>${senderName}</strong> sent a message on:
+      </p>
+
+      <p>
+        <strong>${projectName}</strong>
+      </p>
+
+      <p>
+        ${message}
+      </p>
+
+      <p>
+        <a href="${projectUrl}">
+          View project
+        </a>
+      </p>
+    `,
+  });
+}
