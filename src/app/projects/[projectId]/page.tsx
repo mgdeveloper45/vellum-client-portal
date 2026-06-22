@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { auth } from "@/auth";
 import { formatStatus } from "@/lib/utils";
+import { canManageProjects } from "@/lib/permissions";
 import { createMessageAction } from "@/actions/message-actions";
 import {
   createProjectFileAction,
@@ -29,19 +31,20 @@ type ProjectDetailPageProps = {
   }>;
 };
 
-/**
- * Project detail page.
- * Loads one project and all related workspace data from PostgreSQL.
- */
 export default async function ProjectDetailPage({
   params,
 }: ProjectDetailPageProps) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return null;
+  }
+
+  const canManageProject = canManageProjects(session.user.role);
   const { projectId } = await params;
 
   const project = await prisma.project.findUnique({
-    where: {
-      id: projectId,
-    },
+    where: { id: projectId },
     include: {
       client: true,
       milestones: true,
@@ -64,10 +67,6 @@ export default async function ProjectDetailPage({
     );
   }
 
-  /**
-   * Combined project activity feed.
-   * This builds a timeline from existing related records.
-   */
   const timelineItems = [
     ...project.messages.map((message) => ({
       id: message.id,
@@ -76,7 +75,6 @@ export default async function ProjectDetailPage({
       detail: message.content,
       date: message.createdAt,
     })),
-
     ...project.invoices.map((invoice) => ({
       id: invoice.id,
       type: "Invoice",
@@ -84,7 +82,6 @@ export default async function ProjectDetailPage({
       detail: `$${invoice.amount.toLocaleString()}`,
       date: invoice.createdAt,
     })),
-
     ...project.proposals.map((proposal) => ({
       id: proposal.id,
       type: "Proposal",
@@ -92,7 +89,6 @@ export default async function ProjectDetailPage({
       detail: "Project proposal",
       date: proposal.createdAt,
     })),
-
     ...project.milestones.map((milestone) => ({
       id: milestone.id,
       type: "Milestone",
@@ -109,12 +105,10 @@ export default async function ProjectDetailPage({
       </Link>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-8">
-        {/* PROJECT HEADER */}
         <h1 className="text-4xl font-light">{project.name}</h1>
 
         <p className="mt-4 text-foreground/70">{project.description}</p>
 
-        {/* PROJECT SUMMARY */}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <div>
             <h2 className="font-medium">Client</h2>
@@ -162,74 +156,71 @@ export default async function ProjectDetailPage({
         <div className="mt-10">
           <h2 className="text-xl font-medium">Files</h2>
 
-          <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-            <form action={createProjectFileAction} className="space-y-3">
-              <input type="hidden" name="projectId" value={project.id} />
+          {canManageProject && (
+            <div className="mt-4 rounded-2xl border border-border bg-card p-6">
+              <form action={createProjectFileAction} className="space-y-3">
+                <input type="hidden" name="projectId" value={project.id} />
 
-              <input
-                name="name"
-                required
-                placeholder="File name"
-                className="w-full rounded-lg border border-border bg-background px-4 py-3"
-              />
+                <input
+                  name="name"
+                  required
+                  placeholder="File name"
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3"
+                />
 
-              <input
-                name="url"
-                type="url"
-                required
-                placeholder="File URL"
-                className="w-full rounded-lg border border-border bg-background px-4 py-3"
-              />
+                <input
+                  name="url"
+                  type="url"
+                  required
+                  placeholder="File URL"
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3"
+                />
 
-              <input
-                name="fileType"
-                required
-                placeholder="File type, e.g. PDF, Contract, Design"
-                className="w-full rounded-lg border border-border bg-background px-4 py-3"
-              />
+                <input
+                  name="fileType"
+                  required
+                  placeholder="File type, e.g. PDF, Contract, Design"
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3"
+                />
 
-              <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
-                Add File
-              </button>
-            </form>
-          </div>
+                <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+                  Add File
+                </button>
+              </form>
+            </div>
+          )}
 
           <div className="mt-4 grid gap-3">
             {project.files.map((file) => (
-              <a
+              <div
                 key={file.id}
-                href={file.url}
-                target="_blank"
-                rel="noreferrer"
                 className="rounded-xl border border-border p-4 transition hover:border-accent"
               >
                 <p className="font-medium">{file.name}</p>
-                <p className="mt-1 text-sm text-foreground/60">{file.fileType}</p>
-                <p className="mt-2 text-xs text-accent">Open file</p>
+                <p className="mt-1 text-sm text-foreground/60">
+                  {file.fileType}
+                </p>
 
-                <form
-                  action={deleteProjectFileAction}
-                  className="mt-3"
+                <a
+                  href={file.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 block text-xs text-accent"
                 >
-                  <input
-                    type="hidden"
-                    name="fileId"
-                    value={file.id}
-                  />
+                  Open file
+                </a>
 
-                  <input
-                    type="hidden"
-                    name="projectId"
-                    value={project.id}
-                  />
+                {canManageProject && (
+                  <form action={deleteProjectFileAction} className="mt-3">
+                    <input type="hidden" name="fileId" value={file.id} />
+                    <input type="hidden" name="projectId" value={project.id} />
 
-                  <button
-                    className="text-xs text-red-400"
-                  >
-                    Delete File
-                  </button>
-                </form>
-              </a>
+                    <button className="text-xs text-red-400">
+                      Delete File
+                    </button>
+                  </form>
+                )}
+              </div>
             ))}
           </div>
         </div>
@@ -238,28 +229,30 @@ export default async function ProjectDetailPage({
         <div className="mt-10">
           <h2 className="text-xl font-medium">Milestones</h2>
 
-          <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-            <form action={createMilestoneAction} className="space-y-3">
-              <input type="hidden" name="projectId" value={project.id} />
+          {canManageProject && (
+            <div className="mt-4 rounded-2xl border border-border bg-card p-6">
+              <form action={createMilestoneAction} className="space-y-3">
+                <input type="hidden" name="projectId" value={project.id} />
 
-              <input
-                name="title"
-                required
-                placeholder="Milestone title"
-                className="w-full rounded-lg border border-border bg-background px-4 py-3"
-              />
+                <input
+                  name="title"
+                  required
+                  placeholder="Milestone title"
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3"
+                />
 
-              <input
-                name="dueDate"
-                type="date"
-                className="w-full rounded-lg border border-border bg-background px-4 py-3"
-              />
+                <input
+                  name="dueDate"
+                  type="date"
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3"
+                />
 
-              <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
-                Create Milestone
-              </button>
-            </form>
-          </div>
+                <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+                  Create Milestone
+                </button>
+              </form>
+            </div>
+          )}
 
           <div className="mt-4 grid gap-3">
             {project.milestones.map((milestone) => (
@@ -270,18 +263,28 @@ export default async function ProjectDetailPage({
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium">{milestone.title}</h3>
 
-                  <form action={cycleMilestoneStatusAction}>
-                    <input
-                      type="hidden"
-                      name="milestoneId"
-                      value={milestone.id}
-                    />
-                    <input type="hidden" name="projectId" value={project.id} />
+                  {canManageProject ? (
+                    <form action={cycleMilestoneStatusAction}>
+                      <input
+                        type="hidden"
+                        name="milestoneId"
+                        value={milestone.id}
+                      />
+                      <input
+                        type="hidden"
+                        name="projectId"
+                        value={project.id}
+                      />
 
-                    <button className="text-sm text-accent">
+                      <button className="text-sm text-accent">
+                        {formatStatus(milestone.status)}
+                      </button>
+                    </form>
+                  ) : (
+                    <span className="text-sm text-foreground/70">
                       {formatStatus(milestone.status)}
-                    </button>
-                  </form>
+                    </span>
+                  )}
                 </div>
 
                 {milestone.dueDate && (
@@ -290,29 +293,20 @@ export default async function ProjectDetailPage({
                   </p>
                 )}
 
-                <form
-                  action={deleteMilestoneAction}
-                  className="mt-3"
-                >
-                  <input
-                    type="hidden"
-                    name="milestoneId"
-                    value={milestone.id}
-                  />
+                {canManageProject && (
+                  <form action={deleteMilestoneAction} className="mt-3">
+                    <input
+                      type="hidden"
+                      name="milestoneId"
+                      value={milestone.id}
+                    />
+                    <input type="hidden" name="projectId" value={project.id} />
 
-                  <input
-                    type="hidden"
-                    name="projectId"
-                    value={project.id}
-                  />
-
-                  <button
-                    className="text-xs text-red-400"
-                  >
-                    Delete Milestone
-                  </button>
-                </form>
-
+                    <button className="text-xs text-red-400">
+                      Delete Milestone
+                    </button>
+                  </form>
+                )}
               </div>
             ))}
           </div>
@@ -369,25 +363,27 @@ export default async function ProjectDetailPage({
         <div className="mt-10">
           <h2 className="text-xl font-medium">Invoices</h2>
 
-          <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-            <form action={createInvoiceAction} className="space-y-3">
-              <input type="hidden" name="projectId" value={project.id} />
+          {canManageProject && (
+            <div className="mt-4 rounded-2xl border border-border bg-card p-6">
+              <form action={createInvoiceAction} className="space-y-3">
+                <input type="hidden" name="projectId" value={project.id} />
 
-              <input
-                name="amount"
-                type="number"
-                min="1"
-                step="0.01"
-                required
-                placeholder="Invoice amount"
-                className="w-full rounded-lg border border-border bg-background px-4 py-3"
-              />
+                <input
+                  name="amount"
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  required
+                  placeholder="Invoice amount"
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3"
+                />
 
-              <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
-                Create Invoice
-              </button>
-            </form>
-          </div>
+                <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+                  Create Invoice
+                </button>
+              </form>
+            </div>
+          )}
 
           <div className="mt-4 grid gap-3">
             {project.invoices.map((invoice) => (
@@ -400,32 +396,44 @@ export default async function ProjectDetailPage({
                     ${invoice.amount.toLocaleString()}
                   </p>
 
-                  <form action={toggleInvoicePaidAction}>
-                    <input
-                      type="hidden"
-                      name="invoiceId"
-                      value={invoice.id}
-                    />
-                    <input type="hidden" name="projectId" value={project.id} />
+                  {canManageProject ? (
+                    <form action={toggleInvoicePaidAction}>
+                      <input
+                        type="hidden"
+                        name="invoiceId"
+                        value={invoice.id}
+                      />
+                      <input
+                        type="hidden"
+                        name="projectId"
+                        value={project.id}
+                      />
 
-                    <button className="text-sm text-accent">
-                      {invoice.paid ? "Paid" : "Mark Paid"}
-                    </button>
-                  </form>
+                      <button className="text-sm text-accent">
+                        {invoice.paid ? "Paid" : "Mark Paid"}
+                      </button>
+                    </form>
+                  ) : (
+                    <span className="text-sm text-foreground/70">
+                      {invoice.paid ? "Paid" : "Unpaid"}
+                    </span>
+                  )}
                 </div>
 
                 <p className="mt-2 text-xs text-foreground/50">
                   Created {invoice.createdAt.toLocaleDateString()}
                 </p>
 
-                <form action={deleteInvoiceAction} className="mt-3">
-                  <input type="hidden" name="invoiceId" value={invoice.id} />
-                  <input type="hidden" name="projectId" value={project.id} />
+                {canManageProject && (
+                  <form action={deleteInvoiceAction} className="mt-3">
+                    <input type="hidden" name="invoiceId" value={invoice.id} />
+                    <input type="hidden" name="projectId" value={project.id} />
 
-                  <button className="text-xs text-red-400">
-                    Delete Invoice
-                  </button>
-                </form>
+                    <button className="text-xs text-red-400">
+                      Delete Invoice
+                    </button>
+                  </form>
+                )}
               </div>
             ))}
           </div>
@@ -435,15 +443,17 @@ export default async function ProjectDetailPage({
         <div className="mt-10">
           <h2 className="text-xl font-medium">Proposals</h2>
 
-          <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-            <form action={createProposalAction} className="space-y-3">
-              <input type="hidden" name="projectId" value={project.id} />
+          {canManageProject && (
+            <div className="mt-4 rounded-2xl border border-border bg-card p-6">
+              <form action={createProposalAction} className="space-y-3">
+                <input type="hidden" name="projectId" value={project.id} />
 
-              <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
-                Create Proposal
-              </button>
-            </form>
-          </div>
+                <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+                  Create Proposal
+                </button>
+              </form>
+            </div>
+          )}
 
           <div className="mt-4 grid gap-3">
             {project.proposals.map((proposal) => (
@@ -453,35 +463,43 @@ export default async function ProjectDetailPage({
               >
                 <h3 className="font-medium">Project Proposal</h3>
 
-                <form action={toggleProposalApprovalAction} className="mt-2">
-                  <input
-                    type="hidden"
-                    name="proposalId"
-                    value={proposal.id}
-                  />
-                  <input type="hidden" name="projectId" value={project.id} />
+                {canManageProject ? (
+                  <form action={toggleProposalApprovalAction} className="mt-2">
+                    <input
+                      type="hidden"
+                      name="proposalId"
+                      value={proposal.id}
+                    />
+                    <input type="hidden" name="projectId" value={project.id} />
 
-                  <button className="text-sm text-accent">
-                    {proposal.approved ? "Approved" : "Approve Proposal"}
-                  </button>
-                </form>
+                    <button className="text-sm text-accent">
+                      {proposal.approved ? "Approved" : "Approve Proposal"}
+                    </button>
+                  </form>
+                ) : (
+                  <p className="mt-2 text-sm text-foreground/70">
+                    {proposal.approved ? "Approved" : "Pending"}
+                  </p>
+                )}
 
                 <p className="mt-2 text-xs text-foreground/50">
                   Created {proposal.createdAt.toLocaleDateString()}
                 </p>
 
-                <form action={deleteProposalAction} className="mt-3">
-                  <input
-                    type="hidden"
-                    name="proposalId"
-                    value={proposal.id}
-                  />
-                  <input type="hidden" name="projectId" value={project.id} />
+                {canManageProject && (
+                  <form action={deleteProposalAction} className="mt-3">
+                    <input
+                      type="hidden"
+                      name="proposalId"
+                      value={proposal.id}
+                    />
+                    <input type="hidden" name="projectId" value={project.id} />
 
-                  <button className="text-xs text-red-400">
-                    Delete Proposal
-                  </button>
-                </form>
+                    <button className="text-xs text-red-400">
+                      Delete Proposal
+                    </button>
+                  </form>
+                )}
               </div>
             ))}
           </div>

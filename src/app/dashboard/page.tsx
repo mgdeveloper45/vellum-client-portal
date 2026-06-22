@@ -60,6 +60,39 @@ export default async function DashboardPage() {
     },
   });
 
+  const totalRevenue = await prisma.invoice.aggregate({
+    _sum: {
+      amount: true,
+    },
+    where: {
+      paid: true,
+      project: projectFilter,
+    },
+  });
+
+  const outstandingRevenue = await prisma.invoice.aggregate({
+    _sum: {
+      amount: true,
+    },
+    where: {
+      paid: false,
+      project: projectFilter,
+    },
+  });
+
+  const totalInvoices = await prisma.invoice.count({
+    where: {
+      project: projectFilter,
+    },
+  });
+
+  const paidInvoices = await prisma.invoice.count({
+    where: {
+      paid: true,
+      project: projectFilter,
+    },
+  });
+
   const recentActivity = await prisma.auditLog.findMany({
     include: {
       user: true,
@@ -69,6 +102,18 @@ export default async function DashboardPage() {
     },
     take: 10,
   });
+
+
+  const collectionRate =
+    totalInvoices === 0
+      ? 0
+      : Math.round((paidInvoices / totalInvoices) * 100);
+
+  const revenueCollected =
+    totalRevenue._sum.amount ?? 0;
+
+  const revenueOutstanding =
+    outstandingRevenue._sum.amount ?? 0;
 
   const metrics = [
     {
@@ -96,6 +141,26 @@ export default async function DashboardPage() {
       value: approvedProposals,
       helper: "Accepted client proposals",
     },
+    {
+      label: "Revenue Collected",
+      value: `$${revenueCollected.toLocaleString()}`,
+      helper: "Paid invoices",
+    },
+    {
+      label: "Outstanding Revenue",
+      value: `$${revenueOutstanding.toLocaleString()}`,
+      helper: "Awaiting payment",
+    },
+    {
+      label: "Collection Rate",
+      value: `${collectionRate}%`,
+      helper: "Invoices paid",
+    },
+    {
+      label: "Activity Events",
+      value: recentActivity.length,
+      helper: "Recent audit events",
+    },
   ];
 
   return (
@@ -108,7 +173,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {metrics.map((metric) => (
           <div
             key={metric.label}
