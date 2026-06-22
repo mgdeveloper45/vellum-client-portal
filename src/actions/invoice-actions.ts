@@ -1,5 +1,7 @@
 "use server";
 
+import { auth } from "@/auth";
+import { createAuditLog } from "@/lib/audit";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
@@ -7,14 +9,32 @@ import { prisma } from "@/lib/prisma";
  * Creates a new invoice for a project.
  */
 export async function createInvoiceAction(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return;
+  }
+
   const projectId = String(formData.get("projectId"));
   const amount = Number(formData.get("amount"));
 
-  await prisma.invoice.create({
+  const invoice = await prisma.invoice.create({
     data: {
       projectId,
       amount,
       paid: false,
+    },
+  });
+
+  await createAuditLog({
+    action: "INVOICE_CREATED",
+    entity: "INVOICE",
+    entityId: invoice.id,
+    userId: session.user.id,
+    metadata: {
+      amount: invoice.amount,
+      projectId: invoice.projectId,
+      paid: invoice.paid,
     },
   });
 
@@ -24,16 +44,16 @@ export async function createInvoiceAction(formData: FormData) {
 /**
  * Toggles paid on an invoice for a project.
  */
-export async function toggleInvoicePaidAction(
-  formData: FormData
-) {
-  const invoiceId = String(
-    formData.get("invoiceId")
-  );
+export async function toggleInvoicePaidAction(formData: FormData) {
+  const session = await auth();
 
-  const projectId = String(
-    formData.get("projectId")
-  );
+  if (!session?.user) {
+    return;
+  }
+
+  const invoiceId = String(formData.get("invoiceId"));
+
+  const projectId = String(formData.get("projectId"));
 
   const invoice = await prisma.invoice.findUnique({
     where: {
@@ -45,12 +65,24 @@ export async function toggleInvoicePaidAction(
     return;
   }
 
-  await prisma.invoice.update({
+  const updatedInvoice = await prisma.invoice.update({
     where: {
       id: invoiceId,
     },
     data: {
       paid: !invoice.paid,
+    },
+  });
+
+  await createAuditLog({
+    action: updatedInvoice.paid ? "INVOICE_PAID" : "INVOICE_UNPAID",
+    entity: "INVOICE",
+    entityId: updatedInvoice.id,
+    userId: session.user.id,
+    metadata: {
+      amount: updatedInvoice.amount,
+      projectId: updatedInvoice.projectId,
+      paid: updatedInvoice.paid,
     },
   });
 
@@ -60,16 +92,10 @@ export async function toggleInvoicePaidAction(
 /**
  * Deletes an invoice for a project.
  */
-export async function deleteInvoiceAction(
-  formData: FormData
-) {
-  const invoiceId = String(
-    formData.get("invoiceId")
-  );
+export async function deleteInvoiceAction(formData: FormData) {
+  const invoiceId = String(formData.get("invoiceId"));
 
-  const projectId = String(
-    formData.get("projectId")
-  );
+  const projectId = String(formData.get("projectId"));
 
   await prisma.invoice.delete({
     where: {

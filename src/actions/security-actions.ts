@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { createAuditLog } from "@/lib/audit";
 
 export type ChangePasswordState = {
   error?: string;
@@ -75,6 +76,13 @@ export async function changePasswordAction(
   await prisma.user.update({
     where: { id: session.user.id },
     data: { password: hashedPassword },
+  });
+
+  await createAuditLog({
+    action: "PASSWORD_CHANGED",
+    entity: "USER",
+    entityId: session.user.id,
+    userId: session.user.id,
   });
 
   return { success: "Password updated successfully." };

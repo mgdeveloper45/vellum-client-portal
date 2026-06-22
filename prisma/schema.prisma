@@ -49,6 +49,7 @@ model User {
   updatedAt  DateTime  @updatedAt
 
   messages Message[]
+  auditLogs AuditLog[]
   notifications Notification[]
   passwordResetTokens PasswordResetToken[]
 }
@@ -86,6 +87,22 @@ model Notification {
 
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+
+  action    String
+  entity    String
+
+  entityId  String?
+
+  userId    String?
+  user      User? @relation(fields: [userId], references: [id])
+
+  metadata  Json?
 
   createdAt DateTime @default(now())
 }

@@ -18,6 +18,7 @@ const navItems = [
     { label: "Search", href: "/search" },
     { label: "Notifications", href: "/notifications" },
     { label: "Users", href: "/users" },
+    { label: "Audit Logs", href: "/audit-logs" },
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {

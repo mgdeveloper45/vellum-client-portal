@@ -11,6 +11,7 @@
 export type * from './models/User'
 export type * from './models/Project'
 export type * from './models/Notification'
+export type * from './models/AuditLog'
 export type * from './models/ProjectFile'
 export type * from './models/Milestone'
 export type * from './models/Message'

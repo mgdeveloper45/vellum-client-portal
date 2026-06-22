@@ -33,6 +33,11 @@ export type Project = Prisma.ProjectModel
  */
 export type Notification = Prisma.NotificationModel
 /**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
+/**
  * Model ProjectFile
  * 
  */

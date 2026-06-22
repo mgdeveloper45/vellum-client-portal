@@ -1,9 +1,17 @@
 "use server";
 
+import { auth } from "@/auth";
+import { createAuditLog } from "@/lib/audit";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export async function createProjectFileAction(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return;
+  }
+
   const projectId = String(formData.get("projectId"));
 
   const name = String(formData.get("name"));
@@ -12,12 +20,24 @@ export async function createProjectFileAction(formData: FormData) {
 
   const fileType = String(formData.get("fileType"));
 
-  await prisma.projectFile.create({
+  const file = await prisma.projectFile.create({
     data: {
       projectId,
       name,
       url,
       fileType,
+    },
+  });
+
+  await createAuditLog({
+    action: "FILE_UPLOADED",
+    entity: "FILE",
+    entityId: file.id,
+    userId: session.user.id,
+    metadata: {
+      name: file.name,
+      fileType: file.fileType,
+      projectId: file.projectId,
     },
   });
 

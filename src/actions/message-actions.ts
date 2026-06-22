@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { createAuditLog } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { sendProjectMessageEmail } from "@/lib/email";
 
@@ -16,13 +17,31 @@ export async function createMessageAction(formData: FormData) {
   }
 
   const projectId = String(formData.get("projectId"));
-  const content = String(formData.get("content"));
+  const content = String(formData.get("content")).trim();
+
+  if (!content) {
+    return;
+  }
 
   const createdMessage = await prisma.message.create({
     data: {
       projectId,
       senderId: session.user.id,
       content,
+    },
+  });
+
+  await createAuditLog({
+    action: "MESSAGE_SENT",
+    entity: "MESSAGE",
+    entityId: createdMessage.id,
+    userId: session.user.id,
+    metadata: {
+      projectId,
+      preview:
+        createdMessage.content.length > 100
+          ? `${createdMessage.content.slice(0, 100)}...`
+          : createdMessage.content,
     },
   });
 

@@ -233,6 +233,7 @@ export type UserWhereInput = {
   ownedProjects?: Prisma.ProjectListRelationFilter
   clientProjects?: Prisma.ProjectListRelationFilter
   messages?: Prisma.MessageListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
 }
@@ -252,6 +253,7 @@ export type UserOrderByWithRelationInput = {
   ownedProjects?: Prisma.ProjectOrderByRelationAggregateInput
   clientProjects?: Prisma.ProjectOrderByRelationAggregateInput
   messages?: Prisma.MessageOrderByRelationAggregateInput
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
   passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
 }
@@ -274,6 +276,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   ownedProjects?: Prisma.ProjectListRelationFilter
   clientProjects?: Prisma.ProjectListRelationFilter
   messages?: Prisma.MessageListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
 }, "id" | "email">
@@ -327,6 +330,7 @@ export type UserCreateInput = {
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
   clientProjects?: Prisma.ProjectCreateNestedManyWithoutClientInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
@@ -346,6 +350,7 @@ export type UserUncheckedCreateInput = {
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
   clientProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutClientInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
@@ -365,6 +370,7 @@ export type UserUpdateInput = {
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
   clientProjects?: Prisma.ProjectUpdateManyWithoutClientNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
@@ -384,6 +390,7 @@ export type UserUncheckedUpdateInput = {
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
   clientProjects?: Prisma.ProjectUncheckedUpdateManyWithoutClientNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -477,6 +484,11 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -539,6 +551,22 @@ export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
 }
 
+export type UserCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.UserUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+}
+
 export type UserCreateNestedOneWithoutMessagesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessagesInput
@@ -581,6 +609,7 @@ export type UserCreateWithoutOwnedProjectsInput = {
   updatedAt?: Date | string
   clientProjects?: Prisma.ProjectCreateNestedManyWithoutClientInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
@@ -599,6 +628,7 @@ export type UserUncheckedCreateWithoutOwnedProjectsInput = {
   updatedAt?: Date | string
   clientProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutClientInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
@@ -622,6 +652,7 @@ export type UserCreateWithoutClientProjectsInput = {
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
@@ -640,6 +671,7 @@ export type UserUncheckedCreateWithoutClientProjectsInput = {
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
@@ -674,6 +706,7 @@ export type UserUpdateWithoutOwnedProjectsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clientProjects?: Prisma.ProjectUpdateManyWithoutClientNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
@@ -692,6 +725,7 @@ export type UserUncheckedUpdateWithoutOwnedProjectsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clientProjects?: Prisma.ProjectUncheckedUpdateManyWithoutClientNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -721,6 +755,7 @@ export type UserUpdateWithoutClientProjectsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
@@ -739,6 +774,7 @@ export type UserUncheckedUpdateWithoutClientProjectsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -758,6 +794,7 @@ export type UserCreateWithoutNotificationsInput = {
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
   clientProjects?: Prisma.ProjectCreateNestedManyWithoutClientInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
@@ -776,6 +813,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
   clientProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutClientInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -810,6 +848,7 @@ export type UserUpdateWithoutNotificationsInput = {
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
   clientProjects?: Prisma.ProjectUpdateManyWithoutClientNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
@@ -828,6 +867,99 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
   clientProjects?: Prisma.ProjectUncheckedUpdateManyWithoutClientNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAuditLogsInput = {
+  id?: string
+  email: string
+  firstName: string
+  lastName: string
+  password: string
+  role: $Enums.UserRole
+  notes?: string | null
+  isBlacklisted?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  clientProjects?: Prisma.ProjectCreateNestedManyWithoutClientInput
+  messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  email: string
+  firstName: string
+  lastName: string
+  password: string
+  role: $Enums.UserRole
+  notes?: string | null
+  isBlacklisted?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  clientProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutClientInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type UserUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type UserUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  clientProjects?: Prisma.ProjectUpdateManyWithoutClientNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  clientProjects?: Prisma.ProjectUncheckedUpdateManyWithoutClientNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -845,6 +977,7 @@ export type UserCreateWithoutMessagesInput = {
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
   clientProjects?: Prisma.ProjectCreateNestedManyWithoutClientInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
@@ -863,6 +996,7 @@ export type UserUncheckedCreateWithoutMessagesInput = {
   updatedAt?: Date | string
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
   clientProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutClientInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
@@ -897,6 +1031,7 @@ export type UserUpdateWithoutMessagesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
   clientProjects?: Prisma.ProjectUpdateManyWithoutClientNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
@@ -915,6 +1050,7 @@ export type UserUncheckedUpdateWithoutMessagesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
   clientProjects?: Prisma.ProjectUncheckedUpdateManyWithoutClientNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -934,6 +1070,7 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
   clientProjects?: Prisma.ProjectCreateNestedManyWithoutClientInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
@@ -952,6 +1089,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
   clientProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutClientInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -986,6 +1124,7 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
   clientProjects?: Prisma.ProjectUpdateManyWithoutClientNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
@@ -1004,6 +1143,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
   clientProjects?: Prisma.ProjectUncheckedUpdateManyWithoutClientNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -1016,6 +1156,7 @@ export type UserCountOutputType = {
   ownedProjects: number
   clientProjects: number
   messages: number
+  auditLogs: number
   notifications: number
   passwordResetTokens: number
 }
@@ -1024,6 +1165,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   ownedProjects?: boolean | UserCountOutputTypeCountOwnedProjectsArgs
   clientProjects?: boolean | UserCountOutputTypeCountClientProjectsArgs
   messages?: boolean | UserCountOutputTypeCountMessagesArgs
+  auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
 }
@@ -1062,6 +1204,13 @@ export type UserCountOutputTypeCountMessagesArgs<ExtArgs extends runtime.Types.E
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.NotificationWhereInput
 }
@@ -1089,6 +1238,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   ownedProjects?: boolean | Prisma.User$ownedProjectsArgs<ExtArgs>
   clientProjects?: boolean | Prisma.User$clientProjectsArgs<ExtArgs>
   messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1141,6 +1291,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   ownedProjects?: boolean | Prisma.User$ownedProjectsArgs<ExtArgs>
   clientProjects?: boolean | Prisma.User$clientProjectsArgs<ExtArgs>
   messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1154,6 +1305,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     ownedProjects: Prisma.$ProjectPayload<ExtArgs>[]
     clientProjects: Prisma.$ProjectPayload<ExtArgs>[]
     messages: Prisma.$MessagePayload<ExtArgs>[]
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
     passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
   }
@@ -1566,6 +1718,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   ownedProjects<T extends Prisma.User$ownedProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   clientProjects<T extends Prisma.User$clientProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$clientProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   messages<T extends Prisma.User$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2070,6 +2223,30 @@ export type User$messagesArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.MessageScalarFieldEnum | Prisma.MessageScalarFieldEnum[]
+}
+
+/**
+ * User.auditLogs
+ */
+export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
 }
 
 /**
