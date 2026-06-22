@@ -1,35 +1,50 @@
 "use server";
 
+import { auth } from "@/auth";
+import { createAuditLog } from "@/lib/audit";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
-export async function createProposalAction(
-  formData: FormData
-) {
-  const projectId = String(
-    formData.get("projectId")
-  );
+export async function createProposalAction(formData: FormData) {
+  const session = await auth();
 
-  await prisma.proposal.create({
+  if (!session?.user) {
+    return;
+  }
+
+  const projectId = String(formData.get("projectId"));
+
+  const proposal = await prisma.proposal.create({
     data: {
       projectId,
       approved: false,
     },
   });
 
+  await createAuditLog({
+    action: "PROPOSAL_CREATED",
+    entity: "PROPOSAL",
+    entityId: proposal.id,
+    userId: session.user.id,
+    metadata: {
+      projectId: proposal.projectId,
+      approved: proposal.approved,
+    },
+  });
+
   redirect(`/projects/${projectId}`);
 }
 
-export async function toggleProposalApprovalAction(
-  formData: FormData
-) {
-  const proposalId = String(
-    formData.get("proposalId")
-  );
+export async function toggleProposalApprovalAction(formData: FormData) {
+  const session = await auth();
 
-  const projectId = String(
-    formData.get("projectId")
-  );
+  if (!session?.user) {
+    return;
+  }
+
+  const proposalId = String(formData.get("proposalId"));
+
+  const projectId = String(formData.get("projectId"));
 
   const proposal = await prisma.proposal.findUnique({
     where: {
@@ -41,7 +56,7 @@ export async function toggleProposalApprovalAction(
     return;
   }
 
-  await prisma.proposal.update({
+  const updatedProposal = await prisma.proposal.update({
     where: {
       id: proposalId,
     },
@@ -50,19 +65,26 @@ export async function toggleProposalApprovalAction(
     },
   });
 
+  await createAuditLog({
+    action: updatedProposal.approved
+      ? "PROPOSAL_APPROVED"
+      : "PROPOSAL_REJECTED",
+    entity: "PROPOSAL",
+    entityId: updatedProposal.id,
+    userId: session.user.id,
+    metadata: {
+      projectId: updatedProposal.projectId,
+      approved: updatedProposal.approved,
+    },
+  });
+
   redirect(`/projects/${projectId}`);
 }
 
-export async function deleteProposalAction(
-  formData: FormData
-) {
-  const proposalId = String(
-    formData.get("proposalId")
-  );
+export async function deleteProposalAction(formData: FormData) {
+  const proposalId = String(formData.get("proposalId"));
 
-  const projectId = String(
-    formData.get("projectId")
-  );
+  const projectId = String(formData.get("projectId"));
 
   await prisma.proposal.delete({
     where: {
