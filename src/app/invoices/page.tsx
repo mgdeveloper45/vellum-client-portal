@@ -14,6 +14,7 @@ export default async function InvoicesPage() {
   if (!session?.user) {
     return null;
   }
+  
   const projectFilter =
     session.user.role === "ADMIN"
       ? {}
