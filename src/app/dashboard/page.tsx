@@ -37,6 +37,17 @@ export default async function DashboardPage() {
     },
   });
 
+  const completedProjects = await prisma.project.count({
+    where: {
+      ...projectFilter,
+      status: "COMPLETED",
+    },
+  });
+
+  const totalProjects = await prisma.project.count({
+    where: projectFilter,
+  });
+
   const openInvoices = await prisma.invoice.count({
     where: {
       paid: false,
@@ -44,18 +55,15 @@ export default async function DashboardPage() {
     },
   });
 
-  const pendingMilestones = await prisma.milestone.count({
+  const totalInvoices = await prisma.invoice.count({
     where: {
-      status: {
-        in: ["PENDING", "IN_PROGRESS"],
-      },
       project: projectFilter,
     },
   });
 
-  const approvedProposals = await prisma.proposal.count({
+  const paidInvoices = await prisma.invoice.count({
     where: {
-      approved: true,
+      paid: true,
       project: projectFilter,
     },
   });
@@ -80,15 +88,24 @@ export default async function DashboardPage() {
     },
   });
 
-  const totalInvoices = await prisma.invoice.count({
+  const pendingMilestones = await prisma.milestone.count({
     where: {
+      status: {
+        in: ["PENDING", "IN_PROGRESS"],
+      },
       project: projectFilter,
     },
   });
 
-  const paidInvoices = await prisma.invoice.count({
+  const approvedProposals = await prisma.proposal.count({
     where: {
-      paid: true,
+      approved: true,
+      project: projectFilter,
+    },
+  });
+
+  const totalProposals = await prisma.proposal.count({
+    where: {
       project: projectFilter,
     },
   });
@@ -103,17 +120,24 @@ export default async function DashboardPage() {
     take: 10,
   });
 
-
   const collectionRate =
     totalInvoices === 0
       ? 0
       : Math.round((paidInvoices / totalInvoices) * 100);
 
-  const revenueCollected =
-    totalRevenue._sum.amount ?? 0;
+  const proposalConversionRate =
+    totalProposals === 0
+      ? 0
+      : Math.round((approvedProposals / totalProposals) * 100);
 
-  const revenueOutstanding =
-    outstandingRevenue._sum.amount ?? 0;
+  const projectCompletionRate =
+    totalProjects === 0
+      ? 0
+      : Math.round((completedProjects / totalProjects) * 100);
+
+  const revenueCollected = totalRevenue._sum.amount ?? 0;
+
+  const revenueOutstanding = outstandingRevenue._sum.amount ?? 0;
 
   const metrics = [
     {
@@ -157,6 +181,16 @@ export default async function DashboardPage() {
       helper: "Invoices paid",
     },
     {
+      label: "Proposal Conversion",
+      value: `${proposalConversionRate}%`,
+      helper: "Proposals approved",
+    },
+    {
+      label: "Project Completion",
+      value: `${projectCompletionRate}%`,
+      helper: "Projects completed",
+    },
+    {
       label: "Activity Events",
       value: recentActivity.length,
       helper: "Recent audit events",
@@ -179,25 +213,17 @@ export default async function DashboardPage() {
             key={metric.label}
             className="rounded-2xl border border-border bg-card p-6"
           >
-            <p className="text-sm text-foreground/60">
-              {metric.label}
-            </p>
+            <p className="text-sm text-foreground/60">{metric.label}</p>
 
-            <p className="mt-4 text-3xl font-light">
-              {metric.value}
-            </p>
+            <p className="mt-4 text-3xl font-light">{metric.value}</p>
 
-            <p className="mt-3 text-sm text-foreground/60">
-              {metric.helper}
-            </p>
+            <p className="mt-3 text-sm text-foreground/60">{metric.helper}</p>
           </div>
         ))}
       </div>
 
       <div className="mt-10">
-        <h2 className="text-2xl font-light">
-          Recent Activity
-        </h2>
+        <h2 className="text-2xl font-light">Recent Activity</h2>
 
         <div className="mt-4 grid gap-3">
           {recentActivity.map((activity) => (
@@ -205,9 +231,7 @@ export default async function DashboardPage() {
               key={activity.id}
               className="rounded-2xl border border-border bg-card p-5"
             >
-              <p className="font-medium">
-                {formatActivityTitle(activity)}
-              </p>
+              <p className="font-medium">{formatActivityTitle(activity)}</p>
 
               <p className="mt-1 text-sm text-foreground/70">
                 {activity.user
@@ -226,7 +250,6 @@ export default async function DashboardPage() {
           ))}
         </div>
       </div>
-
     </DashboardShell>
   );
 }
