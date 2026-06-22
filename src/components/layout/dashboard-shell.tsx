@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { NotificationNavBadge } from "@/components/notifications/notification-nav-badge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -45,7 +46,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                                         isActive && "bg-muted text-accent"
                                     )}
                                 >
-                                    {item.label}
+                                    <span>
+                                        {item.label}
+
+                                        {item.href === "/notifications" && (
+                                            <NotificationNavBadge />
+                                        )}
+                                    </span>
                                 </Link>
                             );
                         })}
