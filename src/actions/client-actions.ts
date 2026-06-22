@@ -1,6 +1,8 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { auth } from "@/auth";
+import { canManageClients } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
@@ -9,6 +11,12 @@ import { prisma } from "@/lib/prisma";
  * Temporary password is used for development until invite emails are added.
  */
 export async function createClientAction(formData: FormData) {
+  const session = await auth();
+
+  if (!canManageClients(session?.user?.role)) {
+    return;
+  }
+
   const firstName = String(formData.get("firstName"));
   const lastName = String(formData.get("lastName"));
   const email = String(formData.get("email"));
@@ -34,6 +42,12 @@ export async function createClientAction(formData: FormData) {
  * Updates an existing client profile.
  */
 export async function updateClientAction(formData: FormData) {
+  const session = await auth();
+
+  if (!canManageClients(session?.user?.role)) {
+    return;
+  }
+
   const clientId = String(formData.get("clientId"));
   const firstName = String(formData.get("firstName"));
   const lastName = String(formData.get("lastName"));
@@ -62,6 +76,12 @@ export async function updateClientAction(formData: FormData) {
  * This is admin-only behavior for now.
  */
 export async function deleteClientAction(formData: FormData) {
+  const session = await auth();
+
+  if (!canManageClients(session?.user?.role)) {
+    return;
+  }
+
   const clientId = String(formData.get("clientId"));
 
   await prisma.user.delete({

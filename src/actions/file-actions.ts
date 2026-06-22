@@ -2,13 +2,14 @@
 
 import { auth } from "@/auth";
 import { createAuditLog } from "@/lib/audit";
+import { canManageProjects } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export async function createProjectFileAction(formData: FormData) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!canManageProjects(session?.user?.role)) {
     return;
   }
 
@@ -45,6 +46,11 @@ export async function createProjectFileAction(formData: FormData) {
 }
 
 export async function deleteProjectFileAction(formData: FormData) {
+  const session = await auth();
+  if (!canManageProjects(session?.user?.role)) {
+    return;
+  }
+
   const fileId = String(formData.get("fileId"));
 
   const projectId = String(formData.get("projectId"));

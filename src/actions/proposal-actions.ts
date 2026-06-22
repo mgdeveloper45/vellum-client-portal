@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { canManageProposals } from "@/lib/permissions";
 import { createAuditLog } from "@/lib/audit";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -8,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 export async function createProposalAction(formData: FormData) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!canManageProposals(session?.user?.role)) {
     return;
   }
 
@@ -38,7 +39,7 @@ export async function createProposalAction(formData: FormData) {
 export async function toggleProposalApprovalAction(formData: FormData) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!canManageProposals(session?.user?.role)) {
     return;
   }
 
@@ -82,6 +83,12 @@ export async function toggleProposalApprovalAction(formData: FormData) {
 }
 
 export async function deleteProposalAction(formData: FormData) {
+  const session = await auth();
+
+  if (!canManageProposals(session?.user?.role)) {
+    return;
+  }
+
   const proposalId = String(formData.get("proposalId"));
 
   const projectId = String(formData.get("projectId"));

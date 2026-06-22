@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { canManageInvoices } from "@/lib/permissions";
 import { createAuditLog } from "@/lib/audit";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -11,7 +12,7 @@ import { prisma } from "@/lib/prisma";
 export async function createInvoiceAction(formData: FormData) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!canManageInvoices(session?.user?.role)) {
     return;
   }
 
@@ -47,7 +48,7 @@ export async function createInvoiceAction(formData: FormData) {
 export async function toggleInvoicePaidAction(formData: FormData) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!canManageInvoices(session?.user?.role)) {
     return;
   }
 
@@ -93,6 +94,12 @@ export async function toggleInvoicePaidAction(formData: FormData) {
  * Deletes an invoice for a project.
  */
 export async function deleteInvoiceAction(formData: FormData) {
+  const session = await auth();
+
+  if (!canManageInvoices(session?.user?.role)) {
+    return;
+  }
+
   const invoiceId = String(formData.get("invoiceId"));
 
   const projectId = String(formData.get("projectId"));

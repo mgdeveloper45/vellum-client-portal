@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { canManageProjects } from "@/lib/permissions";
 import { createAuditLog } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
@@ -11,7 +12,7 @@ import { redirect } from "next/navigation";
 export async function createProjectAction(formData: FormData) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!canManageProjects(session?.user?.role)) {
     return;
   }
 
@@ -57,7 +58,7 @@ export async function createProjectAction(formData: FormData) {
 export async function updateProjectAction(formData: FormData) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!canManageProjects(session?.user?.role)) {
     return;
   }
 
@@ -102,7 +103,7 @@ export async function updateProjectAction(formData: FormData) {
 export async function deleteProjectAction(formData: FormData) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!canManageProjects(session?.user?.role)) {
     return;
   }
 

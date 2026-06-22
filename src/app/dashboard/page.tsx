@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
+import { formatActivityTitle } from "@/lib/activity";
 
 /**
  * Dashboard page.
@@ -59,18 +60,14 @@ export default async function DashboardPage() {
     },
   });
 
-  const recentMessages = await prisma.message.findMany({
-    take: 5,
-    where: {
-      project: projectFilter,
+  const recentActivity = await prisma.auditLog.findMany({
+    include: {
+      user: true,
     },
     orderBy: {
       createdAt: "desc",
     },
-    include: {
-      sender: true,
-      project: true,
-    },
+    take: 10,
   });
 
   const metrics = [
@@ -138,25 +135,27 @@ export default async function DashboardPage() {
         </h2>
 
         <div className="mt-4 grid gap-3">
-          {recentMessages.map((message) => (
+          {recentActivity.map((activity) => (
             <div
-              key={message.id}
-              className="rounded-2xl border border-border bg-card p-4"
+              key={activity.id}
+              className="rounded-2xl border border-border bg-card p-5"
             >
               <p className="font-medium">
-                {message.sender.firstName} {message.sender.lastName}
+                {formatActivityTitle(activity)}
               </p>
 
-              <p className="text-sm text-foreground/60">
-                {message.project.name}
+              <p className="mt-1 text-sm text-foreground/70">
+                {activity.user
+                  ? `${activity.user.firstName} ${activity.user.lastName}`
+                  : "System"}
               </p>
 
-              <p className="mt-2 text-sm">
-                {message.content}
+              <p className="mt-2 text-sm text-foreground/60">
+                {activity.entity}
               </p>
 
               <p className="mt-2 text-xs text-foreground/50">
-                {message.createdAt.toLocaleDateString()}
+                {activity.createdAt.toLocaleString()}
               </p>
             </div>
           ))}

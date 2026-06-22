@@ -1,10 +1,17 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { auth } from "@/auth";
+import { canManageUsers } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export async function createUserAction(formData: FormData) {
+  const session = await auth();
+
+  if (!canManageUsers(session?.user?.role)) {
+    return;
+  }
   const firstName = String(formData.get("firstName"));
   const lastName = String(formData.get("lastName"));
   const email = String(formData.get("email"));
@@ -28,6 +35,11 @@ export async function createUserAction(formData: FormData) {
 }
 
 export async function updateUserAction(formData: FormData) {
+  const session = await auth();
+
+  if (!canManageUsers(session?.user?.role)) {
+    return;
+  }
   const userId = String(formData.get("userId"));
   const firstName = String(formData.get("firstName"));
   const lastName = String(formData.get("lastName"));

@@ -1,9 +1,17 @@
 "use server";
 
+import { auth } from "@/auth";
+import { canManageProjects } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export async function createMilestoneAction(formData: FormData) {
+  const session = await auth();
+
+  if (!canManageProjects(session?.user?.role)) {
+    return;
+  }
+
   const projectId = String(formData.get("projectId"));
   const title = String(formData.get("title"));
   const dueDateValue = String(formData.get("dueDate") || "");
@@ -21,6 +29,12 @@ export async function createMilestoneAction(formData: FormData) {
 }
 
 export async function cycleMilestoneStatusAction(formData: FormData) {
+  const session = await auth();
+
+  if (!canManageProjects(session?.user?.role)) {
+    return;
+  }
+
   const milestoneId = String(formData.get("milestoneId"));
   const projectId = String(formData.get("projectId"));
 
@@ -47,16 +61,16 @@ export async function cycleMilestoneStatusAction(formData: FormData) {
   redirect(`/projects/${projectId}`);
 }
 
-export async function deleteMilestoneAction(
-  formData: FormData
-) {
-  const milestoneId = String(
-    formData.get("milestoneId")
-  );
+export async function deleteMilestoneAction(formData: FormData) {
+  const session = await auth();
 
-  const projectId = String(
-    formData.get("projectId")
-  );
+  if (!canManageProjects(session?.user?.role)) {
+    return;
+  }
+
+  const milestoneId = String(formData.get("milestoneId"));
+
+  const projectId = String(formData.get("projectId"));
 
   await prisma.milestone.delete({
     where: {
