@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 import {
     requestPasswordResetAction,
@@ -31,15 +30,6 @@ export function ForgotPasswordForm() {
 
             {state.success && (
                 <p className="text-sm text-green-400">{state.success}</p>
-            )}
-
-            {state.resetUrl && (
-                <Link
-                    href={state.resetUrl}
-                    className="block text-sm text-accent underline"
-                >
-                    Open reset link
-                </Link>
             )}
 
             <button

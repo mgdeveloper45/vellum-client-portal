@@ -4,6 +4,7 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { sendPasswordResetEmail } from "@/lib/email";
 
 export type PasswordResetState = {
   error?: string;
@@ -38,11 +39,15 @@ export async function requestPasswordResetAction(
     },
   });
 
-  const resetUrl = `/reset-password?token=${token}`;
+  const resetUrl = `${process.env.APP_URL}/reset-password?token=${token}`;
+
+  await sendPasswordResetEmail({
+    email: user.email,
+    resetUrl,
+  });
 
   return {
-    success: "Password reset link created.",
-    resetUrl,
+    success: "If an account exists for that email, a reset link has been sent.",
   };
 }
 
