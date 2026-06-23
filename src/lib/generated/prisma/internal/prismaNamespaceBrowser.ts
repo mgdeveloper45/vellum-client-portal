@@ -61,7 +61,8 @@ export const ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   Proposal: 'Proposal',
   Invoice: 'Invoice',
-  Workspace: 'Workspace'
+  Workspace: 'Workspace',
+  WorkspaceInvitation: 'WorkspaceInvitation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -213,6 +214,21 @@ export const WorkspaceScalarFieldEnum = {
 } as const
 
 export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]
+
+
+export const WorkspaceInvitationScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  role: 'role',
+  token: 'token',
+  workspaceId: 'workspaceId',
+  invitedById: 'invitedById',
+  acceptedAt: 'acceptedAt',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkspaceInvitationScalarFieldEnum = (typeof WorkspaceInvitationScalarFieldEnum)[keyof typeof WorkspaceInvitationScalarFieldEnum]
 
 
 export const SortOrder = {

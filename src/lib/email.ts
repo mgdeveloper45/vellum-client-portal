@@ -73,3 +73,38 @@ export async function sendProjectMessageEmail({
     `,
   });
 }
+
+type SendWorkspaceInvitationEmailParams = {
+  email: string;
+  workspaceName: string;
+  inviteUrl: string;
+};
+
+export async function sendWorkspaceInvitationEmail({
+  email,
+  workspaceName,
+  inviteUrl,
+}: SendWorkspaceInvitationEmailParams) {
+  await resend.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to: email,
+    subject: `You're invited to join ${workspaceName}`,
+    html: `
+      <h1>You're invited to Vellum</h1>
+
+      <p>
+        You've been invited to join <strong>${workspaceName}</strong>.
+      </p>
+
+      <p>
+        <a href="${inviteUrl}">
+          Accept Invitation
+        </a>
+      </p>
+
+      <p>
+        This invitation expires in 7 days.
+      </p>
+    `,
+  });
+}

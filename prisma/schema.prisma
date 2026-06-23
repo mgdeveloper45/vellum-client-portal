@@ -48,6 +48,7 @@ model User {
   clientProjects Project[] @relation("ClientProjects")
 
   workspace Workspace? @relation(fields: [workspaceId], references: [id])
+  sentInvitations WorkspaceInvitation[]
 
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -199,7 +200,27 @@ model Workspace {
 
   users       User[]
   projects    Project[]
+  invitations WorkspaceInvitation[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model WorkspaceInvitation {
+  id          String   @id @default(cuid())
+
+  email       String
+  role        UserRole
+  token       String   @unique
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  invitedById String
+  invitedBy   User @relation(fields: [invitedById], references: [id])
+
+  acceptedAt  DateTime?
+  expiresAt   DateTime
+
+  createdAt   DateTime @default(now())
 }
