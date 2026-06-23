@@ -67,3 +67,8 @@ export type Proposal = Prisma.ProposalModel
  * 
  */
 export type Invoice = Prisma.InvoiceModel
+/**
+ * Model Workspace
+ * 
+ */
+export type Workspace = Prisma.WorkspaceModel

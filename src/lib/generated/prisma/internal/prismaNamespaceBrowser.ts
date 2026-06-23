@@ -60,7 +60,8 @@ export const ModelName = {
   Message: 'Message',
   PasswordResetToken: 'PasswordResetToken',
   Proposal: 'Proposal',
-  Invoice: 'Invoice'
+  Invoice: 'Invoice',
+  Workspace: 'Workspace'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -87,6 +88,7 @@ export const UserScalarFieldEnum = {
   password: 'password',
   role: 'role',
   notes: 'notes',
+  workspaceId: 'workspaceId',
   isBlacklisted: 'isBlacklisted',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -103,6 +105,7 @@ export const ProjectScalarFieldEnum = {
   status: 'status',
   ownerId: 'ownerId',
   clientId: 'clientId',
+  workspaceId: 'workspaceId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -200,6 +203,16 @@ export const InvoiceScalarFieldEnum = {
 } as const
 
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+export const WorkspaceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]
 
 
 export const SortOrder = {

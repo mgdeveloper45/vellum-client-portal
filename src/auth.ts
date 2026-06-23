@@ -3,12 +3,8 @@ import { prisma } from "@/lib/prisma";
 
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 
-/**
- * Auth.js configuration.
- * Uses a temporary credentials login while we build the app.
- * Later, this will connect to users stored in PostgreSQL.
- */
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
 
@@ -17,14 +13,54 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   callbacks: {
-  authorized({ auth }) {
-    return !!auth;
-  },
+    authorized({ auth }) {
+      return !!auth;
+    },
 
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") {
+        return true;
+      }
+
+      if (!user.email) {
+        return false;
+      }
+
+      const existingUser = await prisma.user.findUnique({
+        where: {
+          email: user.email,
+        },
+      });
+
+      if (existingUser) {
+        return true;
+      }
+
+      await prisma.user.create({
+        data: {
+          firstName: user.name?.split(" ")[0] ?? "Google",
+          lastName: user.name?.split(" ").slice(1).join(" ") || "User",
+          email: user.email,
+          role: "CLIENT",
+          isActive: true,
+        },
+      });
+
+      return true;
+    },
+
+    async jwt({ token, user }) {
+      if (user?.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: {
+            email: user.email,
+          },
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+        }
       }
 
       return token;
@@ -41,6 +77,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+    }),
+
     Credentials({
       credentials: {
         email: {},
@@ -57,7 +98,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           },
         });
 
-        if (!user) {
+        if (!user || !user.password) {
           return null;
         }
 

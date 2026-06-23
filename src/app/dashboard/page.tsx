@@ -5,7 +5,7 @@ import { formatActivityTitle } from "@/lib/activity";
 
 /**
  * Dashboard page.
- * Shows real business metrics from PostgreSQL.
+ * Shows workspace-aware business metrics from PostgreSQL.
  */
 export default async function DashboardPage() {
   const session = await auth();
@@ -14,57 +14,74 @@ export default async function DashboardPage() {
     return null;
   }
 
-  const projectFilter =
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      workspaceId: true,
+    },
+  });
+
+  if (!currentUser?.workspaceId) {
+    return null;
+  }
+
+  const workspaceProjectFilter =
     session.user.role === "ADMIN"
-      ? {}
+      ? {
+          workspaceId: currentUser.workspaceId,
+        }
       : {
-        clientId: session.user.id,
-      };
+          workspaceId: currentUser.workspaceId,
+          clientId: session.user.id,
+        };
 
   const totalClients =
     session.user.role === "ADMIN"
       ? await prisma.user.count({
-        where: {
-          role: "CLIENT",
-        },
-      })
+          where: {
+            role: "CLIENT",
+            workspaceId: currentUser.workspaceId,
+          },
+        })
       : 1;
 
   const activeProjects = await prisma.project.count({
     where: {
-      ...projectFilter,
+      ...workspaceProjectFilter,
       status: "ACTIVE",
     },
   });
 
   const completedProjects = await prisma.project.count({
     where: {
-      ...projectFilter,
+      ...workspaceProjectFilter,
       status: "COMPLETED",
     },
   });
 
   const totalProjects = await prisma.project.count({
-    where: projectFilter,
+    where: workspaceProjectFilter,
   });
 
   const openInvoices = await prisma.invoice.count({
     where: {
       paid: false,
-      project: projectFilter,
+      project: workspaceProjectFilter,
     },
   });
 
   const totalInvoices = await prisma.invoice.count({
     where: {
-      project: projectFilter,
+      project: workspaceProjectFilter,
     },
   });
 
   const paidInvoices = await prisma.invoice.count({
     where: {
       paid: true,
-      project: projectFilter,
+      project: workspaceProjectFilter,
     },
   });
 
@@ -74,7 +91,7 @@ export default async function DashboardPage() {
     },
     where: {
       paid: true,
-      project: projectFilter,
+      project: workspaceProjectFilter,
     },
   });
 
@@ -84,7 +101,7 @@ export default async function DashboardPage() {
     },
     where: {
       paid: false,
-      project: projectFilter,
+      project: workspaceProjectFilter,
     },
   });
 
@@ -93,24 +110,29 @@ export default async function DashboardPage() {
       status: {
         in: ["PENDING", "IN_PROGRESS"],
       },
-      project: projectFilter,
+      project: workspaceProjectFilter,
     },
   });
 
   const approvedProposals = await prisma.proposal.count({
     where: {
       approved: true,
-      project: projectFilter,
+      project: workspaceProjectFilter,
     },
   });
 
   const totalProposals = await prisma.proposal.count({
     where: {
-      project: projectFilter,
+      project: workspaceProjectFilter,
     },
   });
 
   const recentActivity = await prisma.auditLog.findMany({
+    where: {
+      user: {
+        workspaceId: currentUser.workspaceId,
+      },
+    },
     include: {
       user: true,
     },

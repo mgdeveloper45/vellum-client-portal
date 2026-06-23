@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { formatStatus } from "@/lib/utils";
+import { getR2DownloadUrl } from "@/lib/r2";
 import { canManageProjects } from "@/lib/permissions";
 import { createMessageAction } from "@/actions/message-actions";
 import {
@@ -98,6 +99,13 @@ export default async function ProjectDetailPage({
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
+  const projectFiles = await Promise.all(
+    project.files.map(async (file) => ({
+      ...file,
+      downloadUrl: await getR2DownloadUrl(file.url),
+    }))
+  );
+
   return (
     <DashboardShell>
       <Link href="/projects" className="text-sm text-accent">
@@ -158,40 +166,33 @@ export default async function ProjectDetailPage({
 
           {canManageProject && (
             <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-              <form action={createProjectFileAction} className="space-y-3">
-                <input type="hidden" name="projectId" value={project.id} />
-
+              <form
+                action={createProjectFileAction}
+                className="space-y-3"
+                encType="multipart/form-data"
+              >
                 <input
-                  name="name"
-                  required
-                  placeholder="File name"
-                  className="w-full rounded-lg border border-border bg-background px-4 py-3"
+                  type="hidden"
+                  name="projectId"
+                  value={project.id}
                 />
 
                 <input
-                  name="url"
-                  type="url"
+                  name="file"
+                  type="file"
                   required
-                  placeholder="File URL"
-                  className="w-full rounded-lg border border-border bg-background px-4 py-3"
-                />
-
-                <input
-                  name="fileType"
-                  required
-                  placeholder="File type, e.g. PDF, Contract, Design"
                   className="w-full rounded-lg border border-border bg-background px-4 py-3"
                 />
 
                 <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
-                  Add File
+                  Upload File
                 </button>
               </form>
             </div>
           )}
 
           <div className="mt-4 grid gap-3">
-            {project.files.map((file) => (
+            {projectFiles.map((file) => (
               <div
                 key={file.id}
                 className="rounded-xl border border-border p-4 transition hover:border-accent"
@@ -202,7 +203,7 @@ export default async function ProjectDetailPage({
                 </p>
 
                 <a
-                  href={file.url}
+                  href={file.downloadUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-2 block text-xs text-accent"

@@ -12,6 +12,7 @@ export async function createUserAction(formData: FormData) {
   if (!canManageUsers(session?.user?.role)) {
     return;
   }
+
   const firstName = String(formData.get("firstName"));
   const lastName = String(formData.get("lastName"));
   const email = String(formData.get("email"));
@@ -19,6 +20,15 @@ export async function createUserAction(formData: FormData) {
   const password = String(formData.get("password"));
 
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  const adminUser = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      workspaceId: true,
+    },
+  });
 
   await prisma.user.create({
     data: {
@@ -28,6 +38,7 @@ export async function createUserAction(formData: FormData) {
       role,
       password: hashedPassword,
       isActive: true,
+      workspaceId: adminUser?.workspaceId,
     },
   });
 

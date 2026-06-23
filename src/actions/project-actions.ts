@@ -27,6 +27,19 @@ export async function createProjectAction(formData: FormData) {
     | "REVIEW"
     | "COMPLETED";
 
+  const adminUser = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      workspaceId: true,
+    },
+  });
+
+  if (!adminUser?.workspaceId) {
+    return;
+  }
+
   const project = await prisma.project.create({
     data: {
       name,
@@ -34,6 +47,7 @@ export async function createProjectAction(formData: FormData) {
       status,
       ownerId,
       clientId,
+      workspaceId: adminUser.workspaceId,
     },
   });
 
