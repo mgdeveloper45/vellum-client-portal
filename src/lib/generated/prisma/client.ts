@@ -101,3 +101,8 @@ export type Workspace = Prisma.WorkspaceModel
  * 
  */
 export type WorkspaceInvitation = Prisma.WorkspaceInvitationModel
+/**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel

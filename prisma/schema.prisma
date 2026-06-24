@@ -30,6 +30,12 @@ enum MilestoneStatus {
   COMPLETE
 }
 
+enum SubscriptionPlan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
 model User {
   id         String    @id @default(cuid())
   email      String    @unique
@@ -204,6 +210,7 @@ model Workspace {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  subscription Subscription?
 }
 
 model WorkspaceInvitation {
@@ -223,4 +230,23 @@ model WorkspaceInvitation {
   expiresAt   DateTime
 
   createdAt   DateTime @default(now())
+}
+
+model Subscription {
+  id                 String   @id @default(cuid())
+
+  workspaceId        String   @unique
+  workspace          Workspace @relation(fields: [workspaceId], references: [id])
+
+  stripeCustomerId   String?  @unique
+  stripeSubscriptionId String? @unique
+
+  plan               SubscriptionPlan @default(STARTER)
+
+  active             Boolean @default(false)
+
+  currentPeriodEnd   DateTime?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }

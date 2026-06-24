@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { createCheckoutSessionAction } from "@/actions/billing-actions";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
 
 export default async function SettingsPage() {
@@ -56,6 +57,21 @@ export default async function SettingsPage() {
 
           <ChangePasswordForm />
         </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="text-xl font-medium">Billing</h2>
+
+          <p className="mt-2 text-sm text-foreground/70">
+            Upgrade your workspace to Vellum Professional.
+          </p>
+
+          <form action={createCheckoutSessionAction} className="mt-4">
+            <button className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-black">
+              Upgrade to Professional
+            </button>
+          </form>
+        </div>
+
       </div>
     </DashboardShell>
   );
