@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { createCheckoutSessionAction } from "@/actions/billing-actions";
+import { openCustomerPortalAction } from "@/actions/customer-portal-actions";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
 
 export default async function SettingsPage() {
@@ -68,6 +69,12 @@ export default async function SettingsPage() {
           <form action={createCheckoutSessionAction} className="mt-4">
             <button className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-black">
               Upgrade to Professional
+            </button>
+          </form>
+
+          <form action={openCustomerPortalAction} className="mt-3">
+            <button className="rounded-full border border-border px-5 py-2 text-sm font-medium transition hover:border-accent">
+              Manage Billing
             </button>
           </form>
         </div>
