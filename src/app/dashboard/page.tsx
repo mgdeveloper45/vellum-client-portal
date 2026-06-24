@@ -1,11 +1,13 @@
 import { auth } from "@/auth";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
 import { formatActivityTitle } from "@/lib/activity";
+import { hasProfessionalPlan } from "@/lib/subscription";
+import { DashboardShell } from "@/components/layout/dashboard-shell";
 
 /**
  * Dashboard page.
  * Shows workspace-aware business metrics from PostgreSQL.
+ * Professional plan unlocks executive analytics.
  */
 export default async function DashboardPage() {
   const session = await auth();
@@ -13,6 +15,8 @@ export default async function DashboardPage() {
   if (!session?.user) {
     return null;
   }
+
+  const isProfessional = await hasProfessionalPlan(session.user.id);
 
   const currentUser = await prisma.user.findUnique({
     where: {
@@ -158,10 +162,9 @@ export default async function DashboardPage() {
       : Math.round((completedProjects / totalProjects) * 100);
 
   const revenueCollected = totalRevenue._sum.amount ?? 0;
-
   const revenueOutstanding = outstandingRevenue._sum.amount ?? 0;
 
-  const metrics = [
+  const baseMetrics = [
     {
       label: "Clients",
       value: totalClients,
@@ -188,6 +191,14 @@ export default async function DashboardPage() {
       helper: "Accepted client proposals",
     },
     {
+      label: "Activity Events",
+      value: recentActivity.length,
+      helper: "Recent audit events",
+    },
+  ];
+
+  const professionalMetrics = [
+    {
       label: "Revenue Collected",
       value: `$${revenueCollected.toLocaleString()}`,
       helper: "Paid invoices",
@@ -212,12 +223,11 @@ export default async function DashboardPage() {
       value: `${projectCompletionRate}%`,
       helper: "Projects completed",
     },
-    {
-      label: "Activity Events",
-      value: recentActivity.length,
-      helper: "Recent audit events",
-    },
   ];
+
+  const metrics = isProfessional
+    ? [...baseMetrics, ...professionalMetrics]
+    : baseMetrics;
 
   return (
     <DashboardShell>
@@ -228,6 +238,17 @@ export default async function DashboardPage() {
           A real-time overview of clients, projects, invoices, and milestones.
         </p>
       </div>
+
+      {!isProfessional && (
+        <div className="mt-6 rounded-2xl border border-accent/40 bg-card p-5">
+          <p className="font-medium">Unlock Executive Analytics</p>
+
+          <p className="mt-2 text-sm text-foreground/70">
+            Upgrade to Professional to view revenue, collection, proposal, and
+            project completion insights.
+          </p>
+        </div>
+      )}
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {metrics.map((metric) => (
