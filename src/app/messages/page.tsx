@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 export default async function MessagesPage() {
   const session = await auth();
@@ -14,8 +14,8 @@ export default async function MessagesPage() {
     session.user.role === "ADMIN"
       ? {}
       : {
-          clientId: session.user.id,
-        };
+        clientId: session.user.id,
+      };
 
   const messages = await prisma.message.findMany({
     where: {
@@ -36,7 +36,7 @@ export default async function MessagesPage() {
   });
 
   return (
-    <DashboardShell>
+    <BrandedDashboardShell>
       <h1 className="text-3xl font-light">Messages</h1>
 
       <p className="mt-2 text-foreground/70">
@@ -69,6 +69,6 @@ export default async function MessagesPage() {
           </Link>
         ))}
       </div>
-    </DashboardShell>
+    </BrandedDashboardShell>
   );
 }

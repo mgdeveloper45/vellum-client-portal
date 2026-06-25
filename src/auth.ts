@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
-import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import { prisma } from "@/lib/prisma";
 import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
+import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,

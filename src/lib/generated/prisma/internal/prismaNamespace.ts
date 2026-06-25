@@ -1546,7 +1546,11 @@ export const WorkspaceScalarFieldEnum = {
   id: 'id',
   name: 'name',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  companyName: 'companyName',
+  logoImageUrl: 'logoImageUrl',
+  accentColor: 'accentColor',
+  customDomain: 'customDomain'
 } as const
 
 export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]

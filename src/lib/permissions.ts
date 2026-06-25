@@ -1,41 +1,37 @@
-type UserRole = "ADMIN" | "CLIENT";
+type Role = "OWNER" | "ADMIN" | "MANAGER" | "CLIENT" | undefined | null;
 
-export function isAdmin(role?: string | null) {
-  return role === "ADMIN";
+export function canManageWorkspace(role: Role) {
+  return role === "OWNER" || role === "ADMIN";
 }
 
-export function isClient(role?: string | null) {
-  return role === "CLIENT";
+export function canInviteMembers(role: Role) {
+  return role === "OWNER" || role === "ADMIN";
 }
 
-export function canManageUsers(role?: string | null) {
-  return isAdmin(role);
+export function canManageUsers(role: Role) {
+  return role === "OWNER" || role === "ADMIN";
 }
 
-export function canManageClients(role?: string | null) {
-  return isAdmin(role);
+export function canManageBilling(role: Role) {
+  return role === "OWNER";
 }
 
-export function canManageProjects(role?: string | null) {
-  return isAdmin(role);
+export function canManageProjects(role: Role) {
+  return role === "OWNER" || role === "ADMIN" || role === "MANAGER";
 }
 
-export function canManageInvoices(role?: string | null) {
-  return isAdmin(role);
+export function canManageInvoices(role: Role) {
+  return role === "OWNER" || role === "ADMIN" || role === "MANAGER";
 }
 
-export function canManageProposals(role?: string | null) {
-  return isAdmin(role);
+export function canManageProposals(role: Role) {
+  return role === "OWNER" || role === "ADMIN" || role === "MANAGER";
 }
 
-export function canViewProject(
-  role: UserRole,
-  userId: string,
-  projectClientId: string,
-) {
-  if (role === "ADMIN") {
-    return true;
-  }
+export function canManageFiles(role: Role) {
+  return role === "OWNER" || role === "ADMIN" || role === "MANAGER";
+}
 
-  return userId === projectClientId;
+export function canViewAdminNav(role: Role) {
+  return role === "OWNER" || role === "ADMIN" || role === "MANAGER";
 }

@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 export default async function ProposalsPage() {
   const session = await auth();
@@ -33,7 +33,7 @@ export default async function ProposalsPage() {
   });
 
   return (
-    <DashboardShell>
+    <BrandedDashboardShell>
       <div>
         <h1 className="text-3xl font-light">Proposals</h1>
 
@@ -71,6 +71,6 @@ export default async function ProposalsPage() {
           </div>
         ))}
       </div>
-    </DashboardShell>
+    </BrandedDashboardShell>
   );
 }

@@ -1,6 +1,6 @@
-import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 /**
  * Invoices page.
@@ -14,7 +14,7 @@ export default async function InvoicesPage() {
   if (!session?.user) {
     return null;
   }
-  
+
   const projectFilter =
     session.user.role === "ADMIN"
       ? {}
@@ -39,7 +39,7 @@ export default async function InvoicesPage() {
   });
 
   return (
-    <DashboardShell>
+    <BrandedDashboardShell>
       <div>
         <h1 className="text-3xl font-light">Invoices</h1>
         <p className="mt-2 text-foreground/70">
@@ -80,6 +80,6 @@ export default async function InvoicesPage() {
           </div>
         ))}
       </div>
-    </DashboardShell>
+    </BrandedDashboardShell>
   );
 }

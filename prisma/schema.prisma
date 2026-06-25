@@ -13,7 +13,9 @@ datasource db {
 }
 
 enum UserRole {
+  OWNER
   ADMIN
+  MANAGER
   CLIENT
 }
 
@@ -211,6 +213,11 @@ model Workspace {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   subscription Subscription?
+
+  companyName String?
+  logoImageUrl     String?
+  accentColor String? @default("#8B5CF6")
+  customDomain String?
 }
 
 model WorkspaceInvitation {

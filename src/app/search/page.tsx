@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 type SearchPageProps = {
     searchParams: Promise<{
@@ -95,7 +95,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         : [];
 
     return (
-        <DashboardShell>
+        <BrandedDashboardShell>
             <h1 className="text-3xl font-light">Search</h1>
 
             <form className="mt-6 flex gap-3">
@@ -182,6 +182,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     </section>
                 </div>
             )}
-        </DashboardShell>
+        </BrandedDashboardShell>
     );
 }

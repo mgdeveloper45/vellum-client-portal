@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatActivityTitle } from "@/lib/activity";
 import { hasProfessionalPlan } from "@/lib/subscription";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 /**
  * Dashboard page.
@@ -34,21 +34,21 @@ export default async function DashboardPage() {
   const workspaceProjectFilter =
     session.user.role === "ADMIN"
       ? {
-          workspaceId: currentUser.workspaceId,
-        }
+        workspaceId: currentUser.workspaceId,
+      }
       : {
-          workspaceId: currentUser.workspaceId,
-          clientId: session.user.id,
-        };
+        workspaceId: currentUser.workspaceId,
+        clientId: session.user.id,
+      };
 
   const totalClients =
     session.user.role === "ADMIN"
       ? await prisma.user.count({
-          where: {
-            role: "CLIENT",
-            workspaceId: currentUser.workspaceId,
-          },
-        })
+        where: {
+          role: "CLIENT",
+          workspaceId: currentUser.workspaceId,
+        },
+      })
       : 1;
 
   const activeProjects = await prisma.project.count({
@@ -230,7 +230,7 @@ export default async function DashboardPage() {
     : baseMetrics;
 
   return (
-    <DashboardShell>
+    <BrandedDashboardShell>
       <div>
         <h1 className="text-3xl font-light">Dashboard</h1>
 
@@ -293,6 +293,6 @@ export default async function DashboardPage() {
           ))}
         </div>
       </div>
-    </DashboardShell>
+    </BrandedDashboardShell>
   );
 }

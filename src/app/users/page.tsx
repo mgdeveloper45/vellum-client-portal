@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 export default async function UsersPage() {
     const session = await auth();
 
     if (!session?.user || session.user.role !== "ADMIN") {
         return (
-            <DashboardShell>
+            <BrandedDashboardShell>
                 <p>Only admins can manage users.</p>
-            </DashboardShell>
+            </BrandedDashboardShell>
         );
     }
 
@@ -21,7 +21,7 @@ export default async function UsersPage() {
     });
 
     return (
-        <DashboardShell>
+        <BrandedDashboardShell>
             <div className="flex items-start justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-light">Users</h1>
@@ -68,6 +68,6 @@ export default async function UsersPage() {
                     </Link>
                 ))}
             </div>
-        </DashboardShell>
+        </BrandedDashboardShell>
     );
 }

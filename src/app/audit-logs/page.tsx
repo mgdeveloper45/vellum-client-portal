@@ -1,15 +1,15 @@
 import { auth } from "@/auth";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 export default async function AuditLogsPage() {
     const session = await auth();
 
     if (!session?.user || session.user.role !== "ADMIN") {
         return (
-            <DashboardShell>
+            <BrandedDashboardShell>
                 <p>Only admins can view audit logs.</p>
-            </DashboardShell>
+            </BrandedDashboardShell>
         );
     }
 
@@ -24,7 +24,7 @@ export default async function AuditLogsPage() {
     });
 
     return (
-        <DashboardShell>
+        <BrandedDashboardShell>
             <h1 className="text-3xl font-light">Audit Logs</h1>
 
             <p className="mt-2 text-foreground/70">
@@ -64,6 +64,6 @@ export default async function AuditLogsPage() {
                     </div>
                 ))}
             </div>
-        </DashboardShell>
+        </BrandedDashboardShell>
     );
 }

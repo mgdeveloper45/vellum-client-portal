@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { markNotificationReadAction } from "@/actions/notification-actions";
 import { prisma } from "@/lib/prisma";
+import { markNotificationReadAction } from "@/actions/notification-actions";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 export default async function NotificationsPage() {
     const session = await auth();
@@ -20,7 +20,7 @@ export default async function NotificationsPage() {
     });
 
     return (
-        <DashboardShell>
+        <BrandedDashboardShell>
             <h1 className="text-3xl font-light">Notifications</h1>
 
             <div className="mt-8 grid gap-3">
@@ -28,8 +28,8 @@ export default async function NotificationsPage() {
                     <div
                         key={notification.id}
                         className={`rounded-2xl border p-5 ${notification.read
-                                ? "border-border bg-card"
-                                : "border-accent bg-muted"
+                            ? "border-border bg-card"
+                            : "border-accent bg-muted"
                             }`}
                     >
                         <p className="font-medium">{notification.title}</p>
@@ -59,6 +59,6 @@ export default async function NotificationsPage() {
                     </div>
                 ))}
             </div>
-        </DashboardShell>
+        </BrandedDashboardShell>
     );
 }

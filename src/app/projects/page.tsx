@@ -1,4 +1,4 @@
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { ProjectCard } from "@/components/projects/project-card";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
@@ -45,7 +45,7 @@ export default async function ProjectsPage() {
   });
 
   return (
-    <DashboardShell>
+    <BrandedDashboardShell>
       <div className="flex items-start justify-between gap-6">
         <div>
           <h1 className="text-3xl font-light">Projects</h1>
@@ -78,6 +78,6 @@ export default async function ProjectsPage() {
           />
         ))}
       </div>
-    </DashboardShell>
+    </BrandedDashboardShell>
   );
 }
