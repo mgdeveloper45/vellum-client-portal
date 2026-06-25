@@ -64,13 +64,13 @@ export default async function SettingsPage() {
 
           <div className="mt-4 flex flex-wrap gap-3">
             <form action={createCheckoutSessionAction}>
-              <button className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-black">
+              <button className="workspace-accent-button rounded-full px-5 py-2 text-sm font-medium">
                 Upgrade to Professional
               </button>
             </form>
 
             <form action={openCustomerPortalAction}>
-              <button className="rounded-full border border-border px-5 py-2 text-sm font-medium transition hover:border-accent">
+              <button className="workspace-accent-button-outline rounded-full px-5 py-2 text-sm font-medium">
                 Manage Billing
               </button>
             </form>
@@ -97,7 +97,7 @@ export default async function SettingsPage() {
               className="w-full rounded-lg border border-border bg-background px-4 py-3"
             />
 
-            <button className="rounded-full border border-border px-5 py-2 text-sm font-medium transition hover:border-accent">
+            <button className="workspace-accent-button-outline rounded-full px-5 py-2 text-sm font-medium">
               Upload Logo
             </button>
           </form>
@@ -124,7 +124,7 @@ export default async function SettingsPage() {
               className="w-full rounded-lg border border-border bg-background px-4 py-3"
             />
 
-            <button className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-black">
+            <button className="workspace-accent-button rounded-full px-5 py-2 text-sm font-medium">
               Save Branding
             </button>
           </form>

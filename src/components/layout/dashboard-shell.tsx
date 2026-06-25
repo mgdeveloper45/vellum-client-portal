@@ -10,6 +10,7 @@ import { NotificationNavBadge } from "@/components/notifications/notification-na
 
 type DashboardShellProps = {
     children: React.ReactNode;
+    accentColor?: string | null;
     companyName?: string | null;
     logoImageUrl?: string | null;
 };
@@ -33,12 +34,20 @@ export function DashboardShell({
     children,
     companyName,
     logoImageUrl,
+    accentColor,
 }: DashboardShellProps) {
     const pathname = usePathname();
     const displayName = companyName || "Vellum";
 
     return (
-        <main className="min-h-screen bg-background text-foreground">
+        <main
+            className="min-h-screen bg-background text-foreground"
+            style={
+                {
+                    "--workspace-accent": accentColor || "#8B5CF6",
+                } as React.CSSProperties
+            }
+        >
             <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
                 <aside className="border-r border-border bg-card p-6">
                     <div className="flex items-center gap-3">
@@ -53,7 +62,7 @@ export function DashboardShell({
                         )}
 
                         <div>
-                            <p className="text-sm uppercase tracking-[0.35em] text-accent">
+                            <p className="workspace-accent-text text-sm uppercase tracking-[0.35em]">
                                 {displayName}
                             </p>
 
@@ -72,7 +81,7 @@ export function DashboardShell({
                                     href={item.href}
                                     className={cn(
                                         "block rounded-xl px-4 py-3 text-sm transition hover:bg-muted",
-                                        isActive && "bg-muted text-accent",
+                                        isActive && "bg-muted workspace-accent-text"
                                     )}
                                 >
                                     <span>
@@ -91,7 +100,7 @@ export function DashboardShell({
                 <section className="flex min-h-screen flex-col">
                     <header className="flex items-center justify-between border-b border-border bg-card px-8 py-5">
                         <div>
-                            <p className="text-sm text-accent">Workspace</p>
+                            <p className="workspace-accent-text text-sm">Workspace</p>
 
                             <h2 className="text-xl font-medium">
                                 {displayName} Operations

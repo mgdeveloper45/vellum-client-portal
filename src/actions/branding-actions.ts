@@ -12,10 +12,9 @@ export async function updateWorkspaceBrandingAction(formData: FormData) {
     return;
   }
 
-  const companyName = String(formData.get("companyName")).trim();
-  const logoImageUrl = String(formData.get("logoImageUrl")).trim();
-  const accentColor = String(formData.get("accentColor")).trim();
-  const customDomain = String(formData.get("customDomain")).trim();
+  const companyName = String(formData.get("companyName") ?? "").trim();
+  const accentColor = String(formData.get("accentColor") ?? "").trim();
+  const customDomain = String(formData.get("customDomain") ?? "").trim();
 
   const currentUser = await prisma.user.findUnique({
     where: {
@@ -35,10 +34,9 @@ export async function updateWorkspaceBrandingAction(formData: FormData) {
       id: currentUser.workspaceId,
     },
     data: {
-      companyName,
-      logoImageUrl,
-      accentColor,
-      customDomain,
+      companyName: companyName || null,
+      accentColor: accentColor || "#8B5CF6",
+      customDomain: customDomain || null,
     },
   });
 

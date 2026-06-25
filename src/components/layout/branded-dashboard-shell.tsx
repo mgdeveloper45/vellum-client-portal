@@ -3,36 +3,44 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
 
 export async function BrandedDashboardShell({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    const session = await auth();
+  const session = await auth();
 
-    if (!session?.user) {
-        return null;
-    }
+  if (!session?.user) {
+    return null;
+  }
 
-    const currentUser = await prisma.user.findUnique({
-        where: {
-            id: session.user.id,
-        },
-        include: {
-            workspace: true,
-        },
-    });
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    include: {
+      workspace: true,
+    },
+  });
 
-    return (
-        <DashboardShell
-            companyName={currentUser?.workspace?.companyName}
-            logoImageUrl={
-                currentUser?.workspace?.logoImageUrl &&
-                    currentUser.workspace.logoImageUrl !== "NULL"
-                    ? currentUser.workspace.logoImageUrl
-                    : null
-            }
-        >
-            {children}
-        </DashboardShell>
-    );
+  const rawLogoImageUrl = currentUser?.workspace?.logoImageUrl;
+
+  const logoImageUrl =
+    rawLogoImageUrl &&
+      rawLogoImageUrl !== "NULL" &&
+      rawLogoImageUrl !== "null"
+      ? rawLogoImageUrl
+      : null;
+
+  const accentColor =
+    currentUser?.workspace?.accentColor || "#8B5CF6";
+
+  return (
+    <DashboardShell
+      companyName={currentUser?.workspace?.companyName}
+      logoImageUrl={logoImageUrl}
+      accentColor={accentColor}
+    >
+      {children}
+    </DashboardShell>
+  );
 }

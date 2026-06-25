@@ -215,7 +215,7 @@ model Workspace {
   subscription Subscription?
 
   companyName String?
-  logoImageUrl     String?
+  logoImageUrl     
   accentColor String? @default("#8B5CF6")
   customDomain String?
 }

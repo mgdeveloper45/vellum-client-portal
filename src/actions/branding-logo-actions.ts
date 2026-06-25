@@ -1,10 +1,10 @@
 "use server";
 
 import { auth } from "@/auth";
-import { canManageWorkspace } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
-import { getR2PublicUrl, uploadFileToR2 } from "@/lib/r2";
 import { redirect } from "next/navigation";
+import { canManageWorkspace } from "@/lib/permissions";
+import { getR2PublicUrl, uploadFileToR2 } from "@/lib/r2";
 
 export async function uploadWorkspaceLogoAction(formData: FormData) {
   const session = await auth();

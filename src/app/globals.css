@@ -7,6 +7,7 @@
   --muted: #f1e7d8;
   --border: #d9c8aa;
   --accent: #8a6a22;
+  --workspace-accent: #8b5cf6;
 }
 
 .dark {
@@ -34,4 +35,52 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.workspace-accent-text {
+  color: var(--workspace-accent);
+}
+
+.workspace-accent-bg {
+  background-color: var(--workspace-accent);
+}
+
+.workspace-accent-border {
+  border-color: var(--workspace-accent);
+}
+
+.workspace-accent-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--workspace-accent);
+}
+
+.workspace-accent-button {
+  background-color: var(--workspace-accent);
+  color: black;
+  transition: all 0.2s ease;
+}
+
+.workspace-accent-button:hover {
+  filter: brightness(0.92);
+}
+
+.workspace-accent-button-outline {
+  border: 1px solid var(--workspace-accent);
+  color: var(--workspace-accent);
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.workspace-accent-button-outline:hover {
+  background-color: var(--workspace-accent);
+  color: white;
+}
+
+.workspace-accent-badge {
+  background-color: color-mix(
+    in srgb,
+    var(--workspace-accent) 15%,
+    transparent
+  );
+  color: var(--workspace-accent);
 }
