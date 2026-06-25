@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { canManageWorkspace } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
-import { uploadFileToR2 } from "@/lib/r2";
+import { getR2PublicUrl, uploadFileToR2 } from "@/lib/r2";
 import { redirect } from "next/navigation";
 
 export async function uploadWorkspaceLogoAction(formData: FormData) {
@@ -32,7 +32,7 @@ export async function uploadWorkspaceLogoAction(formData: FormData) {
     return;
   }
 
-  const logoUrl = await uploadFileToR2({
+  const key = await uploadFileToR2({
     file: logo,
     folder: `workspaces/${currentUser.workspaceId}/branding`,
   });
@@ -42,7 +42,7 @@ export async function uploadWorkspaceLogoAction(formData: FormData) {
       id: currentUser.workspaceId,
     },
     data: {
-      logoImageUrl: logoUrl,
+      logoImageUrl: getR2PublicUrl(key),
     },
   });
 

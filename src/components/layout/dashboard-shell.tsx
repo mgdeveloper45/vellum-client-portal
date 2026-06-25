@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { NotificationNavBadge } from "@/components/notifications/notification-nav-badge";
-import { cn } from "@/lib/utils";
 
 type DashboardShellProps = {
     children: React.ReactNode;
@@ -48,7 +48,6 @@ export function DashboardShell({
                                 alt={displayName}
                                 width={36}
                                 height={36}
-                                unoptimized
                                 className="rounded-lg object-cover"
                             />
                         )}

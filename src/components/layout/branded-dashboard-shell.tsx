@@ -25,7 +25,12 @@ export async function BrandedDashboardShell({
     return (
         <DashboardShell
             companyName={currentUser?.workspace?.companyName}
-            logoImageUrl={currentUser?.workspace?.logoImageUrl}
+            logoImageUrl={
+                currentUser?.workspace?.logoImageUrl &&
+                    currentUser.workspace.logoImageUrl !== "NULL"
+                    ? currentUser.workspace.logoImageUrl
+                    : null
+            }
         >
             {children}
         </DashboardShell>

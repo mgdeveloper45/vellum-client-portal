@@ -1,10 +1,12 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { createCheckoutSessionAction } from "@/actions/billing-actions";
 import { updateWorkspaceBrandingAction } from "@/actions/branding-actions";
+import { uploadWorkspaceLogoAction } from "@/actions/branding-logo-actions";
+import { createCheckoutSessionAction } from "@/actions/billing-actions";
 import { openCustomerPortalAction } from "@/actions/customer-portal-actions";
+import { createDefaultWorkspaceAction } from "@/actions/workspace-actions";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { prisma } from "@/lib/prisma";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -27,7 +29,7 @@ export default async function SettingsPage() {
       <h1 className="text-3xl font-light">Settings</h1>
 
       <p className="mt-2 text-foreground/70">
-        Manage your account information and preferences.
+        Manage your account, billing, security, and workspace branding.
       </p>
 
       <div className="mt-8 grid gap-6">
@@ -53,62 +55,58 @@ export default async function SettingsPage() {
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="text-xl font-medium">Notifications</h2>
-
-          <p className="mt-2 text-sm text-foreground/70">
-            Notification preferences will be added in a future update.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="text-xl font-medium">Security</h2>
-
-          <p className="mt-2 text-sm text-foreground/70">
-            Change your password using your current password.
-          </p>
-
-          <ChangePasswordForm />
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="text-xl font-medium">Billing</h2>
 
           <p className="mt-2 text-sm text-foreground/70">
-            Upgrade your workspace to Vellum Professional.
+            Upgrade your workspace to Vellum Professional or manage your
+            existing billing settings.
           </p>
 
-          <form action={createCheckoutSessionAction} className="mt-4">
-            <button className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-black">
-              Upgrade to Professional
-            </button>
-          </form>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <form action={createCheckoutSessionAction}>
+              <button className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-black">
+                Upgrade to Professional
+              </button>
+            </form>
 
-          <form action={openCustomerPortalAction} className="mt-3">
-            <button className="rounded-full border border-border px-5 py-2 text-sm font-medium transition hover:border-accent">
-              Manage Billing
-            </button>
-          </form>
+            <form action={openCustomerPortalAction}>
+              <button className="rounded-full border border-border px-5 py-2 text-sm font-medium transition hover:border-accent">
+                Manage Billing
+              </button>
+            </form>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="text-xl font-medium">Workspace Branding</h2>
 
           <p className="mt-2 text-sm text-foreground/70">
-            Customize your workspace branding for clients and team members.
+            Customize how your workspace appears to clients and team members.
           </p>
 
-          <form action={updateWorkspaceBrandingAction} className="mt-5 space-y-4">
+          <form action={uploadWorkspaceLogoAction} className="mt-5 space-y-3">
+            <label className="block text-sm text-foreground/70">
+              Workspace Logo
+            </label>
+
+            <input
+              name="logo"
+              type="file"
+              accept="image/*"
+              required
+              className="w-full rounded-lg border border-border bg-background px-4 py-3"
+            />
+
+            <button className="rounded-full border border-border px-5 py-2 text-sm font-medium transition hover:border-accent">
+              Upload Logo
+            </button>
+          </form>
+
+          <form action={updateWorkspaceBrandingAction} className="mt-6 space-y-4">
             <input
               name="companyName"
               placeholder="Company name"
               defaultValue={currentUser?.workspace?.companyName ?? ""}
-              className="w-full rounded-lg border border-border bg-background px-4 py-3"
-            />
-
-            <input
-              name="logoImageUrl"
-              placeholder="Paste your logo image URL"
-              defaultValue={currentUser?.workspace?.logoImageUrl ?? ""}
               className="w-full rounded-lg border border-border bg-background px-4 py-3"
             />
 
@@ -132,6 +130,37 @@ export default async function SettingsPage() {
           </form>
         </div>
 
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="text-xl font-medium">Security</h2>
+
+          <p className="mt-2 text-sm text-foreground/70">
+            Change your password using your current password.
+          </p>
+
+          <ChangePasswordForm />
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="text-xl font-medium">Notifications</h2>
+
+          <p className="mt-2 text-sm text-foreground/70">
+            Notification preferences will be added in a future update.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="text-xl font-medium">Workspace Setup</h2>
+
+          <p className="mt-2 text-sm text-foreground/70">
+            Create the default workspace and attach existing users and projects.
+          </p>
+
+          <form action={createDefaultWorkspaceAction} className="mt-4">
+            <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+              Create Default Workspace
+            </button>
+          </form>
+        </div>
       </div>
     </BrandedDashboardShell>
   );
