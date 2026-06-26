@@ -19,6 +19,8 @@ const navItems = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Projects", href: "/projects" },
     { label: "Services", href: "/services" },
+    { label: "Availability", href: "/availability" },
+    { label: "Bookings", href: "/bookings" },
     { label: "Messages", href: "/messages" },
     { label: "Proposals", href: "/proposals" },
     { label: "Invoices", href: "/invoices" },

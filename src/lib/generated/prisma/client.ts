@@ -117,6 +117,11 @@ export type Subscription = Prisma.SubscriptionModel
  */
 export type Service = Prisma.ServiceModel
 /**
+ * Model Booking
+ * 
+ */
+export type Booking = Prisma.BookingModel
+/**
  * Model BusinessHour
  * 
  */

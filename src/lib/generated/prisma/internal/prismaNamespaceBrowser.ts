@@ -66,6 +66,7 @@ export const ModelName = {
   WorkspaceInvitation: 'WorkspaceInvitation',
   Subscription: 'Subscription',
   Service: 'Service',
+  Booking: 'Booking',
   BusinessHour: 'BusinessHour'
 } as const
 
@@ -282,6 +283,25 @@ export const ServiceScalarFieldEnum = {
 } as const
 
 export type ServiceScalarFieldEnum = (typeof ServiceScalarFieldEnum)[keyof typeof ServiceScalarFieldEnum]
+
+
+export const BookingScalarFieldEnum = {
+  id: 'id',
+  customerName: 'customerName',
+  customerEmail: 'customerEmail',
+  customerPhone: 'customerPhone',
+  notes: 'notes',
+  date: 'date',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  status: 'status',
+  serviceId: 'serviceId',
+  workspaceId: 'workspaceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BookingScalarFieldEnum = (typeof BookingScalarFieldEnum)[keyof typeof BookingScalarFieldEnum]
 
 
 export const BusinessHourScalarFieldEnum = {

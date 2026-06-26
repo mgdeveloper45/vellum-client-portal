@@ -48,6 +48,13 @@ enum DayOfWeek {
   SUNDAY
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -237,6 +244,7 @@ model Workspace {
   apiKeys       ApiKey[]
   businessHours BusinessHour[]
   invitations   WorkspaceInvitation[]
+  bookings      Booking[]
 
   subscription Subscription?
 
@@ -294,7 +302,32 @@ model Service {
 
   duration Int
   price    Int
-  active   Boolean @default(true)
+  active   Boolean   @default(true)
+  bookings Booking[]
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Booking {
+  id String @id @default(cuid())
+
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  notes         String?
+
+  date      DateTime
+  startTime String
+  endTime   String
+
+  status BookingStatus @default(CONFIRMED)
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
