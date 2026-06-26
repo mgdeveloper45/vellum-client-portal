@@ -1,5 +1,7 @@
 "use server";
 
+import { auth } from "@/auth";
+import { canManageWorkspace } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import {
   minutesToTime,
@@ -56,4 +58,47 @@ export async function createBookingAction(formData: FormData) {
   });
 
   redirect(`/booking-confirmation/${booking.id}`);
+}
+
+export async function updateBookingStatusAction(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user || !canManageWorkspace(session.user.role)) {
+    return;
+  }
+
+  const bookingId = String(formData.get("bookingId") ?? "").trim();
+  const status = String(formData.get("status") ?? "").trim();
+
+  if (
+    !bookingId ||
+    !["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"].includes(status)
+  ) {
+    return;
+  }
+
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      workspaceId: true,
+    },
+  });
+
+  if (!currentUser?.workspaceId) {
+    return;
+  }
+
+  await prisma.booking.update({
+    where: {
+      id: bookingId,
+      workspaceId: currentUser.workspaceId,
+    },
+    data: {
+      status: status as "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED",
+    },
+  });
+
+  redirect("/bookings");
 }

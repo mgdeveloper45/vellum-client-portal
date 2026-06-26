@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
+import { updateBookingStatusAction } from "@/actions/booking-actions";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { prisma } from "@/lib/prisma";
+
 
 export default async function BookingsPage() {
     const session = await auth();
@@ -79,9 +81,28 @@ export default async function BookingsPage() {
                             </div>
 
                             <div className="text-right">
-                                <p className="workspace-accent-badge rounded-full px-3 py-1 text-sm">
-                                    {booking.status}
-                                </p>
+                                <form action={updateBookingStatusAction} className="space-y-2">
+                                    <input
+                                        type="hidden"
+                                        name="bookingId"
+                                        value={booking.id}
+                                    />
+
+                                    <select
+                                        name="status"
+                                        defaultValue={booking.status}
+                                        className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                                    >
+                                        <option value="PENDING">Pending</option>
+                                        <option value="CONFIRMED">Confirmed</option>
+                                        <option value="COMPLETED">Completed</option>
+                                        <option value="CANCELLED">Cancelled</option>
+                                    </select>
+
+                                    <button className="workspace-accent-button w-full rounded-full px-3 py-2 text-sm font-medium">
+                                        Update
+                                    </button>
+                                </form>
 
                                 <p className="mt-4 text-sm text-foreground/70">
                                     {booking.date.toLocaleDateString()}
