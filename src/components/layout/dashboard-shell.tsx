@@ -18,6 +18,7 @@ type DashboardShellProps = {
 const navItems = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Projects", href: "/projects" },
+    { label: "Services", href: "/services" },
     { label: "Messages", href: "/messages" },
     { label: "Proposals", href: "/proposals" },
     { label: "Invoices", href: "/invoices" },

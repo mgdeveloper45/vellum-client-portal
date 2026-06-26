@@ -28,6 +28,11 @@ export type User = Prisma.UserModel
  */
 export type Project = Prisma.ProjectModel
 /**
+ * Model ApiKey
+ * 
+ */
+export type ApiKey = Prisma.ApiKeyModel
+/**
  * Model Notification
  * 
  */
@@ -82,3 +87,13 @@ export type WorkspaceInvitation = Prisma.WorkspaceInvitationModel
  * 
  */
 export type Subscription = Prisma.SubscriptionModel
+/**
+ * Model Service
+ * 
+ */
+export type Service = Prisma.ServiceModel
+/**
+ * Model BusinessHour
+ * 
+ */
+export type BusinessHour = Prisma.BusinessHourModel

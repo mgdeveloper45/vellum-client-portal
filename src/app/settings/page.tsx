@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { updateWorkspaceBrandingAction } from "@/actions/branding-actions";
 import { uploadWorkspaceLogoAction } from "@/actions/branding-logo-actions";
 import { createCheckoutSessionAction } from "@/actions/billing-actions";
@@ -6,9 +7,25 @@ import { openCustomerPortalAction } from "@/actions/customer-portal-actions";
 import { createDefaultWorkspaceAction } from "@/actions/workspace-actions";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
-import { prisma } from "@/lib/prisma";
+import { updateBusinessHoursAction } from "@/actions/business-hour-actions";
+import {
+  BUSINESS_DAYS,
+  DEFAULT_BUSINESS_HOURS,
+} from "@/lib/constants/business-hours";
+import {
+  createApiKeyAction,
+  revokeApiKeyAction,
+} from "@/actions/api-key-actions";
+import { listApiKeys } from "@/lib/services/api/api-key-service";
 
-export default async function SettingsPage() {
+
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    apiKey?: string;
+  }>;
+}) {
   const session = await auth();
 
   if (!session?.user) {
@@ -23,6 +40,29 @@ export default async function SettingsPage() {
       workspace: true,
     },
   });
+
+  const apiKeys = currentUser?.workspaceId
+    ? await listApiKeys(currentUser.workspaceId)
+    : [];
+
+  const resolvedSearchParams = await searchParams;
+
+  const createdApiKey =
+    typeof resolvedSearchParams.apiKey === "string"
+      ? resolvedSearchParams.apiKey
+      : null;
+
+  const businessHours = currentUser?.workspaceId
+    ? await prisma.businessHour.findMany({
+      where: {
+        workspaceId: currentUser.workspaceId,
+      },
+    })
+    : [];
+
+  const businessHoursByDay = new Map(
+    businessHours.map((hour) => [hour.dayOfWeek, hour])
+  );
 
   return (
     <BrandedDashboardShell>
@@ -128,6 +168,133 @@ export default async function SettingsPage() {
               Save Branding
             </button>
           </form>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="text-xl font-medium">Business Hours</h2>
+
+          <p className="mt-2 text-sm text-foreground/70">
+            Set the weekly hours clients can book services.
+          </p>
+
+          <form action={updateBusinessHoursAction} className="mt-5 space-y-4">
+            {BUSINESS_DAYS.map((day) => {
+              const hours = businessHoursByDay.get(day);
+
+              return (
+                <div
+                  key={day}
+                  className="grid gap-3 rounded-xl border border-border bg-background p-4 md:grid-cols-[1fr_1fr_1fr_auto]"
+                >
+                  <div>
+                    <p className="font-medium capitalize">
+                      {day.toLowerCase()}
+                    </p>
+                  </div>
+
+                  <input
+                    name={`${day}_openTime`}
+                    type="time"
+                    defaultValue={
+                      hours?.openTime ?? DEFAULT_BUSINESS_HOURS.openTime
+                    }
+                    className="rounded-lg border border-border bg-card px-4 py-3"
+                  />
+
+                  <input
+                    name={`${day}_closeTime`}
+                    type="time"
+                    defaultValue={
+                      hours?.closeTime ?? DEFAULT_BUSINESS_HOURS.closeTime
+                    }
+                    className="rounded-lg border border-border bg-card px-4 py-3"
+                  />
+
+                  <label className="flex items-center gap-2 text-sm text-foreground/70">
+                    <input
+                      name={`${day}_closed`}
+                      type="checkbox"
+                      defaultChecked={hours?.closed ?? false}
+                    />
+                    Closed
+                  </label>
+                </div>
+              );
+            })}
+
+            <button className="workspace-accent-button rounded-full px-5 py-2 text-sm font-medium">
+              Save Business Hours
+            </button>
+          </form>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="text-xl font-medium">API Keys</h2>
+
+          <p className="mt-2 text-sm text-foreground/70">
+            Create API keys for integrations, automations, and future public API access.
+          </p>
+
+          {createdApiKey && (
+            <div className="mt-5 rounded-xl border border-border bg-background p-4">
+              <p className="text-sm font-medium">New API key created</p>
+
+              <p className="mt-2 text-sm text-foreground/70">
+                Copy this key now. You will not be able to see it again.
+              </p>
+
+              <code className="mt-3 block overflow-x-auto rounded-lg bg-card p-3 text-sm">
+                {createdApiKey}
+              </code>
+            </div>
+          )}
+
+          <form action={createApiKeyAction} className="mt-5 flex gap-3">
+            <input
+              name="name"
+              required
+              placeholder="API key name"
+              className="w-full rounded-lg border border-border bg-background px-4 py-3"
+            />
+
+            <button className="workspace-accent-button rounded-full px-5 py-2 text-sm font-medium">
+              Create Key
+            </button>
+          </form>
+
+          <div className="mt-6 grid gap-3">
+            {apiKeys.map((apiKey) => (
+              <div
+                key={apiKey.id}
+                className="rounded-xl border border-border bg-background p-4"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-medium">{apiKey.name}</p>
+
+                    <p className="mt-1 text-sm text-foreground/60">
+                      Prefix: {apiKey.keyPrefix}...
+                    </p>
+
+                    <p className="mt-1 text-xs text-foreground/50">
+                      Last used:{" "}
+                      {apiKey.lastUsedAt
+                        ? apiKey.lastUsedAt.toLocaleString()
+                        : "Never"}
+                    </p>
+                  </div>
+
+                  <form action={revokeApiKeyAction}>
+                    <input type="hidden" name="apiKeyId" value={apiKey.id} />
+
+                    <button className="rounded-full border border-red-500 px-4 py-2 text-sm text-red-500 transition hover:bg-red-500 hover:text-white">
+                      Revoke
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6">

@@ -385,10 +385,6 @@ export type EnumMilestoneStatusFieldUpdateOperationsInput = {
   set?: $Enums.MilestoneStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type MilestoneCreateWithoutProjectInput = {
   id?: string
   title: string
