@@ -120,18 +120,42 @@ export default async function PublicBookingPage({
                 } as React.CSSProperties
             }
         >
-            <div className="mx-auto grid max-w-4xl gap-6">
+            <div className="mx-auto grid max-w-6xl gap-6">
                 <BookingHeader
                     companyName={displayName}
                     accentColor={workspace.accentColor}
                 />
 
-                <ServiceSelector
-                    workspaceId={workspaceId}
-                    selectedDate={selectedDate}
-                    selectedServiceId={selectedService?.id}
-                    services={workspace.services}
-                />
+                <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
+                    <div className="space-y-6">
+                        <ServiceSelector
+                            workspaceId={workspaceId}
+                            selectedDate={selectedDate}
+                            selectedServiceId={selectedService?.id}
+                            services={workspace.services}
+                        />
+                    </div>
+
+                    <div className="space-y-6">
+                        {selectedService && (
+                            <DateSelector
+                                workspaceId={workspaceId}
+                                serviceId={selectedService.id}
+                                selectedDate={selectedDate}
+                            />
+                        )}
+
+                        {selectedService && (
+                            <TimeSelector
+                                workspaceId={workspaceId}
+                                serviceId={selectedService.id}
+                                selectedDate={selectedDate}
+                                selectedTime={selectedTime}
+                                availableSlots={availableSlots}
+                            />
+                        )}
+                    </div>
+                </div>
 
                 {selectedService && (
                     <DateSelector
