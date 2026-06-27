@@ -1,5 +1,8 @@
-import { createBookingAction } from "@/actions/booking-actions";
 import { prisma } from "@/lib/prisma";
+import { DateSelector } from "@/components/booking/date-selector";
+import { TimeSelector } from "@/components/booking/time-selector";
+import { BookingHeader } from "@/components/booking/booking-header";
+import { ServiceSelector } from "@/components/booking/service-selector";
 import {
     generateTimeSlots,
     removeBookedSlots,
@@ -25,6 +28,7 @@ export default async function PublicBookingPage({
     searchParams: Promise<{
         serviceId?: string;
         date?: string;
+        time?: string;
     }>;
 }) {
     const { workspaceId } = await params;
@@ -62,6 +66,7 @@ export default async function PublicBookingPage({
     const selectedDate =
         resolvedSearchParams.date ?? new Date().toISOString().slice(0, 10);
 
+    const selectedTime = resolvedSearchParams.time;
     const dayIndex = new Date(`${selectedDate}T00:00:00`).getDay() as keyof typeof dayMap;
     const dayOfWeek = dayMap[dayIndex];
 
@@ -115,112 +120,35 @@ export default async function PublicBookingPage({
                 } as React.CSSProperties
             }
         >
-            <div className="mx-auto max-w-3xl">
-                <p className="workspace-accent-text text-sm uppercase tracking-[0.35em]">
-                    {displayName}
-                </p>
+            <div className="mx-auto grid max-w-4xl gap-6">
+                <BookingHeader
+                    companyName={displayName}
+                    accentColor={workspace.accentColor}
+                />
 
-                <h1 className="mt-4 text-4xl font-light">Book an appointment</h1>
-
-                <p className="mt-3 text-foreground/70">
-                    Choose a service, date, and available time.
-                </p>
-
-                <div className="mt-8 rounded-2xl border border-border bg-card p-6">
-                    <h2 className="text-xl font-medium">Choose Service</h2>
-
-                    <div className="mt-4 grid gap-3">
-                        {workspace.services.map((service) => (
-                            <a
-                                key={service.id}
-                                href={`/book/${workspaceId}?serviceId=${service.id}&date=${selectedDate}`}
-                                className={
-                                    selectedService?.id === service.id
-                                        ? "workspace-accent-border rounded-xl border bg-background p-4"
-                                        : "rounded-xl border border-border bg-background p-4"
-                                }
-                            >
-                                <p className="font-medium">{service.name}</p>
-
-                                <p className="mt-1 text-sm text-foreground/70">
-                                    {service.duration} minutes · ${(service.price / 100).toFixed(2)}
-                                </p>
-
-                                {service.description && (
-                                    <p className="mt-2 text-sm text-foreground/60">
-                                        {service.description}
-                                    </p>
-                                )}
-                            </a>
-                        ))}
-                    </div>
-                </div>
+                <ServiceSelector
+                    workspaceId={workspaceId}
+                    selectedDate={selectedDate}
+                    selectedServiceId={selectedService?.id}
+                    services={workspace.services}
+                />
 
                 {selectedService && (
-                    <div className="mt-6 rounded-2xl border border-border bg-card p-6">
-                        <h2 className="text-xl font-medium">Choose Date</h2>
-
-                        <form className="mt-4">
-                            <input type="hidden" name="serviceId" value={selectedService.id} />
-
-                            <input
-                                name="date"
-                                type="date"
-                                defaultValue={selectedDate}
-                                className="rounded-lg border border-border bg-background px-4 py-3"
-                            />
-
-                            <button className="workspace-accent-button ml-3 rounded-full px-5 py-2 text-sm font-medium">
-                                Update Date
-                            </button>
-                        </form>
-                    </div>
+                    <DateSelector
+                        workspaceId={workspaceId}
+                        serviceId={selectedService.id}
+                        selectedDate={selectedDate}
+                    />
                 )}
 
                 {selectedService && (
-                    <div className="mt-6 rounded-2xl border border-border bg-card p-6">
-                        <h2 className="text-xl font-medium">Choose Time</h2>
-
-                        {availableSlots.length === 0 ? (
-                            <p className="mt-4 text-sm text-foreground/70">
-                                No available times for this date.
-                            </p>
-                        ) : (
-                            <div className="mt-4 grid gap-3 md:grid-cols-3">
-                                {availableSlots.map((slot) => (
-                                    <form key={slot} action={createBookingAction}>
-                                        <input type="hidden" name="workspaceId" value={workspaceId} />
-                                        <input
-                                            type="hidden"
-                                            name="serviceId"
-                                            value={selectedService.id}
-                                        />
-                                        <input type="hidden" name="date" value={selectedDate} />
-                                        <input type="hidden" name="startTime" value={slot} />
-
-                                        <input
-                                            name="customerName"
-                                            required
-                                            placeholder="Your name"
-                                            className="mb-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                                        />
-
-                                        <input
-                                            name="customerEmail"
-                                            required
-                                            type="email"
-                                            placeholder="Email"
-                                            className="mb-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                                        />
-
-                                        <button className="workspace-accent-button w-full rounded-full px-4 py-2 text-sm font-medium">
-                                            Book {slot}
-                                        </button>
-                                    </form>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    <TimeSelector
+                        workspaceId={workspaceId}
+                        serviceId={selectedService.id}
+                        selectedDate={selectedDate}
+                        selectedTime={selectedTime}
+                        availableSlots={availableSlots}
+                    />
                 )}
             </div>
         </main>

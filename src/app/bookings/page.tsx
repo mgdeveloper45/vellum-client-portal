@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { updateBookingStatusAction } from "@/actions/booking-actions";
 import { BookingTimeline } from "@/components/bookings/booking-timeline";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
@@ -52,82 +51,6 @@ export default async function BookingsPage() {
 
             <div className="mt-8">
                 <BookingTimeline bookings={bookings} />
-            </div>
-
-            <div className="mt-8 grid gap-4">
-                {bookings.map((booking) => (
-                    <div
-                        key={booking.id}
-                        className="rounded-2xl border border-border bg-card p-6"
-                    >
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-xl font-medium">{booking.customerName}</p>
-
-                                <p className="mt-1 text-sm text-foreground/70">
-                                    {booking.customerEmail}
-                                </p>
-
-                                {booking.customerPhone && (
-                                    <p className="mt-1 text-sm text-foreground/70">
-                                        {booking.customerPhone}
-                                    </p>
-                                )}
-
-                                <p className="mt-4 text-sm text-foreground/60">
-                                    {booking.service.name}
-                                </p>
-
-                                {booking.notes && (
-                                    <p className="mt-3 text-sm text-foreground/70">
-                                        {booking.notes}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="text-right">
-                                <form action={updateBookingStatusAction} className="space-y-2">
-                                    <input
-                                        type="hidden"
-                                        name="bookingId"
-                                        value={booking.id}
-                                    />
-
-                                    <select
-                                        name="status"
-                                        defaultValue={booking.status}
-                                        className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                                    >
-                                        <option value="PENDING">Pending</option>
-                                        <option value="CONFIRMED">Confirmed</option>
-                                        <option value="COMPLETED">Completed</option>
-                                        <option value="CANCELLED">Cancelled</option>
-                                    </select>
-
-                                    <button className="workspace-accent-button w-full rounded-full px-3 py-2 text-sm font-medium">
-                                        Update
-                                    </button>
-                                </form>
-
-                                <p className="mt-4 text-sm text-foreground/70">
-                                    {booking.date.toLocaleDateString()}
-                                </p>
-
-                                <p className="mt-1 text-sm text-foreground/70">
-                                    {booking.startTime}–{booking.endTime}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-
-                {bookings.length === 0 && (
-                    <div className="rounded-2xl border border-border bg-card p-6">
-                        <p className="text-foreground/70">
-                            No bookings yet.
-                        </p>
-                    </div>
-                )}
             </div>
         </BrandedDashboardShell>
     );

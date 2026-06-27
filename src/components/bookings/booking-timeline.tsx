@@ -1,3 +1,5 @@
+import { updateBookingStatusAction } from "@/actions/booking-actions";
+
 type BookingTimelineProps = {
     bookings: {
         id: string;
@@ -93,6 +95,26 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
                                                         <p className="mt-2 text-xs uppercase tracking-wide text-foreground/50">
                                                             {booking.status}
                                                         </p>
+
+                                                        <form action={updateBookingStatusAction} className="mt-3 flex gap-2">
+                                                            <input type="hidden" name="bookingId" value={booking.id} />
+
+                                                            <select
+                                                                name="status"
+                                                                defaultValue={booking.status}
+                                                                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-xs"
+                                                            >
+                                                                <option value="PENDING">Pending</option>
+                                                                <option value="CONFIRMED">Confirmed</option>
+                                                                <option value="COMPLETED">Completed</option>
+                                                                <option value="CANCELLED">Cancelled</option>
+                                                            </select>
+
+                                                            <button className="workspace-accent-button rounded-lg px-3 py-2 text-xs font-medium">
+                                                                Save
+                                                            </button>
+                                                        </form>
+
                                                     </div>
                                                 ))}
                                             </div>
