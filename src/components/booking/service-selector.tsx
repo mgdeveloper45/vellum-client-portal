@@ -1,5 +1,5 @@
 type ServiceSelectorProps = {
-    workspaceId: string;
+    slug: string;
     selectedDate: string;
     selectedServiceId?: string;
     services: {
@@ -12,7 +12,7 @@ type ServiceSelectorProps = {
 };
 
 export function ServiceSelector({
-    workspaceId,
+    slug,
     selectedDate,
     selectedServiceId,
     services,
@@ -34,7 +34,7 @@ export function ServiceSelector({
                     return (
                         <a
                             key={service.id}
-                            href={`/book/${workspaceId}?serviceId=${service.id}&date=${selectedDate}`}
+                            href={`/book/${slug}?serviceId=${service.id}&date=${selectedDate}`}
                             className={
                                 isSelected
                                     ? "workspace-accent-border rounded-2xl border bg-background p-5 transition"

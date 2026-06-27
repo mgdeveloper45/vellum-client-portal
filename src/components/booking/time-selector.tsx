@@ -1,6 +1,7 @@
 import { createBookingAction } from "@/actions/booking-actions";
 
 type TimeSelectorProps = {
+    slug: string;
     workspaceId: string;
     serviceId: string;
     selectedDate: string;
@@ -9,6 +10,7 @@ type TimeSelectorProps = {
 };
 
 export function TimeSelector({
+    slug,
     workspaceId,
     serviceId,
     selectedDate,
@@ -33,7 +35,7 @@ export function TimeSelector({
                         return (
                             <a
                                 key={slot}
-                                href={`/book/${workspaceId}?serviceId=${serviceId}&date=${selectedDate}&time=${slot}`}
+                                href={`/book/${slug}?serviceId=${serviceId}&date=${selectedDate}&time=${slot}`}
                                 className={
                                     isSelected
                                         ? "workspace-accent-button rounded-full px-5 py-3 text-center text-sm font-medium"

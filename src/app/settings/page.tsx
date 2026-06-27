@@ -41,6 +41,10 @@ export default async function SettingsPage({
     },
   });
 
+  const bookingUrl = currentUser?.workspace?.slug
+    ? `http://localhost:3000/book/${currentUser.workspace.slug}`
+    : null;
+
   const apiKeys = currentUser?.workspaceId
     ? await listApiKeys(currentUser.workspaceId)
     : [];
@@ -168,6 +172,34 @@ export default async function SettingsPage({
               Save Branding
             </button>
           </form>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="text-xl font-medium">Public Booking Page</h2>
+
+          <p className="mt-2 text-sm text-foreground/70">
+            Share this link with clients so they can book appointments.
+          </p>
+
+          {bookingUrl ? (
+            <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
+              <code className="flex-1 overflow-x-auto rounded-lg border border-border bg-background px-4 py-3 text-sm">
+                {bookingUrl}
+              </code>
+
+              <a
+                href={bookingUrl}
+                target="_blank"
+                className="workspace-accent-button rounded-full px-5 py-3 text-center text-sm font-medium"
+              >
+                Open Booking Page
+              </a>
+            </div>
+          ) : (
+            <p className="mt-5 text-sm text-foreground/70">
+              Save your company name first to generate your booking link.
+            </p>
+          )}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6">

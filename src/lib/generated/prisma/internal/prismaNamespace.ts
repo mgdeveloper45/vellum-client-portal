@@ -1860,6 +1860,7 @@ export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeo
 export const WorkspaceScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  slug: 'slug',
   companyName: 'companyName',
   logoImageUrl: 'logoImageUrl',
   accentColor: 'accentColor',

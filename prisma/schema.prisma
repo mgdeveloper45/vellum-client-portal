@@ -235,8 +235,9 @@ model Invoice {
 }
 
 model Workspace {
-  id   String @id @default(cuid())
+  id   String  @id @default(cuid())
   name String
+  slug String? @unique
 
   users         User[]
   projects      Project[]

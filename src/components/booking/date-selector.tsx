@@ -1,13 +1,13 @@
 type DateSelectorProps = {
     selectedDate: string;
     serviceId: string;
-    workspaceId: string;
+    slug: string;
 };
 
 export function DateSelector({
     selectedDate,
     serviceId,
-    workspaceId,
+    slug,
 }: DateSelectorProps) {
     return (
         <section className="rounded-3xl border border-border bg-card p-8">
@@ -20,7 +20,7 @@ export function DateSelector({
             </h2>
 
             <form
-                action={`/book/${workspaceId}`}
+                action={`/book/${slug}`}
                 className="mt-6 flex items-center gap-3"
             >
                 <input

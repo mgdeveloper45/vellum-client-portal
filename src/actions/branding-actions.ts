@@ -5,6 +5,14 @@ import { canManageWorkspace } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
+function createSlug(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export async function updateWorkspaceBrandingAction(formData: FormData) {
   const session = await auth();
 
@@ -13,6 +21,7 @@ export async function updateWorkspaceBrandingAction(formData: FormData) {
   }
 
   const companyName = String(formData.get("companyName") ?? "").trim();
+  const slug = createSlug(companyName);
   const accentColor = String(formData.get("accentColor") ?? "").trim();
   const customDomain = String(formData.get("customDomain") ?? "").trim();
 
@@ -35,6 +44,7 @@ export async function updateWorkspaceBrandingAction(formData: FormData) {
     },
     data: {
       companyName: companyName || null,
+      slug: slug || null,
       accentColor: accentColor || "#8B5CF6",
       customDomain: customDomain || null,
     },
