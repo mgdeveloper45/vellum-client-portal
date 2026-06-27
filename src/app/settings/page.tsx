@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { CopyButton } from "@/components/shared/copy-button";
 import { updateWorkspaceBrandingAction } from "@/actions/branding-actions";
 import { uploadWorkspaceLogoAction } from "@/actions/branding-logo-actions";
 import { createCheckoutSessionAction } from "@/actions/billing-actions";
@@ -182,14 +183,17 @@ export default async function SettingsPage({
           </p>
 
           {bookingUrl ? (
-            <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center">
               <code className="flex-1 overflow-x-auto rounded-lg border border-border bg-background px-4 py-3 text-sm">
                 {bookingUrl}
               </code>
 
+              <CopyButton value={bookingUrl} />
+
               <a
                 href={bookingUrl}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="workspace-accent-button rounded-full px-5 py-3 text-center text-sm font-medium"
               >
                 Open Booking Page
