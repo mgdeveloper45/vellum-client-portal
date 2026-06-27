@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
-import { updateBookingStatusAction } from "@/actions/booking-actions";
-import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { prisma } from "@/lib/prisma";
+import { updateBookingStatusAction } from "@/actions/booking-actions";
+import { BookingTimeline } from "@/components/bookings/booking-timeline";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 
 export default async function BookingsPage() {
@@ -48,6 +49,10 @@ export default async function BookingsPage() {
             <p className="mt-2 text-foreground/70">
                 View scheduled appointments and client booking details.
             </p>
+
+            <div className="mt-8">
+                <BookingTimeline bookings={bookings} />
+            </div>
 
             <div className="mt-8 grid gap-4">
                 {bookings.map((booking) => (
