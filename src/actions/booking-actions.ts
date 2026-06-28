@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { canManageWorkspace } from "@/lib/permissions";
 import { sendBookingConfirmationEmail } from "@/lib/email";
+import { createGoogleCalendarEvent } from "@/lib/google-calendar";
 import {
   minutesToTime,
   timeToMinutes,
@@ -71,6 +72,28 @@ export async function createBookingAction(formData: FormData) {
     bookingDate: booking.date.toLocaleDateString(),
     bookingTime: `${booking.startTime}–${booking.endTime}`,
   });
+
+  const bookingStartDateTime = new Date(`${date}T${startTime}:00`);
+  const bookingEndDateTime = new Date(`${date}T${endTime}:00`);
+
+  const calendarEvent = await createGoogleCalendarEvent({
+    summary: `${booking.service.name} with ${booking.customerName}`,
+    description: booking.notes || undefined,
+    startDateTime: bookingStartDateTime,
+    endDateTime: bookingEndDateTime,
+    attendeeEmail: booking.customerEmail,
+  });
+
+  if (calendarEvent?.id) {
+    await prisma.booking.update({
+      where: {
+        id: booking.id,
+      },
+      data: {
+        googleCalendarEventId: calendarEvent.id,
+      },
+    });
+  }
 
   redirect(`/booking-confirmation/${booking.id}`);
 }

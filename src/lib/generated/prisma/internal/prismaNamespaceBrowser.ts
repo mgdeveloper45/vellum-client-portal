@@ -296,6 +296,7 @@ export const BookingScalarFieldEnum = {
   startTime: 'startTime',
   endTime: 'endTime',
   status: 'status',
+  googleCalendarEventId: 'googleCalendarEventId',
   serviceId: 'serviceId',
   workspaceId: 'workspaceId',
   createdAt: 'createdAt',
