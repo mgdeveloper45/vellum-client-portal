@@ -108,3 +108,66 @@ export async function sendWorkspaceInvitationEmail({
     `,
   });
 }
+
+type SendBookingConfirmationEmailParams = {
+  email: string;
+  customerName: string;
+  businessName: string;
+  serviceName: string;
+  bookingDate: string;
+  bookingTime: string;
+};
+
+export async function sendBookingConfirmationEmail({
+  email,
+  customerName,
+  businessName,
+  serviceName,
+  bookingDate,
+  bookingTime,
+}: SendBookingConfirmationEmailParams) {
+  await resend.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to: email,
+    subject: `Your booking with ${businessName} is confirmed`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
+        <h1>Booking Confirmed 🎉</h1>
+
+        <p>Hi ${customerName},</p>
+
+        <p>Your appointment has been confirmed.</p>
+
+        <table cellpadding="8">
+          <tr>
+            <td><strong>Business</strong></td>
+            <td>${businessName}</td>
+          </tr>
+
+          <tr>
+            <td><strong>Service</strong></td>
+            <td>${serviceName}</td>
+          </tr>
+
+          <tr>
+            <td><strong>Date</strong></td>
+            <td>${bookingDate}</td>
+          </tr>
+
+          <tr>
+            <td><strong>Time</strong></td>
+            <td>${bookingTime}</td>
+          </tr>
+        </table>
+
+        <p>We look forward to seeing you!</p>
+
+        <hr>
+
+        <p style="font-size:12px;color:#666">
+          Powered by Vellum
+        </p>
+      </div>
+    `,
+  });
+}

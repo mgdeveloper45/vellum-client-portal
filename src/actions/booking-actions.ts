@@ -1,13 +1,14 @@
 "use server";
 
 import { auth } from "@/auth";
-import { canManageWorkspace } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import { canManageWorkspace } from "@/lib/permissions";
+import { sendBookingConfirmationEmail } from "@/lib/email";
 import {
   minutesToTime,
   timeToMinutes,
 } from "@/lib/services/booking/availability-service";
-import { redirect } from "next/navigation";
 
 export async function createBookingAction(formData: FormData) {
   const serviceId = String(formData.get("serviceId") ?? "").trim();
@@ -55,6 +56,20 @@ export async function createBookingAction(formData: FormData) {
       serviceId,
       workspaceId,
     },
+    include: {
+      service: true,
+      workspace: true,
+    },
+  });
+
+  await sendBookingConfirmationEmail({
+    email: booking.customerEmail,
+    customerName: booking.customerName,
+    businessName:
+      booking.workspace.companyName || booking.workspace.name || "Vellum",
+    serviceName: booking.service.name,
+    bookingDate: booking.date.toLocaleDateString(),
+    bookingTime: `${booking.startTime}–${booking.endTime}`,
   });
 
   redirect(`/booking-confirmation/${booking.id}`);

@@ -7,6 +7,7 @@ import { MetricsGrid } from "@/components/dashboard/metrics-grid";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { BookingsTrendChart } from "@/components/dashboard/bookings-trend-chart";
 import { ProfessionalMetrics } from "@/components/dashboard/professional-metrics";
+import { RevenueSummaryChart } from "@/components/dashboard/revenue-summary-chart";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 export default async function DashboardPage() {
@@ -341,9 +342,16 @@ export default async function DashboardPage() {
       <MetricsGrid metrics={heroMetrics} />
 
       {isProfessional && <ProfessionalMetrics metrics={professionalMetrics} />}
-      <div className="mt-8">
+
+      <section className="mt-8 grid gap-6 xl:grid-cols-2">
         <BookingsTrendChart data={bookingTrendData} />
-      </div>
+
+        <RevenueSummaryChart
+          collected={revenueCollected}
+          outstanding={revenueOutstanding}
+        />
+      </section>
+
       <section className="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-3xl border border-border bg-card p-6">
           <div className="flex items-center justify-between gap-4">
