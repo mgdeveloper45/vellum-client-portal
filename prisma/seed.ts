@@ -3,40 +3,44 @@ import bcrypt from "bcryptjs";
 import { PrismaClient } from "../src/lib/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-/**
- * Database adapter used by Prisma 7.
- */
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
 });
 
-/**
- * Prisma client used for seeding local development data.
- */
 const prisma = new PrismaClient({
   adapter,
 });
 
 async function main() {
-  /**
-   * Shared demo password for local development accounts only.
-   * Never hardcode production passwords.
-   */
   const hashedPassword = await bcrypt.hash("password123", 10);
 
-  /**
-   * Clear old development data so every seed starts clean.
-   */
+  await prisma.booking.deleteMany();
+  await prisma.businessHour.deleteMany();
+  await prisma.service.deleteMany();
+  await prisma.apiKey.deleteMany();
+  await prisma.subscription.deleteMany();
+  await prisma.workspaceInvitation.deleteMany();
+  await prisma.notification.deleteMany();
+  await prisma.auditLog.deleteMany();
+  await prisma.passwordResetToken.deleteMany();
   await prisma.invoice.deleteMany();
   await prisma.proposal.deleteMany();
   await prisma.message.deleteMany();
   await prisma.milestone.deleteMany();
+  await prisma.projectFile.deleteMany();
   await prisma.project.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.workspace.deleteMany();
 
-  /**
-   * Admin/business owner account.
-   */
+  const workspace = await prisma.workspace.create({
+    data: {
+      name: "Vellum Workspace",
+      companyName: "Vellum Premium",
+      slug: "vellum-premium",
+      accentColor: "#EF4444",
+    },
+  });
+
   const admin = await prisma.user.create({
     data: {
       email: "admin@vellum.app",
@@ -44,12 +48,10 @@ async function main() {
       lastName: "Admin",
       password: hashedPassword,
       role: "ADMIN",
+      workspaceId: workspace.id,
     },
   });
 
-  /**
-   * Client account #1.
-   */
   const clientOne = await prisma.user.create({
     data: {
       email: "client@oakembercoffee.com",
@@ -57,14 +59,12 @@ async function main() {
       lastName: "Stone",
       password: hashedPassword,
       role: "CLIENT",
+      workspaceId: workspace.id,
       notes: "Prefers email communication. Reviews designs every Friday.",
       isBlacklisted: false,
     },
   });
 
-  /**
-   * Client account #2.
-   */
   const clientTwo = await prisma.user.create({
     data: {
       email: "client2@vellum.app",
@@ -72,15 +72,57 @@ async function main() {
       lastName: "Johnson",
       password: hashedPassword,
       role: "CLIENT",
+      workspaceId: workspace.id,
       notes: "VIP client. Fast approval turnaround.",
       isBlacklisted: false,
     },
   });
 
-  /**
-   * Project #1 connected to client #1.
-   */
-  await prisma.project.create({
+  const initialConsultation = await prisma.service.create({
+    data: {
+      name: "Initial Consultation",
+      description: "Discovery call for new clients",
+      duration: 30,
+      price: 5000,
+      active: true,
+      workspaceId: workspace.id,
+    },
+  });
+
+  const websiteAudit = await prisma.service.create({
+    data: {
+      name: "Website Audit",
+      description: "Review your website and identify improvements",
+      duration: 60,
+      price: 15000,
+      active: true,
+      workspaceId: workspace.id,
+    },
+  });
+
+  const days = [
+    "SUNDAY",
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+  ] as const;
+
+  for (const dayOfWeek of days) {
+    await prisma.businessHour.create({
+      data: {
+        workspaceId: workspace.id,
+        dayOfWeek,
+        openTime: "09:00",
+        closeTime: "17:00",
+        closed: dayOfWeek === "SATURDAY" || dayOfWeek === "SUNDAY",
+      },
+    });
+  }
+
+  const projectOne = await prisma.project.create({
     data: {
       name: "Coffee Shop Brand Launch",
       description:
@@ -88,6 +130,7 @@ async function main() {
       status: "ACTIVE",
       ownerId: admin.id,
       clientId: clientOne.id,
+      workspaceId: workspace.id,
 
       milestones: {
         create: [
@@ -132,9 +175,6 @@ async function main() {
     },
   });
 
-  /**
-   * Project #2 connected to client #2.
-   */
   await prisma.project.create({
     data: {
       name: "Luxury Salon Website",
@@ -143,6 +183,7 @@ async function main() {
       status: "ACTIVE",
       ownerId: admin.id,
       clientId: clientTwo.id,
+      workspaceId: workspace.id,
 
       milestones: {
         create: [
@@ -187,7 +228,57 @@ async function main() {
     },
   });
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  await prisma.booking.create({
+    data: {
+      customerName: "Marcus Demo",
+      customerEmail: "marcus@example.com",
+      customerPhone: "555-123-4567",
+      notes: "Seed booking for dashboard testing.",
+      date: today,
+      startTime: "10:00",
+      endTime: "10:30",
+      status: "CONFIRMED",
+      serviceId: initialConsultation.id,
+      workspaceId: workspace.id,
+    },
+  });
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  await prisma.booking.create({
+    data: {
+      customerName: "Avery Stone",
+      customerEmail: "client@oakembercoffee.com",
+      notes: "Website audit follow-up.",
+      date: tomorrow,
+      startTime: "11:00",
+      endTime: "12:00",
+      status: "PENDING",
+      serviceId: websiteAudit.id,
+      workspaceId: workspace.id,
+    },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      action: "SEED_CREATED",
+      entity: "Workspace",
+      entityId: workspace.id,
+      userId: admin.id,
+      metadata: {
+        projectId: projectOne.id,
+      },
+    },
+  });
+
   console.log("Seed completed successfully.");
+  console.log("Workspace slug: vellum-premium");
+  console.log("Admin email: admin@vellum.app");
+  console.log("Admin password: password123");
 }
 
 main()
