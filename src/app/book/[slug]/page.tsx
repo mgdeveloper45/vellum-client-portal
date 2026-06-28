@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { DateSelector } from "@/components/booking/date-selector";
 import { TimeSelector } from "@/components/booking/time-selector";
 import { BookingHeader } from "@/components/booking/booking-header";
 import { ServiceSelector } from "@/components/booking/service-selector";
+import { CalendarDateSelector } from "@/components/booking/calendar-date-selector";
 import {
   generateTimeSlots,
   removeBookedSlots,
@@ -85,32 +85,32 @@ export default async function PublicBookingPage({
 
   const bookings = selectedService
     ? await prisma.booking.findMany({
-        where: {
-          workspaceId: workspace.id,
-          serviceId: selectedService.id,
-          date: new Date(`${selectedDate}T00:00:00`),
-          status: {
-            not: "CANCELLED",
-          },
+      where: {
+        workspaceId: workspace.id,
+        serviceId: selectedService.id,
+        date: new Date(`${selectedDate}T00:00:00`),
+        status: {
+          not: "CANCELLED",
         },
-      })
+      },
+    })
     : [];
 
   const rawSlots =
     selectedService && businessHour && !businessHour.closed
       ? generateTimeSlots({
-          openTime: businessHour.openTime,
-          closeTime: businessHour.closeTime,
-          duration: selectedService.duration,
-        })
+        openTime: businessHour.openTime,
+        closeTime: businessHour.closeTime,
+        duration: selectedService.duration,
+      })
       : [];
 
   const availableSlots = selectedService
     ? removeBookedSlots({
-        slots: rawSlots,
-        duration: selectedService.duration,
-        bookings,
-      })
+      slots: rawSlots,
+      duration: selectedService.duration,
+      bookings,
+    })
     : [];
 
   const displayName = workspace.companyName || workspace.name || "Vellum";
@@ -142,7 +142,7 @@ export default async function PublicBookingPage({
 
           <div className="space-y-6">
             {selectedService && (
-              <DateSelector
+              <CalendarDateSelector
                 slug={slug}
                 serviceId={selectedService.id}
                 selectedDate={selectedDate}

@@ -1,14 +1,14 @@
+import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatActivityTitle } from "@/lib/activity";
 import { hasProfessionalPlan } from "@/lib/subscription";
+import { MetricsGrid } from "@/components/dashboard/metrics-grid";
+import { DashboardHero } from "@/components/dashboard/dashboard-hero";
+import { BookingsTrendChart } from "@/components/dashboard/bookings-trend-chart";
+import { ProfessionalMetrics } from "@/components/dashboard/professional-metrics";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
-/**
- * Dashboard page.
- * Shows workspace-aware business metrics from PostgreSQL.
- * Professional plan unlocks executive analytics.
- */
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -24,6 +24,7 @@ export default async function DashboardPage() {
     },
     select: {
       workspaceId: true,
+      firstName: true,
     },
   });
 
@@ -31,125 +32,224 @@ export default async function DashboardPage() {
     return null;
   }
 
+  const workspaceId = currentUser.workspaceId;
+
   const workspaceProjectFilter =
     session.user.role === "ADMIN"
       ? {
-        workspaceId: currentUser.workspaceId,
+        workspaceId,
       }
       : {
-        workspaceId: currentUser.workspaceId,
+        workspaceId,
         clientId: session.user.id,
       };
 
-  const totalClients =
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const todayEnd = new Date(todayStart);
+  todayEnd.setDate(todayStart.getDate() + 1);
+
+  const nextSevenDays = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(todayStart);
+    date.setDate(todayStart.getDate() + index);
+
+    const nextDate = new Date(date);
+    nextDate.setDate(date.getDate() + 1);
+
+    return {
+      date,
+      nextDate,
+      label: date.toLocaleDateString(undefined, { weekday: "short" }),
+    };
+  });
+
+  const [
+    totalClients,
+    activeProjects,
+    completedProjects,
+    totalProjects,
+    openInvoices,
+    totalInvoices,
+    paidInvoices,
+    totalRevenue,
+    outstandingRevenue,
+    pendingMilestones,
+    approvedProposals,
+    totalProposals,
+    todaysBookings,
+    upcomingBookings,
+    bookingTrendCounts,
+    recentActivity,
+  ] = await Promise.all([
     session.user.role === "ADMIN"
-      ? await prisma.user.count({
+      ? prisma.user.count({
         where: {
           role: "CLIENT",
-          workspaceId: currentUser.workspaceId,
+          workspaceId,
         },
       })
-      : 1;
+      : Promise.resolve(1),
 
-  const activeProjects = await prisma.project.count({
-    where: {
-      ...workspaceProjectFilter,
-      status: "ACTIVE",
-    },
-  });
-
-  const completedProjects = await prisma.project.count({
-    where: {
-      ...workspaceProjectFilter,
-      status: "COMPLETED",
-    },
-  });
-
-  const totalProjects = await prisma.project.count({
-    where: workspaceProjectFilter,
-  });
-
-  const openInvoices = await prisma.invoice.count({
-    where: {
-      paid: false,
-      project: workspaceProjectFilter,
-    },
-  });
-
-  const totalInvoices = await prisma.invoice.count({
-    where: {
-      project: workspaceProjectFilter,
-    },
-  });
-
-  const paidInvoices = await prisma.invoice.count({
-    where: {
-      paid: true,
-      project: workspaceProjectFilter,
-    },
-  });
-
-  const totalRevenue = await prisma.invoice.aggregate({
-    _sum: {
-      amount: true,
-    },
-    where: {
-      paid: true,
-      project: workspaceProjectFilter,
-    },
-  });
-
-  const outstandingRevenue = await prisma.invoice.aggregate({
-    _sum: {
-      amount: true,
-    },
-    where: {
-      paid: false,
-      project: workspaceProjectFilter,
-    },
-  });
-
-  const pendingMilestones = await prisma.milestone.count({
-    where: {
-      status: {
-        in: ["PENDING", "IN_PROGRESS"],
+    prisma.project.count({
+      where: {
+        ...workspaceProjectFilter,
+        status: "ACTIVE",
       },
-      project: workspaceProjectFilter,
-    },
-  });
+    }),
 
-  const approvedProposals = await prisma.proposal.count({
-    where: {
-      approved: true,
-      project: workspaceProjectFilter,
-    },
-  });
-
-  const totalProposals = await prisma.proposal.count({
-    where: {
-      project: workspaceProjectFilter,
-    },
-  });
-
-  const recentActivity = await prisma.auditLog.findMany({
-    where: {
-      user: {
-        workspaceId: currentUser.workspaceId,
+    prisma.project.count({
+      where: {
+        ...workspaceProjectFilter,
+        status: "COMPLETED",
       },
-    },
-    include: {
-      user: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 10,
-  });
+    }),
+
+    prisma.project.count({
+      where: workspaceProjectFilter,
+    }),
+
+    prisma.invoice.count({
+      where: {
+        paid: false,
+        project: workspaceProjectFilter,
+      },
+    }),
+
+    prisma.invoice.count({
+      where: {
+        project: workspaceProjectFilter,
+      },
+    }),
+
+    prisma.invoice.count({
+      where: {
+        paid: true,
+        project: workspaceProjectFilter,
+      },
+    }),
+
+    prisma.invoice.aggregate({
+      _sum: {
+        amount: true,
+      },
+      where: {
+        paid: true,
+        project: workspaceProjectFilter,
+      },
+    }),
+
+    prisma.invoice.aggregate({
+      _sum: {
+        amount: true,
+      },
+      where: {
+        paid: false,
+        project: workspaceProjectFilter,
+      },
+    }),
+
+    prisma.milestone.count({
+      where: {
+        status: {
+          in: ["PENDING", "IN_PROGRESS"],
+        },
+        project: workspaceProjectFilter,
+      },
+    }),
+
+    prisma.proposal.count({
+      where: {
+        approved: true,
+        project: workspaceProjectFilter,
+      },
+    }),
+
+    prisma.proposal.count({
+      where: {
+        project: workspaceProjectFilter,
+      },
+    }),
+
+    prisma.booking.findMany({
+      where: {
+        workspaceId,
+        date: {
+          gte: todayStart,
+          lt: todayEnd,
+        },
+        status: {
+          not: "CANCELLED",
+        },
+      },
+      include: {
+        service: true,
+      },
+      orderBy: {
+        startTime: "asc",
+      },
+      take: 6,
+    }),
+
+    prisma.booking.findMany({
+      where: {
+        workspaceId,
+        date: {
+          gte: todayStart,
+        },
+        status: {
+          not: "CANCELLED",
+        },
+      },
+      include: {
+        service: true,
+      },
+      orderBy: [
+        {
+          date: "asc",
+        },
+        {
+          startTime: "asc",
+        },
+      ],
+      take: 5,
+    }),
+
+    Promise.all(
+      nextSevenDays.map((day) =>
+        prisma.booking.count({
+          where: {
+            workspaceId,
+            date: {
+              gte: day.date,
+              lt: day.nextDate,
+            },
+            status: {
+              not: "CANCELLED",
+            },
+          },
+        }),
+      ),
+    ),
+
+    prisma.auditLog.findMany({
+      where: {
+        user: {
+          workspaceId,
+        },
+      },
+      include: {
+        user: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 6,
+    }),
+  ]);
 
   const collectionRate =
-    totalInvoices === 0
-      ? 0
-      : Math.round((paidInvoices / totalInvoices) * 100);
+    totalInvoices === 0 ? 0 : Math.round((paidInvoices / totalInvoices) * 100);
 
   const proposalConversionRate =
     totalProposals === 0
@@ -164,36 +264,31 @@ export default async function DashboardPage() {
   const revenueCollected = totalRevenue._sum.amount ?? 0;
   const revenueOutstanding = outstandingRevenue._sum.amount ?? 0;
 
-  const baseMetrics = [
+  const heroMetrics = [
     {
-      label: "Clients",
-      value: totalClients,
-      helper: "Total client accounts",
+      label: "Bookings Today",
+      value: todaysBookings.length,
+      helper: "Scheduled appointments",
     },
     {
       label: "Active Projects",
       value: activeProjects,
-      helper: "Projects currently active",
-    },
-    {
-      label: "Open Invoices",
-      value: openInvoices,
-      helper: "Invoices awaiting payment",
+      helper: "Currently in progress",
     },
     {
       label: "Pending Milestones",
       value: pendingMilestones,
-      helper: "Milestones still in progress",
+      helper: "Need attention",
     },
     {
-      label: "Approved Proposals",
-      value: approvedProposals,
-      helper: "Accepted client proposals",
+      label: "Open Invoices",
+      value: openInvoices,
+      helper: "Awaiting payment",
     },
     {
-      label: "Activity Events",
-      value: recentActivity.length,
-      helper: "Recent audit events",
+      label: "Clients",
+      value: totalClients,
+      helper: "Total client accounts",
     },
   ];
 
@@ -224,23 +319,16 @@ export default async function DashboardPage() {
       helper: "Projects completed",
     },
   ];
-
-  const metrics = isProfessional
-    ? [...baseMetrics, ...professionalMetrics]
-    : baseMetrics;
-
+  const bookingTrendData = nextSevenDays.map((day, index) => ({
+    label: day.label,
+    count: bookingTrendCounts[index] ?? 0,
+  }));
   return (
     <BrandedDashboardShell>
-      <div>
-        <h1 className="text-3xl font-light">Dashboard</h1>
-
-        <p className="mt-2 text-foreground/70">
-          A real-time overview of clients, projects, invoices, and milestones.
-        </p>
-      </div>
+      <DashboardHero firstName={currentUser.firstName} />
 
       {!isProfessional && (
-        <div className="mt-6 rounded-2xl border border-accent/40 bg-card p-5">
+        <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <p className="font-medium">Unlock Executive Analytics</p>
 
           <p className="mt-2 text-sm text-foreground/70">
@@ -250,29 +338,103 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {metrics.map((metric) => (
-          <div
-            key={metric.label}
-            className="rounded-2xl border border-border bg-card p-6"
-          >
-            <p className="text-sm text-foreground/60">{metric.label}</p>
+      <MetricsGrid metrics={heroMetrics} />
 
-            <p className="mt-4 text-3xl font-light">{metric.value}</p>
-
-            <p className="mt-3 text-sm text-foreground/60">{metric.helper}</p>
-          </div>
-        ))}
+      {isProfessional && <ProfessionalMetrics metrics={professionalMetrics} />}
+      <div className="mt-8">
+        <BookingsTrendChart data={bookingTrendData} />
       </div>
+      <section className="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <div className="rounded-3xl border border-border bg-card p-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-light">Today&apos;s Schedule</h2>
 
-      <div className="mt-10">
+              <p className="mt-1 text-sm text-foreground/60">
+                Your upcoming appointments for today.
+              </p>
+            </div>
+
+            <Link
+              href="/bookings"
+              className="text-sm workspace-accent-text"
+            >
+              View all
+            </Link>
+          </div>
+
+          <div className="mt-6 grid gap-3">
+            {todaysBookings.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-foreground/60">
+                No bookings scheduled for today.
+              </div>
+            ) : (
+              todaysBookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="rounded-2xl border border-border bg-background p-4"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="font-medium">{booking.customerName}</p>
+
+                      <p className="mt-1 text-sm text-foreground/60">
+                        {booking.service.name}
+                      </p>
+                    </div>
+
+                    <p className="workspace-accent-badge rounded-full px-3 py-1 text-sm">
+                      {booking.startTime}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-border bg-card p-6">
+          <h2 className="text-2xl font-light">Upcoming</h2>
+
+          <p className="mt-1 text-sm text-foreground/60">
+            Next scheduled appointments.
+          </p>
+
+          <div className="mt-6 grid gap-3">
+            {upcomingBookings.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-foreground/60">
+                No upcoming bookings yet.
+              </div>
+            ) : (
+              upcomingBookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="rounded-2xl border border-border bg-background p-4"
+                >
+                  <p className="font-medium">{booking.customerName}</p>
+
+                  <p className="mt-1 text-sm text-foreground/60">
+                    {booking.service.name}
+                  </p>
+
+                  <p className="mt-2 text-xs text-foreground/50">
+                    {booking.date.toLocaleDateString()} · {booking.startTime}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border bg-card p-6">
         <h2 className="text-2xl font-light">Recent Activity</h2>
 
-        <div className="mt-4 grid gap-3">
+        <div className="mt-5 grid gap-3">
           {recentActivity.map((activity) => (
             <div
               key={activity.id}
-              className="rounded-2xl border border-border bg-card p-5"
+              className="rounded-2xl border border-border bg-background p-4"
             >
               <p className="font-medium">{formatActivityTitle(activity)}</p>
 
@@ -282,17 +444,19 @@ export default async function DashboardPage() {
                   : "System"}
               </p>
 
-              <p className="mt-2 text-sm text-foreground/60">
-                {activity.entity}
-              </p>
-
               <p className="mt-2 text-xs text-foreground/50">
-                {activity.createdAt.toLocaleString()}
+                {activity.entity} · {activity.createdAt.toLocaleString()}
               </p>
             </div>
           ))}
+
+          {recentActivity.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-foreground/60">
+              No recent activity yet.
+            </div>
+          )}
         </div>
-      </div>
+      </section>
     </BrandedDashboardShell>
   );
 }
