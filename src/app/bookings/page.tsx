@@ -27,6 +27,9 @@ export default async function BookingsPage() {
     const bookings = await prisma.booking.findMany({
         where: {
             workspaceId: currentUser.workspaceId,
+            status: {
+                not: "CANCELLED",
+            },
         },
         include: {
             service: true,

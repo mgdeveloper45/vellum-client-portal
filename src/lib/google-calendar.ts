@@ -38,22 +38,33 @@ export async function createGoogleCalendarEvent({
     calendarId: process.env.GOOGLE_CALENDAR_ID,
     requestBody: {
       summary,
-      description,
+      description: [
+        description,
+        attendeeEmail ? `Customer email: ${attendeeEmail}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
       start: {
         dateTime: startDateTime.toISOString(),
       },
       end: {
         dateTime: endDateTime.toISOString(),
       },
-      attendees: attendeeEmail
-        ? [
-            {
-              email: attendeeEmail,
-            },
-          ]
-        : undefined,
     },
   });
 
   return event.data;
+}
+
+export async function deleteGoogleCalendarEvent(eventId: string) {
+  if (!process.env.GOOGLE_CALENDAR_ID) {
+    return;
+  }
+
+  const calendar = getGoogleCalendarClient();
+
+  await calendar.events.delete({
+    calendarId: process.env.GOOGLE_CALENDAR_ID,
+    eventId,
+  });
 }

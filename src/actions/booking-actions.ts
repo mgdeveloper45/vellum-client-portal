@@ -5,7 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { canManageWorkspace } from "@/lib/permissions";
 import { sendBookingConfirmationEmail } from "@/lib/email";
-import { createGoogleCalendarEvent } from "@/lib/google-calendar";
+import {
+  createGoogleCalendarEvent,
+  deleteGoogleCalendarEvent,
+} from "@/lib/google-calendar";
 import {
   minutesToTime,
   timeToMinutes,
@@ -128,13 +131,33 @@ export async function updateBookingStatusAction(formData: FormData) {
     return;
   }
 
-  await prisma.booking.update({
+  const existingBooking = await prisma.booking.findFirst({
     where: {
       id: bookingId,
       workspaceId: currentUser.workspaceId,
     },
+    select: {
+      id: true,
+      googleCalendarEventId: true,
+    },
+  });
+
+  if (!existingBooking) {
+    return;
+  }
+
+  if (status === "CANCELLED" && existingBooking.googleCalendarEventId) {
+    await deleteGoogleCalendarEvent(existingBooking.googleCalendarEventId);
+  }
+
+  await prisma.booking.update({
+    where: {
+      id: existingBooking.id,
+    },
     data: {
       status: status as "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED",
+      googleCalendarEventId:
+        status === "CANCELLED" ? null : existingBooking.googleCalendarEventId,
     },
   });
 
