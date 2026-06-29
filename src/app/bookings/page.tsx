@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { BookingTimeline } from "@/components/bookings/booking-timeline";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { WeeklyBookingCalendar } from "@/components/bookings/weekly-booking-calendar";
 import { MonthlyBookingCalendar } from "@/components/bookings/monthly-booking-calendar";
 
 
@@ -11,6 +12,7 @@ export default async function BookingsPage({
     searchParams: Promise<{
         month?: string;
         year?: string;
+        weekStart?: string;
     }>;
 }) {
     const session = await auth();
@@ -35,6 +37,10 @@ export default async function BookingsPage({
     const resolvedSearchParams = await searchParams;
 
     const today = new Date();
+
+    const selectedWeekStart = resolvedSearchParams.weekStart
+        ? new Date(`${resolvedSearchParams.weekStart}T00:00:00`)
+        : null;
 
     const selectedMonth =
         resolvedSearchParams.month !== undefined
@@ -82,6 +88,11 @@ export default async function BookingsPage({
             </p>
 
             <div className="mt-8 grid gap-8">
+                <WeeklyBookingCalendar
+                    bookings={bookings}
+                    selectedWeekStart={selectedWeekStart}
+                />
+
                 <MonthlyBookingCalendar
                     bookings={bookings}
                     selectedMonth={selectedMonth}

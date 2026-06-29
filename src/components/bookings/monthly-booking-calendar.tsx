@@ -81,21 +81,26 @@ export function MonthlyBookingCalendar({
                     </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <Link
-                        href={`/bookings?month=${previousMonth}&year=${previousYear}`}
-                        className="rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted"
-                    >
-                        ← Previous
-                    </Link>
+                <Link
+                    href={`/bookings?month=${previousMonth}&year=${previousYear}`}
+                    className="rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted"
+                >
+                    ← Previous
+                </Link>
 
-                    <Link
-                        href={`/bookings?month=${nextMonth}&year=${nextYear}`}
-                        className="workspace-accent-button rounded-full px-4 py-2 text-sm font-medium"
-                    >
-                        Next →
-                    </Link>
-                </div>
+                <Link
+                    href="/bookings"
+                    className="rounded-full border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted"
+                >
+                    Today
+                </Link>
+
+                <Link
+                    href={`/bookings?month=${nextMonth}&year=${nextYear}`}
+                    className="workspace-accent-button rounded-full px-4 py-2 text-sm font-medium"
+                >
+                    Next →
+                </Link>
             </div>
 
             <div className="mt-6 grid grid-cols-7 gap-2 text-center text-xs uppercase tracking-wide text-foreground/50">
