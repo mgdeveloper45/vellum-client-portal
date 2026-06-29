@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { BookingStatus } from "@/lib/generated/prisma/client";
 import { BookingTimeline } from "@/components/bookings/booking-timeline";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { WeeklyBookingCalendar } from "@/components/bookings/weekly-booking-calendar";
@@ -13,6 +14,7 @@ export default async function BookingsPage({
         month?: string;
         year?: string;
         weekStart?: string;
+        status?: string;
     }>;
 }) {
     const session = await auth();
@@ -42,6 +44,23 @@ export default async function BookingsPage({
         ? new Date(`${resolvedSearchParams.weekStart}T00:00:00`)
         : null;
 
+    const selectedStatus = resolvedSearchParams.status ?? "ALL";
+
+    const allowedStatuses = ["CONFIRMED", "PENDING", "COMPLETED"] as const;
+
+    const bookingStatusFilter =
+        selectedStatus === "ALL"
+            ? {
+                not: BookingStatus.CANCELLED,
+            }
+            : allowedStatuses.includes(
+                selectedStatus as (typeof allowedStatuses)[number],
+            )
+                ? (selectedStatus as BookingStatus)
+                : {
+                    not: BookingStatus.CANCELLED,
+                };
+
     const selectedMonth =
         resolvedSearchParams.month !== undefined
             ? Number(resolvedSearchParams.month)
@@ -58,9 +77,7 @@ export default async function BookingsPage({
     const bookings = await prisma.booking.findMany({
         where: {
             workspaceId: currentUser.workspaceId,
-            status: {
-                not: "CANCELLED",
-            },
+            status: bookingStatusFilter,
             date: {
                 gte: monthStart,
                 lt: monthEnd,
@@ -86,6 +103,24 @@ export default async function BookingsPage({
             <p className="mt-2 text-foreground/70">
                 View scheduled appointments and client booking details.
             </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+                {["ALL", "CONFIRMED", "PENDING", "COMPLETED"].map((status) => (
+                    <a
+                        key={status}
+                        href={status === "ALL" ? "/bookings" : `/bookings?status=${status}`}
+                        className={
+                            selectedStatus === status
+                                ? "workspace-accent-button rounded-full px-4 py-2 text-sm font-medium"
+                                : "rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted"
+                        }
+                    >
+                        {status === "ALL"
+                            ? "All"
+                            : status.charAt(0) + status.slice(1).toLowerCase()}
+                    </a>
+                ))}
+            </div>
 
             <div className="mt-8 grid gap-8">
                 <WeeklyBookingCalendar
