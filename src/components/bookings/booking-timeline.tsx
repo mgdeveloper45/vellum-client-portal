@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { updateBookingStatusAction } from "@/actions/booking-actions";
 
 type BookingTimelineProps = {
@@ -72,9 +73,10 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
                                         ) : (
                                             <div className="space-y-2">
                                                 {hourBookings.map((booking) => (
-                                                    <div
+                                                    <Link
                                                         key={booking.id}
-                                                        className={`rounded-xl border p-3 ${getStatusClass(
+                                                        href={`/bookings/${booking.id}`}
+                                                        className={`block rounded-xl border p-3 transition hover:scale-[1.01] hover:shadow-sm ${getStatusClass(
                                                             booking.status,
                                                         )}`}
                                                     >
@@ -115,7 +117,7 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
                                                             </button>
                                                         </form>
 
-                                                    </div>
+                                                    </Link>
                                                 ))}
                                             </div>
                                         )}

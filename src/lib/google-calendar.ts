@@ -68,3 +68,49 @@ export async function deleteGoogleCalendarEvent(eventId: string) {
     eventId,
   });
 }
+
+type UpdateGoogleCalendarEventParams = {
+  eventId: string;
+  summary?: string;
+  description?: string;
+  startDateTime: Date;
+  endDateTime: Date;
+  attendeeEmail?: string;
+};
+
+export async function updateGoogleCalendarEvent({
+  eventId,
+  summary,
+  description,
+  startDateTime,
+  endDateTime,
+  attendeeEmail,
+}: UpdateGoogleCalendarEventParams) {
+  if (!process.env.GOOGLE_CALENDAR_ID) {
+    return null;
+  }
+
+  const calendar = getGoogleCalendarClient();
+
+  const event = await calendar.events.patch({
+    calendarId: process.env.GOOGLE_CALENDAR_ID,
+    eventId,
+    requestBody: {
+      summary,
+      description: [
+        description,
+        attendeeEmail ? `Customer email: ${attendeeEmail}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
+      start: {
+        dateTime: startDateTime.toISOString(),
+      },
+      end: {
+        dateTime: endDateTime.toISOString(),
+      },
+    },
+  });
+
+  return event.data;
+}

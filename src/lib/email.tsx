@@ -1,4 +1,6 @@
 import { resend } from "@/lib/resend";
+import { render } from "@react-email/render";
+import { BookingRescheduledEmail } from "@/emails/booking-rescheduled-email";
 import { BookingConfirmationEmail } from "@/emails/booking-confirmation-email";
 
 type SendPasswordResetEmailParams = {
@@ -140,5 +142,40 @@ export async function sendBookingConfirmationEmail({
         bookingTime={bookingTime}
       />
     ),
+  });
+}
+
+type SendBookingRescheduledEmailParams = {
+  email: string;
+  customerName: string;
+  businessName: string;
+  serviceName: string;
+  bookingDate: string;
+  bookingTime: string;
+};
+
+export async function sendBookingRescheduledEmail({
+  email,
+  customerName,
+  businessName,
+  serviceName,
+  bookingDate,
+  bookingTime,
+}: SendBookingRescheduledEmailParams) {
+  const html = await render(
+    <BookingRescheduledEmail
+      customerName={customerName}
+      businessName={businessName}
+      serviceName={serviceName}
+      bookingDate={bookingDate}
+      bookingTime={bookingTime}
+    />,
+  );
+
+  await resend.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to: email,
+    subject: "Your appointment has been rescheduled",
+    html,
   });
 }
