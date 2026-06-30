@@ -6,7 +6,6 @@ import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-she
 import { WeeklyBookingCalendar } from "@/components/bookings/weekly-booking-calendar";
 import { MonthlyBookingCalendar } from "@/components/bookings/monthly-booking-calendar";
 
-
 export default async function BookingsPage({
     searchParams,
 }: {
@@ -46,16 +45,12 @@ export default async function BookingsPage({
 
     const selectedStatus = resolvedSearchParams.status ?? "ALL";
 
-    const allowedStatuses = ["CONFIRMED", "PENDING", "COMPLETED"] as const;
-
     const bookingStatusFilter =
         selectedStatus === "ALL"
             ? {
                 not: BookingStatus.CANCELLED,
             }
-            : allowedStatuses.includes(
-                selectedStatus as (typeof allowedStatuses)[number],
-            )
+            : Object.values(BookingStatus).includes(selectedStatus as BookingStatus)
                 ? (selectedStatus as BookingStatus)
                 : {
                     not: BookingStatus.CANCELLED,
@@ -105,21 +100,26 @@ export default async function BookingsPage({
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
-                {["ALL", "CONFIRMED", "PENDING", "COMPLETED"].map((status) => (
-                    <a
-                        key={status}
-                        href={status === "ALL" ? "/bookings" : `/bookings?status=${status}`}
-                        className={
-                            selectedStatus === status
-                                ? "workspace-accent-button rounded-full px-4 py-2 text-sm font-medium"
-                                : "rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted"
-                        }
-                    >
-                        {status === "ALL"
-                            ? "All"
-                            : status.charAt(0) + status.slice(1).toLowerCase()}
-                    </a>
-                ))}
+                {["ALL", "CONFIRMED", "PENDING", "COMPLETED", "CANCELLED"].map(
+                    (status) => (
+                        <a
+                            key={status}
+                            href={status === "ALL" ? "/bookings" : `/bookings?status=${status}`}
+                            className={
+                                selectedStatus === status
+                                    ? "workspace-accent-button rounded-full px-4 py-2 text-sm font-medium"
+                                    : "rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted"
+                            }
+                        >
+                            {status === "ALL"
+                                ? "All"
+                                : status
+                                    .toLowerCase()
+                                    .replace("_", " ")
+                                    .replace(/\b\w/g, (char) => char.toUpperCase())}
+                        </a>
+                    ),
+                )}
             </div>
 
             <div className="mt-8 grid gap-8">

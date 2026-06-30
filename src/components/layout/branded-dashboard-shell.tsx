@@ -1,6 +1,9 @@
 import { auth } from "@/auth";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
+import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { CommandPalette } from "@/components/search/command-palette";
+import { WorkspaceSearch } from "@/components/search/workspace-search";
+
 
 export async function BrandedDashboardShell({
   children,
@@ -40,6 +43,10 @@ export async function BrandedDashboardShell({
       logoImageUrl={logoImageUrl}
       accentColor={accentColor}
     >
+      <CommandPalette />
+      <div className="mb-8">
+        <WorkspaceSearch />
+      </div>
       {children}
     </DashboardShell>
   );
