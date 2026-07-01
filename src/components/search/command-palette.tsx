@@ -105,6 +105,7 @@ export function CommandPalette() {
     );
 
     const sectionTitles: Record<SearchResult["type"], string> = {
+        ACTION: "⚡ Actions",
         CLIENT: "👤 Clients",
         PROJECT: "📁 Projects",
         BOOKING: "📅 Bookings",
@@ -181,8 +182,13 @@ export function CommandPalette() {
                         ))}
                 </div>
 
-                <div className="mt-4 border-t border-border pt-3 text-xs text-foreground/50">
-                    Press Esc to close
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3 text-xs text-foreground/50">
+                    <div className="flex items-center gap-3">
+                        <span>↑ ↓ Navigate</span>
+                        <span>Enter Open</span>
+                    </div>
+
+                    <span>Esc Close</span>
                 </div>
             </div>
         </div>

@@ -2,10 +2,19 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { workspaceCommands } from "@/lib/commands";
+
 
 export type SearchResult = {
   id: string;
-  type: "CLIENT" | "PROJECT" | "BOOKING" | "INVOICE" | "MESSAGE" | "SERVICE";
+  type:
+    | "ACTION"
+    | "CLIENT"
+    | "PROJECT"
+    | "BOOKING"
+    | "INVOICE"
+    | "MESSAGE"
+    | "SERVICE";
   title: string;
   subtitle: string;
   href: string;
@@ -34,7 +43,13 @@ export async function searchWorkspaceAction(
   }
 
   const search = query.trim();
+  const lowerSearch = search.toLowerCase();
 
+  const actions = workspaceCommands.filter((command) => {
+  const searchText = `${command.title} ${command.subtitle}`.toLowerCase();
+
+  return searchText.includes(lowerSearch);
+});
   const [clients, projects, bookings, invoices, messages, services] =
     await Promise.all([
       prisma.user.findMany({
@@ -116,6 +131,8 @@ export async function searchWorkspaceAction(
     ]);
 
   return [
+    ...actions,
+
     ...clients.map((client) => ({
       id: client.id,
       type: "CLIENT" as const,
