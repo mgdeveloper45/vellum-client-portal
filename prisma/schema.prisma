@@ -131,6 +131,9 @@ model Notification {
   title   String
   message String
 
+  type String?
+  href String?
+
   read Boolean @default(false)
 
   userId String

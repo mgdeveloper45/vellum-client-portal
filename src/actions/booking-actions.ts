@@ -111,6 +111,28 @@ export async function createBookingAction(formData: FormData) {
     });
   }
 
+  const workspaceAdmin = await prisma.user.findFirst({
+    where: {
+      workspaceId,
+      role: "ADMIN",
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (workspaceAdmin) {
+    await prisma.notification.create({
+      data: {
+        userId: workspaceAdmin.id,
+        title: "New booking created",
+        message: `${booking.customerName} booked ${booking.service.name} for ${booking.date.toLocaleDateString()} at ${booking.startTime}.`,
+        type: "BOOKING",
+        href: `/bookings/${booking.id}`,
+      },
+    });
+  }
+
   redirect(`/booking-confirmation/${booking.id}`);
 }
 
@@ -173,6 +195,19 @@ export async function updateBookingStatusAction(formData: FormData) {
         status === "CANCELLED" ? null : existingBooking.googleCalendarEventId,
     },
   });
+
+  if (status === "CANCELLED") {
+    await prisma.notification.create({
+      data: {
+        userId: session.user.id,
+        title: "Booking cancelled",
+        message:
+          "A booking was cancelled and removed from the active calendar.",
+        type: "BOOKING",
+        href: `/bookings/${existingBooking.id}`,
+      },
+    });
+  }
 
   redirect("/bookings");
 }
@@ -258,6 +293,16 @@ export async function rescheduleBookingAction(formData: FormData) {
     serviceName: updatedBooking.service.name,
     bookingDate: updatedBooking.date.toLocaleDateString(),
     bookingTime: `${updatedBooking.startTime} – ${updatedBooking.endTime}`,
+  });
+
+  await prisma.notification.create({
+    data: {
+      userId: session.user.id,
+      title: "Booking rescheduled",
+      message: `${updatedBooking.customerName}'s ${updatedBooking.service.name} booking was moved to ${updatedBooking.date.toLocaleDateString()} at ${updatedBooking.startTime}.`,
+      type: "BOOKING",
+      href: `/bookings/${updatedBooking.id}`,
+    },
   });
 
   redirect(`/bookings/${updatedBooking.id}`);

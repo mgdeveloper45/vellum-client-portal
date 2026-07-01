@@ -58,6 +58,11 @@ export default async function NotificationsPage() {
 
                     </div>
                 ))}
+                {notifications.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-border bg-card p-6 text-sm text-foreground/60">
+                        No notifications yet.
+                    </div>
+                )}
             </div>
         </BrandedDashboardShell>
     );
