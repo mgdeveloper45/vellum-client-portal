@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatActivityTitle } from "@/lib/activity";
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { MetricsGrid } from "@/components/dashboard/metrics-grid";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { BookingsTrendChart } from "@/components/dashboard/bookings-trend-chart";
 import { ProfessionalMetrics } from "@/components/dashboard/professional-metrics";
@@ -37,13 +38,8 @@ export default async function DashboardPage() {
 
   const workspaceProjectFilter =
     session.user.role === "ADMIN"
-      ? {
-        workspaceId,
-      }
-      : {
-        workspaceId,
-        clientId: session.user.id,
-      };
+      ? { workspaceId }
+      : { workspaceId, clientId: session.user.id };
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -82,6 +78,7 @@ export default async function DashboardPage() {
     upcomingBookings,
     bookingTrendCounts,
     recentActivity,
+    recentNotifications,
   ] = await Promise.all([
     session.user.role === "ADMIN"
       ? prisma.user.count({
@@ -247,6 +244,16 @@ export default async function DashboardPage() {
       },
       take: 6,
     }),
+
+    prisma.notification.findMany({
+      where: {
+        userId: session.user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 6,
+    }),
   ]);
 
   const collectionRate =
@@ -320,10 +327,12 @@ export default async function DashboardPage() {
       helper: "Projects completed",
     },
   ];
+
   const bookingTrendData = nextSevenDays.map((day, index) => ({
     label: day.label,
     count: bookingTrendCounts[index] ?? 0,
   }));
+
   return (
     <BrandedDashboardShell>
       <DashboardHero firstName={currentUser.firstName} />
@@ -363,10 +372,7 @@ export default async function DashboardPage() {
               </p>
             </div>
 
-            <Link
-              href="/bookings"
-              className="text-sm workspace-accent-text"
-            >
+            <Link href="/bookings" className="text-sm workspace-accent-text">
               View all
             </Link>
           </div>
@@ -434,6 +440,10 @@ export default async function DashboardPage() {
           </div>
         </div>
       </section>
+
+      <div className="mt-8">
+        <ActivityFeed activities={recentNotifications} />
+      </div>
 
       <section className="mt-8 rounded-3xl border border-border bg-card p-6">
         <h2 className="text-2xl font-light">Recent Activity</h2>

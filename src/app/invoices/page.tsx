@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { createInvoiceCheckoutAction } from "@/actions/payment-actions";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 /**
@@ -69,9 +70,25 @@ export default async function InvoicesPage() {
                 </p>
               </div>
 
-              <span className="rounded-full bg-muted px-3 py-1 text-sm text-accent">
-                {invoice.paid ? "Paid" : "Unpaid"}
-              </span>
+              <div className="flex flex-col items-end gap-2">
+                <span className="rounded-full bg-muted px-3 py-1 text-sm text-accent">
+                  {invoice.paid ? "Paid" : "Unpaid"}
+                </span>
+
+                {!invoice.paid && (
+                  <form action={createInvoiceCheckoutAction}>
+                    <input
+                      type="hidden"
+                      name="invoiceId"
+                      value={invoice.id}
+                    />
+
+                    <button className="workspace-accent-button rounded-full px-4 py-2 text-sm font-medium transition hover:opacity-90">
+                      Pay Now
+                    </button>
+                  </form>
+                )}
+              </div>
             </div>
 
             <p className="mt-5 text-xs text-foreground/50">
