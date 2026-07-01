@@ -91,9 +91,18 @@ export default async function InvoicesPage() {
               </div>
             </div>
 
-            <p className="mt-5 text-xs text-foreground/50">
-              Created {invoice.createdAt.toLocaleDateString()}
-            </p>
+            <div className="mt-5 flex items-center justify-between">
+              <p className="text-xs text-foreground/50">
+                Created {invoice.createdAt.toLocaleDateString()}
+              </p>
+
+              <a
+                href={`/invoices/${invoice.id}/pdf`}
+                className="rounded-full border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted"
+              >
+                Download PDF
+              </a>
+            </div>
           </div>
         ))}
       </div>
