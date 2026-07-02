@@ -6,6 +6,7 @@ import { hasProfessionalPlan } from "@/lib/subscription";
 import { MetricsGrid } from "@/components/dashboard/metrics-grid";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
+import { WorkspaceAICard } from "@/components/dashboard/workspace-ai-card";
 import { BookingsTrendChart } from "@/components/dashboard/bookings-trend-chart";
 import { ProfessionalMetrics } from "@/components/dashboard/professional-metrics";
 import { RevenueSummaryChart } from "@/components/dashboard/revenue-summary-chart";
@@ -360,6 +361,10 @@ export default async function DashboardPage() {
           outstanding={revenueOutstanding}
         />
       </section>
+
+      <div className="mt-8">
+        <WorkspaceAICard />
+      </div>
 
       <section className="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-3xl border border-border bg-card p-6">
