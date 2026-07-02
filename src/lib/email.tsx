@@ -1,5 +1,6 @@
 import { resend } from "@/lib/resend";
 import { render } from "@react-email/render";
+import { InvoicePaidEmail } from "@/emails/invoice-paid-email";
 import { BookingRescheduledEmail } from "@/emails/booking-rescheduled-email";
 import { BookingConfirmationEmail } from "@/emails/booking-confirmation-email";
 
@@ -142,6 +143,41 @@ export async function sendBookingConfirmationEmail({
         bookingTime={bookingTime}
       />
     ),
+  });
+}
+
+type SendInvoicePaidEmailParams = {
+  email: string;
+  clientName: string;
+  businessName: string;
+  projectName: string;
+  amount: string;
+  invoiceUrl: string;
+};
+
+export async function sendInvoicePaidEmail({
+  email,
+  clientName,
+  businessName,
+  projectName,
+  amount,
+  invoiceUrl,
+}: SendInvoicePaidEmailParams) {
+  const html = await render(
+    <InvoicePaidEmail
+      clientName={clientName}
+      businessName={businessName}
+      projectName={projectName}
+      amount={amount}
+      invoiceUrl={invoiceUrl}
+    />,
+  );
+
+  await resend.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to: email,
+    subject: "Payment received",
+    html,
   });
 }
 

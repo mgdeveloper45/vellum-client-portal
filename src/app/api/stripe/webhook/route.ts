@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import Stripe from "stripe";
+import { sendInvoiceReceipt } from "@/lib/services/invoice/email-service";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -25,7 +26,6 @@ export async function POST(request: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-
     const invoiceId = session.metadata?.invoiceId;
 
     if (invoiceId) {
@@ -37,7 +37,12 @@ export async function POST(request: Request) {
           paid: true,
         },
         include: {
-          project:  true,
+          project: {
+            include: {
+              client: true,
+              workspace: true,
+            },
+          },
         },
       });
 
@@ -49,6 +54,18 @@ export async function POST(request: Request) {
           type: "INVOICE",
           href: `/projects/${invoice.projectId}`,
         },
+      });
+
+      await sendInvoiceReceipt({
+        email: invoice.project.client.email,
+        clientName: `${invoice.project.client.firstName} ${invoice.project.client.lastName}`,
+        businessName:
+          invoice.project.workspace?.companyName ??
+          invoice.project.workspace?.name ??
+          "Vellum",
+        projectName: invoice.project.name,
+        amount: invoice.amount,
+        invoiceId: invoice.id,
       });
 
       return Response.json({ received: true });
