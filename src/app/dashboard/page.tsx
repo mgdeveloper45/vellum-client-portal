@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatActivityTitle } from "@/lib/activity";
 import { hasProfessionalPlan } from "@/lib/subscription";
+import { AICommandCenter } from "@/components/ai/command-center";
 import { MetricsGrid } from "@/components/dashboard/metrics-grid";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
@@ -11,6 +12,7 @@ import { BookingsTrendChart } from "@/components/dashboard/bookings-trend-chart"
 import { ProfessionalMetrics } from "@/components/dashboard/professional-metrics";
 import { RevenueSummaryChart } from "@/components/dashboard/revenue-summary-chart";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { WorkspaceActionsCard } from "@/components/dashboard/workspace-actions-card";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -364,6 +366,17 @@ export default async function DashboardPage() {
 
       <div className="mt-8">
         <WorkspaceAICard />
+      </div>
+
+      <div className="mt-8">
+        <WorkspaceActionsCard
+          userId={session.user.id}
+          workspaceId={workspaceId}
+        />
+      </div>
+
+      <div className="mt-8">
+        <AICommandCenter />
       </div>
 
       <section className="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">

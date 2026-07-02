@@ -33,5 +33,5 @@ export async function getWorkspaceSummaryAction() {
 
   const prompt = buildWorkspaceSummaryPrompt(context);
 
-  return askAI(prompt);
+  return askAI(prompt, context);
 }

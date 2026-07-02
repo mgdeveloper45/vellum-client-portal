@@ -36,4 +36,32 @@ export const workspaceCommands: SearchResult[] = [
     subtitle: "Go to bookings calendar",
     href: "/bookings",
   },
+  {
+    id: "ai-command-center",
+    type: "ACTION",
+    title: "AI Command Center",
+    subtitle: "Ask Vellum to analyze your workspace",
+    href: "/ai/command-center",
+  },
+  {
+    id: "ai-workspace-summary",
+    type: "ACTION",
+    title: "Workspace Summary",
+    subtitle: "Generate an AI-powered workspace summary",
+    href: "/dashboard",
+  },
+  {
+    id: "ai-invoice-reminders",
+    type: "ACTION",
+    title: "Draft Invoice Reminders",
+    subtitle: "Generate AI reminder drafts for unpaid invoices",
+    href: "/invoices",
+  },
+  {
+    id: "ai-todays-bookings",
+    type: "ACTION",
+    title: "Today's Bookings",
+    subtitle: "Review today's booking schedule",
+    href: "/bookings",
+  },
 ];
