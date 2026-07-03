@@ -3,7 +3,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildBookingEngine } from "@/lib/services/bookings/booking-engine";
 import { BookingHeader } from "@/components/booking-command-center/booking-header";
+import { BookingAICard } from "@/components/booking-command-center/booking-ai-card";
 import { BookingTimeline } from "@/components/booking-command-center/booking-timeline";
+import { BookingStatusCard } from "@/components/booking-command-center/booking-status-card";
+import { BookingMissionCard } from "@/components/booking-command-center/booking-mission-card";
+import { BookingCountdownCard } from "@/components/booking-command-center/booking-countdown-card";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 export default async function BookingDetailsPage({
@@ -85,6 +89,8 @@ export default async function BookingDetailsPage({
 
     const bookingIntelligence = buildBookingEngine({
         bookingId: booking.id,
+        customerName: booking.customerName,
+        serviceName: booking.service.name,
         status: booking.status,
         bookingCreatedAt: booking.createdAt,
         bookingDate: booking.date,
@@ -110,6 +116,15 @@ export default async function BookingDetailsPage({
                     time={`${booking.startTime}–${booking.endTime}`}
                     status={booking.status}
                 />
+            </div>
+
+            <section className="mt-8 grid gap-6 xl:grid-cols-2">
+                <BookingMissionCard mission={bookingIntelligence.mission} />
+                <BookingCountdownCard countdown={bookingIntelligence.countdown} />
+            </section>
+
+            <div className="mt-8">
+                <BookingAICard summary={bookingIntelligence.aiSummary} />
             </div>
 
             <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
@@ -155,6 +170,15 @@ export default async function BookingDetailsPage({
                 </div>
 
                 <aside className="grid gap-6">
+                    <BookingStatusCard
+                        lifecycle={bookingIntelligence.lifecycle}
+                        health={bookingIntelligence.health.score}
+                        countdown={bookingIntelligence.countdown.label}
+                        paymentStatus={invoicePaid ? "Paid" : "Pending"}
+                        projectStatus={hasProject ? "Created" : "Not Created"}
+                        calendarSynced={Boolean(booking.googleCalendarEventId)}
+                    />
+
                     <div className="rounded-3xl border border-border bg-card p-6">
                         <h2 className="text-xl font-medium">Booking Health</h2>
 
@@ -203,28 +227,12 @@ export default async function BookingDetailsPage({
                         </div>
                     </div>
 
-                    <div className="rounded-3xl border border-border bg-card p-6">
-                        <h2 className="text-xl font-medium">Calendar</h2>
-
-                        <p className="mt-2 text-sm text-foreground/70">
-                            Google Calendar event status.
-                        </p>
-
-                        <div className="mt-5 rounded-2xl border border-border bg-background p-4">
-                            <p className="text-sm text-foreground/50">Event ID</p>
-
-                            <p className="mt-2 break-all text-sm">
-                                {booking.googleCalendarEventId || "No linked calendar event"}
-                            </p>
-                        </div>
-
-                        <a
-                            href={`/bookings/${booking.id}/reschedule`}
-                            className="workspace-accent-button mt-5 inline-block rounded-full px-4 py-2 text-sm font-medium"
-                        >
-                            Reschedule
-                        </a>
-                    </div>
+                    <a
+                        href={`/bookings/${booking.id}/reschedule`}
+                        className="workspace-accent-button inline-block rounded-full px-4 py-2 text-center text-sm font-medium"
+                    >
+                        Reschedule
+                    </a>
                 </aside>
             </section>
         </BrandedDashboardShell>
