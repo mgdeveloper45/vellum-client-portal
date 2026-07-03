@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { buildBookingEngine } from "@/lib/services/bookings/booking-engine";
+import { BookingHeader } from "@/components/booking-command-center/booking-header";
+import { BookingTimeline } from "@/components/booking-command-center/booking-timeline";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 export default async function BookingDetailsPage({
@@ -48,10 +51,7 @@ export default async function BookingDetailsPage({
                 <div className="rounded-2xl border border-border bg-card p-6">
                     <h1 className="text-2xl font-light">Booking not found</h1>
 
-                    <Link
-                        href="/bookings"
-                        className="mt-4 inline-block workspace-accent-text"
-                    >
+                    <Link href="/bookings" className="mt-4 inline-block workspace-accent-text">
                         Back to bookings
                     </Link>
                 </div>
@@ -59,100 +59,171 @@ export default async function BookingDetailsPage({
         );
     }
 
+    const relatedProjects = await prisma.project.findMany({
+        where: {
+            workspaceId: currentUser.workspaceId,
+            client: {
+                email: booking.customerEmail,
+            },
+        },
+        include: {
+            invoices: true,
+            messages: true,
+            files: true,
+        },
+    });
+
+    const hasProject = relatedProjects.length > 0;
+    const invoices = relatedProjects.flatMap((project) => project.invoices);
+    const messages = relatedProjects.flatMap((project) => project.messages);
+    const files = relatedProjects.flatMap((project) => project.files);
+
+    const hasInvoice = invoices.length > 0;
+    const invoicePaid = invoices.some((invoice) => invoice.paid);
+    const hasMessages = messages.length > 0;
+    const hasFiles = files.length > 0;
+
+    const bookingIntelligence = buildBookingEngine({
+        bookingId: booking.id,
+        status: booking.status,
+        bookingCreatedAt: booking.createdAt,
+        bookingDate: booking.date,
+        hasGoogleCalendarEvent: Boolean(booking.googleCalendarEventId),
+        hasProject,
+        hasInvoice,
+        invoicePaid,
+        hasMessages,
+        hasFiles,
+    });
+
     return (
         <BrandedDashboardShell>
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                    <Link href="/bookings" className="workspace-accent-text text-sm">
-                        ← Back to bookings
-                    </Link>
+            <Link href="/bookings" className="workspace-accent-text text-sm">
+                ← Back to bookings
+            </Link>
 
-                    <h1 className="mt-4 text-3xl font-light">Booking Details</h1>
-
-                    <p className="mt-2 text-foreground/70">
-                        Manage appointment details, customer information, and booking status.
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <div className="rounded-full border border-border bg-card px-4 py-2 text-sm uppercase tracking-wide">
-                        {booking.status}
-                    </div>
-
-                    <a
-                        href={`/bookings/${booking.id}/reschedule`}
-                        className="workspace-accent-bg rounded-xl px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
-                    >
-                        Reschedule
-                    </a>
-                </div>
+            <div className="mt-6">
+                <BookingHeader
+                    customerName={booking.customerName}
+                    serviceName={booking.service.name}
+                    date={booking.date.toLocaleDateString()}
+                    time={`${booking.startTime}–${booking.endTime}`}
+                    status={booking.status}
+                />
             </div>
 
             <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
-                <div className="rounded-3xl border border-border bg-card p-6">
-                    <h2 className="text-2xl font-light">{booking.service.name}</h2>
+                <div className="grid gap-6">
+                    <div className="rounded-3xl border border-border bg-card p-6">
+                        <h2 className="text-2xl font-light">Customer Details</h2>
 
-                    <div className="mt-6 grid gap-4 md:grid-cols-2">
-                        <div>
-                            <p className="text-sm text-foreground/50">Customer</p>
-                            <p className="mt-1 font-medium">{booking.customerName}</p>
+                        <div className="mt-6 grid gap-4 md:grid-cols-2">
+                            <div>
+                                <p className="text-sm text-foreground/50">Customer</p>
+                                <p className="mt-1 font-medium">{booking.customerName}</p>
+                            </div>
+
+                            <div>
+                                <p className="text-sm text-foreground/50">Email</p>
+                                <p className="mt-1 font-medium">{booking.customerEmail}</p>
+                            </div>
+
+                            <div>
+                                <p className="text-sm text-foreground/50">Phone</p>
+                                <p className="mt-1 font-medium">
+                                    {booking.customerPhone || "Not provided"}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p className="text-sm text-foreground/50">Workspace</p>
+                                <p className="mt-1 font-medium">
+                                    {booking.workspace.companyName || booking.workspace.name}
+                                </p>
+                            </div>
                         </div>
 
-                        <div>
-                            <p className="text-sm text-foreground/50">Email</p>
-                            <p className="mt-1 font-medium">{booking.customerEmail}</p>
-                        </div>
+                        {booking.notes && (
+                            <div className="mt-6 rounded-2xl border border-border bg-background p-5">
+                                <p className="text-sm text-foreground/50">Notes</p>
+                                <p className="mt-2 text-foreground/80">{booking.notes}</p>
+                            </div>
+                        )}
+                    </div>
 
-                        <div>
-                            <p className="text-sm text-foreground/50">Phone</p>
-                            <p className="mt-1 font-medium">
-                                {booking.customerPhone || "Not provided"}
+                    <BookingTimeline items={bookingIntelligence.timeline} />
+                </div>
+
+                <aside className="grid gap-6">
+                    <div className="rounded-3xl border border-border bg-card p-6">
+                        <h2 className="text-xl font-medium">Booking Health</h2>
+
+                        <div className="mt-5 rounded-2xl border border-border bg-background p-5">
+                            <p className="text-4xl font-light">
+                                {bookingIntelligence.health.score}%
+                            </p>
+
+                            <p className="mt-2 text-sm uppercase tracking-wide text-foreground/50">
+                                {bookingIntelligence.health.label.replace("_", " ")}
                             </p>
                         </div>
 
-                        <div>
-                            <p className="text-sm text-foreground/50">Workspace</p>
-                            <p className="mt-1 font-medium">
-                                {booking.workspace.companyName || booking.workspace.name}
-                            </p>
-                        </div>
-
-                        <div>
-                            <p className="text-sm text-foreground/50">Date</p>
-                            <p className="mt-1 font-medium">
-                                {booking.date.toLocaleDateString()}
-                            </p>
-                        </div>
-
-                        <div>
-                            <p className="text-sm text-foreground/50">Time</p>
-                            <p className="mt-1 font-medium">
-                                {booking.startTime}–{booking.endTime}
-                            </p>
+                        <div className="mt-5 space-y-2">
+                            {bookingIntelligence.health.reasons.map((reason) => (
+                                <p key={reason} className="text-sm text-foreground/70">
+                                    • {reason}
+                                </p>
+                            ))}
                         </div>
                     </div>
 
-                    {booking.notes && (
-                        <div className="mt-6 rounded-2xl border border-border bg-background p-5">
-                            <p className="text-sm text-foreground/50">Notes</p>
-                            <p className="mt-2 text-foreground/80">{booking.notes}</p>
+                    <div className="rounded-3xl border border-border bg-card p-6">
+                        <h2 className="text-xl font-medium">Recommended Actions</h2>
+
+                        <div className="mt-5 grid gap-3">
+                            {bookingIntelligence.actions.map((action) => (
+                                <Link
+                                    key={action.id}
+                                    href={action.href}
+                                    className="rounded-2xl border border-border bg-background p-4 transition hover:border-accent"
+                                >
+                                    <div className="flex items-center justify-between gap-3">
+                                        <p className="font-medium">{action.title}</p>
+
+                                        <span className="rounded-full bg-muted px-2 py-1 text-xs">
+                                            {action.priority}
+                                        </span>
+                                    </div>
+
+                                    <p className="mt-2 text-sm text-foreground/60">
+                                        {action.description}
+                                    </p>
+                                </Link>
+                            ))}
                         </div>
-                    )}
-                </div>
+                    </div>
 
-                <aside className="rounded-3xl border border-border bg-card p-6">
-                    <h2 className="text-xl font-medium">Calendar</h2>
+                    <div className="rounded-3xl border border-border bg-card p-6">
+                        <h2 className="text-xl font-medium">Calendar</h2>
 
-                    <p className="mt-2 text-sm text-foreground/70">
-                        Google Calendar event status.
-                    </p>
-
-                    <div className="mt-5 rounded-2xl border border-border bg-background p-4">
-                        <p className="text-sm text-foreground/50">Event ID</p>
-
-                        <p className="mt-2 break-all text-sm">
-                            {booking.googleCalendarEventId || "No linked calendar event"}
+                        <p className="mt-2 text-sm text-foreground/70">
+                            Google Calendar event status.
                         </p>
+
+                        <div className="mt-5 rounded-2xl border border-border bg-background p-4">
+                            <p className="text-sm text-foreground/50">Event ID</p>
+
+                            <p className="mt-2 break-all text-sm">
+                                {booking.googleCalendarEventId || "No linked calendar event"}
+                            </p>
+                        </div>
+
+                        <a
+                            href={`/bookings/${booking.id}/reschedule`}
+                            className="workspace-accent-button mt-5 inline-block rounded-full px-4 py-2 text-sm font-medium"
+                        >
+                            Reschedule
+                        </a>
                     </div>
                 </aside>
             </section>
