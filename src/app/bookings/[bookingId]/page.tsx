@@ -6,6 +6,8 @@ import { BookingHeader } from "@/components/booking-command-center/booking-heade
 import { BookingAICard } from "@/components/booking-command-center/booking-ai-card";
 import { BookingTimeline } from "@/components/booking-command-center/booking-timeline";
 import { BookingStatusCard } from "@/components/booking-command-center/booking-status-card";
+import { BookingHealthCard } from "@/components/booking-command-center/booking-health-card";
+import { BookingActionsCard } from "@/components/booking-command-center/booking-actions-card";
 import { BookingMissionCard } from "@/components/booking-command-center/booking-mission-card";
 import { BookingCountdownCard } from "@/components/booking-command-center/booking-countdown-card";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
@@ -179,53 +181,13 @@ export default async function BookingDetailsPage({
                         calendarSynced={Boolean(booking.googleCalendarEventId)}
                     />
 
-                    <div className="rounded-3xl border border-border bg-card p-6">
-                        <h2 className="text-xl font-medium">Booking Health</h2>
+                    <BookingHealthCard
+                        health={bookingIntelligence.health}
+                    />
 
-                        <div className="mt-5 rounded-2xl border border-border bg-background p-5">
-                            <p className="text-4xl font-light">
-                                {bookingIntelligence.health.score}%
-                            </p>
-
-                            <p className="mt-2 text-sm uppercase tracking-wide text-foreground/50">
-                                {bookingIntelligence.health.label.replace("_", " ")}
-                            </p>
-                        </div>
-
-                        <div className="mt-5 space-y-2">
-                            {bookingIntelligence.health.reasons.map((reason) => (
-                                <p key={reason} className="text-sm text-foreground/70">
-                                    • {reason}
-                                </p>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="rounded-3xl border border-border bg-card p-6">
-                        <h2 className="text-xl font-medium">Recommended Actions</h2>
-
-                        <div className="mt-5 grid gap-3">
-                            {bookingIntelligence.actions.map((action) => (
-                                <Link
-                                    key={action.id}
-                                    href={action.href}
-                                    className="rounded-2xl border border-border bg-background p-4 transition hover:border-accent"
-                                >
-                                    <div className="flex items-center justify-between gap-3">
-                                        <p className="font-medium">{action.title}</p>
-
-                                        <span className="rounded-full bg-muted px-2 py-1 text-xs">
-                                            {action.priority}
-                                        </span>
-                                    </div>
-
-                                    <p className="mt-2 text-sm text-foreground/60">
-                                        {action.description}
-                                    </p>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
+                    <BookingActionsCard
+    actions={bookingIntelligence.actions}
+/>
 
                     <a
                         href={`/bookings/${booking.id}/reschedule`}
