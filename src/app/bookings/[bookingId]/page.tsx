@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { buildBookingEngine } from "@/lib/services/bookings/booking-engine";
+import { getBookingCommandCenter } from "@/lib/services/bookings/booking-command-center";
 import { BookingHeader } from "@/components/booking-command-center/booking-header";
 import { BookingAICard } from "@/components/booking-command-center/booking-ai-card";
 import { BookingTimeline } from "@/components/booking-command-center/booking-timeline";
@@ -9,7 +9,9 @@ import { BookingStatusCard } from "@/components/booking-command-center/booking-s
 import { BookingHealthCard } from "@/components/booking-command-center/booking-health-card";
 import { BookingActionsCard } from "@/components/booking-command-center/booking-actions-card";
 import { BookingMissionCard } from "@/components/booking-command-center/booking-mission-card";
+import { BookingCommandCenter } from "@/components/booking-command-center/booking-command-center";
 import { BookingCountdownCard } from "@/components/booking-command-center/booking-countdown-card";
+import { CustomerOverviewCard } from "@/components/booking-command-center/customer-overview-card";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
 export default async function BookingDetailsPage({
@@ -40,18 +42,12 @@ export default async function BookingDetailsPage({
         return null;
     }
 
-    const booking = await prisma.booking.findFirst({
-        where: {
-            id: bookingId,
-            workspaceId: currentUser.workspaceId,
-        },
-        include: {
-            service: true,
-            workspace: true,
-        },
+    const bookingData = await getBookingCommandCenter({
+        bookingId,
+        workspaceId: currentUser.workspaceId,
     });
 
-    if (!booking) {
+    if (!bookingData) {
         return (
             <BrandedDashboardShell>
                 <div className="rounded-2xl border border-border bg-card p-6">
@@ -65,138 +61,75 @@ export default async function BookingDetailsPage({
         );
     }
 
-    const relatedProjects = await prisma.project.findMany({
-        where: {
-            workspaceId: currentUser.workspaceId,
-            client: {
-                email: booking.customerEmail,
-            },
-        },
-        include: {
-            invoices: true,
-            messages: true,
-            files: true,
-        },
-    });
-
-    const hasProject = relatedProjects.length > 0;
-    const invoices = relatedProjects.flatMap((project) => project.invoices);
-    const messages = relatedProjects.flatMap((project) => project.messages);
-    const files = relatedProjects.flatMap((project) => project.files);
-
-    const hasInvoice = invoices.length > 0;
-    const invoicePaid = invoices.some((invoice) => invoice.paid);
-    const hasMessages = messages.length > 0;
-    const hasFiles = files.length > 0;
-
-    const bookingIntelligence = buildBookingEngine({
-        bookingId: booking.id,
-        customerName: booking.customerName,
-        serviceName: booking.service.name,
-        status: booking.status,
-        bookingCreatedAt: booking.createdAt,
-        bookingDate: booking.date,
-        hasGoogleCalendarEvent: Boolean(booking.googleCalendarEventId),
-        hasProject,
-        hasInvoice,
-        invoicePaid,
-        hasMessages,
-        hasFiles,
-    });
+    const {
+        booking,
+        intelligence: bookingIntelligence,
+        flags,
+    } = bookingData;
 
     return (
         <BrandedDashboardShell>
-            <Link href="/bookings" className="workspace-accent-text text-sm">
-                ← Back to bookings
-            </Link>
+            <BookingCommandCenter>
+                <Link href="/bookings" className="workspace-accent-text text-sm">
+                    ← Back to bookings
+                </Link>
 
-            <div className="mt-6">
-                <BookingHeader
-                    customerName={booking.customerName}
-                    serviceName={booking.service.name}
-                    date={booking.date.toLocaleDateString()}
-                    time={`${booking.startTime}–${booking.endTime}`}
-                    status={booking.status}
-                />
-            </div>
-
-            <section className="mt-8 grid gap-6 xl:grid-cols-2">
-                <BookingMissionCard mission={bookingIntelligence.mission} />
-                <BookingCountdownCard countdown={bookingIntelligence.countdown} />
-            </section>
-
-            <div className="mt-8">
-                <BookingAICard summary={bookingIntelligence.aiSummary} />
-            </div>
-
-            <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
-                <div className="grid gap-6">
-                    <div className="rounded-3xl border border-border bg-card p-6">
-                        <h2 className="text-2xl font-light">Customer Details</h2>
-
-                        <div className="mt-6 grid gap-4 md:grid-cols-2">
-                            <div>
-                                <p className="text-sm text-foreground/50">Customer</p>
-                                <p className="mt-1 font-medium">{booking.customerName}</p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm text-foreground/50">Email</p>
-                                <p className="mt-1 font-medium">{booking.customerEmail}</p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm text-foreground/50">Phone</p>
-                                <p className="mt-1 font-medium">
-                                    {booking.customerPhone || "Not provided"}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm text-foreground/50">Workspace</p>
-                                <p className="mt-1 font-medium">
-                                    {booking.workspace.companyName || booking.workspace.name}
-                                </p>
-                            </div>
-                        </div>
-
-                        {booking.notes && (
-                            <div className="mt-6 rounded-2xl border border-border bg-background p-5">
-                                <p className="text-sm text-foreground/50">Notes</p>
-                                <p className="mt-2 text-foreground/80">{booking.notes}</p>
-                            </div>
-                        )}
-                    </div>
-
-                    <BookingTimeline items={bookingIntelligence.timeline} />
+                <div className="mt-6">
+                    <BookingHeader
+                        customerName={booking.customerName}
+                        serviceName={booking.service.name}
+                        date={booking.date.toLocaleDateString()}
+                        time={`${booking.startTime}–${booking.endTime}`}
+                        status={booking.status}
+                    />
                 </div>
 
-                <aside className="grid gap-6">
-                    <BookingStatusCard
-                        lifecycle={bookingIntelligence.lifecycle}
-                        health={bookingIntelligence.health.score}
-                        countdown={bookingIntelligence.countdown.label}
-                        paymentStatus={invoicePaid ? "Paid" : "Pending"}
-                        projectStatus={hasProject ? "Created" : "Not Created"}
-                        calendarSynced={Boolean(booking.googleCalendarEventId)}
-                    />
+                <section className="mt-8 grid gap-6 xl:grid-cols-2">
+                    <BookingMissionCard mission={bookingIntelligence.mission} />
+                    <BookingCountdownCard countdown={bookingIntelligence.countdown} />
+                </section>
 
-                    <BookingHealthCard
-                        health={bookingIntelligence.health}
-                    />
+                <div className="mt-8">
+                    <BookingAICard summary={bookingIntelligence.aiSummary} />
+                </div>
 
-                    <BookingActionsCard
-    actions={bookingIntelligence.actions}
-/>
+                <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
+                    <div className="grid gap-6">
+                        <CustomerOverviewCard
+                            customerName={booking.customerName}
+                            customerEmail={booking.customerEmail}
+                            customerPhone={booking.customerPhone}
+                            workspaceName={
+                                booking.workspace.companyName || booking.workspace.name
+                            }
+                            notes={booking.notes}
+                        />
+                        <BookingTimeline items={bookingIntelligence.timeline} />
+                    </div>
 
-                    <a
-                        href={`/bookings/${booking.id}/reschedule`}
-                        className="workspace-accent-button inline-block rounded-full px-4 py-2 text-center text-sm font-medium"
-                    >
-                        Reschedule
-                    </a>
-                </aside>
-            </section>
+                    <aside className="grid gap-6">
+                        <BookingStatusCard
+                            lifecycle={bookingIntelligence.lifecycle}
+                            health={bookingIntelligence.health.score}
+                            countdown={bookingIntelligence.countdown.label}
+                            paymentStatus={flags.invoicePaid ? "Paid" : "Pending"}
+                            projectStatus={flags.hasProject ? "Created" : "Not Created"}
+                            calendarSynced={flags.calendarSynced}
+                        />
+
+                        <BookingHealthCard health={bookingIntelligence.health} />
+
+                        <BookingActionsCard actions={bookingIntelligence.actions} />
+
+                        <a
+                            href={`/bookings/${booking.id}/reschedule`}
+                            className="workspace-accent-button inline-block rounded-full px-4 py-2 text-center text-sm font-medium"
+                        >
+                            Reschedule
+                        </a>
+                    </aside>
+                </section>
+            </BookingCommandCenter>
         </BrandedDashboardShell>
     );
 }
