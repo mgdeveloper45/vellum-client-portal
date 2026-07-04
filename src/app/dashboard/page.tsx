@@ -15,6 +15,7 @@ import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-she
 import { WorkspaceActionsCard } from "@/components/dashboard/workspace-actions-card";
 import { WorkspaceMissionCard } from "@/components/dashboard/workspace-mission-card";
 import { WorkspaceHealthCard } from "@/components/dashboard/workspace-health-card";
+import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { buildWorkspaceEngine } from "@/lib/services/workspace/workspace-engine";
 
 export default async function DashboardPage() {
@@ -343,6 +344,7 @@ export default async function DashboardPage() {
     overdueInvoices: openInvoices,
     todaysBookings: todaysBookings.length,
     bookingsNeedingAttention: 0,
+    outstandingRevenue: revenueOutstanding,
   });
 
   return (
@@ -357,6 +359,9 @@ export default async function DashboardPage() {
           health={workspaceEngine.health}
         />
       </section>
+      <div className="mt-8">
+        <WorkspaceExecutiveBriefCard brief={workspaceEngine.executiveBrief} />
+      </div>
       {!isProfessional && (
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <p className="font-medium">Unlock Executive Analytics</p>
