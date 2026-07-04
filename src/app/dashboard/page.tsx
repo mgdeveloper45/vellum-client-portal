@@ -13,6 +13,9 @@ import { ProfessionalMetrics } from "@/components/dashboard/professional-metrics
 import { RevenueSummaryChart } from "@/components/dashboard/revenue-summary-chart";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { WorkspaceActionsCard } from "@/components/dashboard/workspace-actions-card";
+import { WorkspaceMissionCard } from "@/components/dashboard/workspace-mission-card";
+import { WorkspaceHealthCard } from "@/components/dashboard/workspace-health-card";
+import { buildWorkspaceEngine } from "@/lib/services/workspace/workspace-engine";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -336,10 +339,24 @@ export default async function DashboardPage() {
     count: bookingTrendCounts[index] ?? 0,
   }));
 
+  const workspaceEngine = buildWorkspaceEngine({
+    overdueInvoices: openInvoices,
+    todaysBookings: todaysBookings.length,
+    bookingsNeedingAttention: 0,
+  });
+
   return (
     <BrandedDashboardShell>
       <DashboardHero firstName={currentUser.firstName} />
+      <section className="mt-8 grid gap-6 xl:grid-cols-2">
+        <WorkspaceMissionCard
+          mission={workspaceEngine.mission}
+        />
 
+        <WorkspaceHealthCard
+          health={workspaceEngine.health}
+        />
+      </section>
       {!isProfessional && (
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <p className="font-medium">Unlock Executive Analytics</p>
