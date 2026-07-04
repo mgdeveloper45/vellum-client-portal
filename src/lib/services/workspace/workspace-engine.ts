@@ -1,5 +1,8 @@
+import { calculateWorkspaceRisks } from "./workspace-risk";
 import { calculateWorkspaceHealth } from "./workspace-health";
 import { determineWorkspaceMission } from "./workspace-mission";
+import { calculateWorkspaceOpportunities } from "./workspace-opportunity";
+import { calculateRevenueOpportunity } from "./workspace-revenue-opportunity";
 import { generateWorkspaceExecutiveBrief } from "./workspace-executive-brief";
 
 export type WorkspaceEngineInput = {
@@ -7,6 +10,8 @@ export type WorkspaceEngineInput = {
   todaysBookings: number;
   bookingsNeedingAttention: number;
   outstandingRevenue: number;
+  pendingProposals: number;
+  completedProjects: number;
 };
 
 export function buildWorkspaceEngine({
@@ -14,6 +19,8 @@ export function buildWorkspaceEngine({
   todaysBookings,
   bookingsNeedingAttention,
   outstandingRevenue,
+  pendingProposals,
+  completedProjects,
 }: WorkspaceEngineInput) {
   const mission = determineWorkspaceMission({
     overdueInvoices,
@@ -26,14 +33,31 @@ export function buildWorkspaceEngine({
     bookingsNeedingAttention,
   });
   const executiveBrief = generateWorkspaceExecutiveBrief({
-  todaysBookings,
-  overdueInvoices,
+    todaysBookings,
+    overdueInvoices,
+    outstandingRevenue,
+    workspaceHealth: health.score,
+  });
+  const revenueOpportunity = calculateRevenueOpportunity({
+    overdueInvoices,
+    outstandingRevenue,
+  });
+  const risks = calculateWorkspaceRisks({
+    overdueInvoices,
+    bookingsNeedingAttention,
+  });
+  const opportunities = calculateWorkspaceOpportunities({
+  pendingProposals,
+  completedProjects,
   outstandingRevenue,
-  workspaceHealth: health.score,
 });
+
   return {
     mission,
     health,
-    executiveBrief
+    executiveBrief,
+    revenueOpportunity,
+    risks,
+    opportunities,
   };
 }

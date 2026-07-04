@@ -14,8 +14,12 @@ import { RevenueSummaryChart } from "@/components/dashboard/revenue-summary-char
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { WorkspaceActionsCard } from "@/components/dashboard/workspace-actions-card";
 import { WorkspaceMissionCard } from "@/components/dashboard/workspace-mission-card";
+import { WorkspaceRiskCard } from "@/components/dashboard/workspace-risk-card";
 import { WorkspaceHealthCard } from "@/components/dashboard/workspace-health-card";
+import { WorkspaceCommandCenter } from "@/components/dashboard/workspace-command-center";
+import { WorkspaceOpportunityCard } from "@/components/dashboard/workspace-opportunity-card";
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
+import { WorkspaceRevenueOpportunityCard } from "@/components/dashboard/workspace-revenue-opportunity-card";
 import { buildWorkspaceEngine } from "@/lib/services/workspace/workspace-engine";
 
 export default async function DashboardPage() {
@@ -345,23 +349,41 @@ export default async function DashboardPage() {
     todaysBookings: todaysBookings.length,
     bookingsNeedingAttention: 0,
     outstandingRevenue: revenueOutstanding,
+    pendingProposals: totalProposals - approvedProposals,
+    completedProjects,
   });
 
   return (
     <BrandedDashboardShell>
       <DashboardHero firstName={currentUser.firstName} />
-      <section className="mt-8 grid gap-6 xl:grid-cols-2">
-        <WorkspaceMissionCard
-          mission={workspaceEngine.mission}
-        />
-
-        <WorkspaceHealthCard
-          health={workspaceEngine.health}
-        />
-      </section>
-      <div className="mt-8">
-        <WorkspaceExecutiveBriefCard brief={workspaceEngine.executiveBrief} />
-      </div>
+      <WorkspaceCommandCenter>
+        <section className="mt-8 grid gap-6 xl:grid-cols-2">
+          <WorkspaceMissionCard
+            mission={workspaceEngine.mission}
+          />
+          <WorkspaceHealthCard
+            health={workspaceEngine.health}
+          />
+        </section>
+        <div className="mt-8">
+          <WorkspaceExecutiveBriefCard brief={workspaceEngine.executiveBrief} />
+        </div>
+        <div className="mt-8">
+          <WorkspaceRevenueOpportunityCard
+            opportunity={workspaceEngine.revenueOpportunity}
+          />
+        </div>
+        <div className="mt-8">
+          <WorkspaceRiskCard
+            risks={workspaceEngine.risks}
+          />
+        </div>
+        <div className="mt-8">
+          <WorkspaceOpportunityCard
+            opportunities={workspaceEngine.opportunities}
+          />
+        </div>
+      </WorkspaceCommandCenter>
       {!isProfessional && (
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <p className="font-medium">Unlock Executive Analytics</p>
