@@ -1,14 +1,7 @@
-import { sortByPriority, type Priority } from "./priority";
+import { buildRecommendations, type Recommendation } from "./recommendation";
 
-export type ExecutiveInboxItem = {
-  id: string;
-  title: string;
-  description: string;
-  priority: Priority;
-  href: string;
-  source: "WORKSPACE" | "BOOKING" | "FINANCE" | "CLIENT" | "GROWTH";
-};
+export type ExecutiveInboxItem = Recommendation;
 
 export function buildExecutiveInbox(items: ExecutiveInboxItem[]) {
-  return sortByPriority(items);
+  return buildRecommendations(items);
 }

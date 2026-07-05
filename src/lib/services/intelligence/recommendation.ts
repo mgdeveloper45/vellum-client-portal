@@ -1,11 +1,15 @@
 import type { Priority } from "./priority";
 
+export type RecommendationCategory =
+  "BOOKING" | "WORKSPACE" | "FINANCE" | "CLIENT" | "GROWTH";
+
 export type Recommendation = {
   id: string;
   title: string;
   description: string;
   priority: Priority;
-  action: string;
+  href: string;
+  category: RecommendationCategory;
 };
 
 export function sortRecommendations(recommendations: Recommendation[]) {
@@ -19,4 +23,8 @@ export function sortRecommendations(recommendations: Recommendation[]) {
   return [...recommendations].sort(
     (a, b) => order[b.priority] - order[a.priority],
   );
+}
+
+export function buildRecommendations(recommendations: Recommendation[]) {
+  return sortRecommendations(recommendations);
 }

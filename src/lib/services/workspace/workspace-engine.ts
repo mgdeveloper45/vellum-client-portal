@@ -5,6 +5,7 @@ import { calculateWorkspaceOpportunities } from "./workspace-opportunity";
 import { calculateRevenueOpportunity } from "./workspace-revenue-opportunity";
 import { generateWorkspaceExecutiveBrief } from "./workspace-executive-brief";
 import { buildExecutiveInbox } from "@/lib/services/intelligence/executive-inbox";
+import type { Recommendation } from "@/lib/services/intelligence/recommendation";
 
 export type WorkspaceEngineInput = {
   overdueInvoices: number;
@@ -52,25 +53,32 @@ export function buildWorkspaceEngine({
   completedProjects,
   outstandingRevenue,
 });
-const executiveInbox = buildExecutiveInbox([
-  ...risks.map((risk) => ({
+const executiveInboxItems: Recommendation[] = [
+  ...risks.map((risk): Recommendation => ({
     id: `risk-${risk.title}`,
     title: risk.title,
     description: risk.description,
-    priority: risk.severity === "HIGH" ? "HIGH" as const : risk.severity === "MEDIUM" ? "MEDIUM" as const : "LOW" as const,
+    priority:
+      risk.severity === "HIGH"
+        ? "HIGH"
+        : risk.severity === "MEDIUM"
+          ? "MEDIUM"
+          : "LOW",
     href: "/dashboard",
-    source: "WORKSPACE" as const,
+    category: "WORKSPACE",
   })),
 
-  ...opportunities.map((opportunity) => ({
+  ...opportunities.map((opportunity): Recommendation => ({
     id: `opportunity-${opportunity.title}`,
     title: opportunity.title,
     description: opportunity.description,
     priority: opportunity.priority,
     href: "/dashboard",
-    source: "GROWTH" as const,
+    category: "GROWTH",
   })),
-]);
+];
+
+const executiveInbox = buildExecutiveInbox(executiveInboxItems);
 
   return {
     mission,
