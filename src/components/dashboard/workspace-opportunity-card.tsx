@@ -1,58 +1,33 @@
 import type { WorkspaceOpportunity } from "@/lib/services/workspace/workspace-opportunity";
+import { ActionCard } from "@/components/ui/action-card";
+import { CommandCard } from "@/components/ui/command-card";
 
 type Props = {
   opportunities: WorkspaceOpportunity[];
 };
 
-const priorityColors = {
-  HIGH: "bg-red-500",
-  MEDIUM: "bg-yellow-500",
-  LOW: "bg-green-500",
-};
-
-export function WorkspaceOpportunityCard({
-  opportunities,
-}: Props) {
+export function WorkspaceOpportunityCard({ opportunities }: Props) {
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-lg">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-light">
-          Growth Opportunities
-        </h2>
-
-        <span className="text-sm text-foreground/50">
+    <CommandCard
+      title="Growth Opportunities"
+      subtitle="Ways to increase revenue or engagement"
+      actions={
+        <div className="rounded-full border border-border bg-background px-4 py-2 text-sm">
           {opportunities.length} Found
-        </span>
-      </div>
-
-      <div className="mt-6 space-y-4">
+        </div>
+      }
+    >
+      <div className="space-y-4">
         {opportunities.map((opportunity) => (
-          <div
+          <ActionCard
             key={opportunity.title}
-            className="rounded-2xl border border-border bg-background p-4"
-          >
-            <div className="flex items-center justify-between">
-              <p className="font-medium">
-                {opportunity.title}
-              </p>
-
-              <div
-                className={`h-2.5 w-2.5 rounded-full ${
-                  priorityColors[opportunity.priority]
-                }`}
-              />
-            </div>
-
-            <p className="mt-2 text-sm text-foreground/70">
-              {opportunity.description}
-            </p>
-
-            <p className="mt-3 text-lg font-semibold">
-              {opportunity.valueLabel}
-            </p>
-          </div>
+            title={opportunity.title}
+            description={`${opportunity.description} ${opportunity.valueLabel}`}
+            href="/dashboard"
+            priority={opportunity.priority}
+          />
         ))}
       </div>
-    </section>
+    </CommandCard>
   );
 }
