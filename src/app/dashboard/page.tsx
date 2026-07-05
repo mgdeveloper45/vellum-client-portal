@@ -11,6 +11,7 @@ import { WorkspaceAICard } from "@/components/dashboard/workspace-ai-card";
 import { BookingsTrendChart } from "@/components/dashboard/bookings-trend-chart";
 import { ProfessionalMetrics } from "@/components/dashboard/professional-metrics";
 import { RevenueSummaryChart } from "@/components/dashboard/revenue-summary-chart";
+import { ExecutiveInboxCard } from "@/components/dashboard/executive-inbox-card";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { WorkspaceActionsCard } from "@/components/dashboard/workspace-actions-card";
 import { WorkspaceMissionCard } from "@/components/dashboard/workspace-mission-card";
@@ -386,6 +387,11 @@ export default async function DashboardPage() {
         </div>
         <div className="mt-8">
           <WorkspaceQuickActionsDock />
+        </div>
+        <div className="mt-8">
+          <ExecutiveInboxCard
+            items={workspaceEngine.executiveInbox}
+          />
         </div>
       </WorkspaceCommandCenter>
       {!isProfessional && (

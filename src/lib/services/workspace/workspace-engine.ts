@@ -4,6 +4,7 @@ import { determineWorkspaceMission } from "./workspace-mission";
 import { calculateWorkspaceOpportunities } from "./workspace-opportunity";
 import { calculateRevenueOpportunity } from "./workspace-revenue-opportunity";
 import { generateWorkspaceExecutiveBrief } from "./workspace-executive-brief";
+import { buildExecutiveInbox } from "@/lib/services/intelligence/executive-inbox";
 
 export type WorkspaceEngineInput = {
   overdueInvoices: number;
@@ -51,6 +52,25 @@ export function buildWorkspaceEngine({
   completedProjects,
   outstandingRevenue,
 });
+const executiveInbox = buildExecutiveInbox([
+  ...risks.map((risk) => ({
+    id: `risk-${risk.title}`,
+    title: risk.title,
+    description: risk.description,
+    priority: risk.severity === "HIGH" ? "HIGH" as const : risk.severity === "MEDIUM" ? "MEDIUM" as const : "LOW" as const,
+    href: "/dashboard",
+    source: "WORKSPACE" as const,
+  })),
+
+  ...opportunities.map((opportunity) => ({
+    id: `opportunity-${opportunity.title}`,
+    title: opportunity.title,
+    description: opportunity.description,
+    priority: opportunity.priority,
+    href: "/dashboard",
+    source: "GROWTH" as const,
+  })),
+]);
 
   return {
     mission,
@@ -59,5 +79,6 @@ export function buildWorkspaceEngine({
     revenueOpportunity,
     risks,
     opportunities,
+    executiveInbox,
   };
 }
