@@ -18,6 +18,7 @@ import { WorkspaceRiskCard } from "@/components/dashboard/workspace-risk-card";
 import { WorkspaceHealthCard } from "@/components/dashboard/workspace-health-card";
 import { WorkspaceCommandCenter } from "@/components/dashboard/workspace-command-center";
 import { WorkspaceOpportunityCard } from "@/components/dashboard/workspace-opportunity-card";
+import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quick-actions-dock";
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { WorkspaceRevenueOpportunityCard } from "@/components/dashboard/workspace-revenue-opportunity-card";
 import { buildWorkspaceEngine } from "@/lib/services/workspace/workspace-engine";
@@ -382,6 +383,9 @@ export default async function DashboardPage() {
           <WorkspaceOpportunityCard
             opportunities={workspaceEngine.opportunities}
           />
+        </div>
+        <div className="mt-8">
+          <WorkspaceQuickActionsDock />
         </div>
       </WorkspaceCommandCenter>
       {!isProfessional && (

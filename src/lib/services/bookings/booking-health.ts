@@ -1,3 +1,5 @@
+import { clampScore } from "@/lib/services/intelligence/score";
+
 export type BookingHealthInput = {
   status: string;
   hasCalendarEvent: boolean;
@@ -78,7 +80,7 @@ export function calculateBookingHealth({
     );
   }
 
-  const normalizedScore = Math.max(0, Math.min(100, score));
+  const normalizedScore = clampScore(score);
 
   return {
     score: normalizedScore,

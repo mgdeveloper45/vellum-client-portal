@@ -1,3 +1,5 @@
+import { clampScore } from "@/lib/services/intelligence/score";
+
 export type WorkspaceHealth = {
   score: number;
   label: "HEALTHY" | "NEEDS_ATTENTION" | "AT_RISK";
@@ -37,7 +39,7 @@ export function calculateWorkspaceHealth({
     reasons.push("No bookings scheduled today.");
   }
 
-  const normalizedScore = Math.max(0, Math.min(100, score));
+  const normalizedScore = clampScore(score);
 
   return {
     score: normalizedScore,

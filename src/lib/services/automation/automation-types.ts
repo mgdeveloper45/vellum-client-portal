@@ -1,0 +1,15 @@
+export type AutomationTrigger =
+  | "BOOKING_CREATED"
+  | "BOOKING_CANCELLED"
+  | "BOOKING_COMPLETED"
+  | "INVOICE_CREATED"
+  | "INVOICE_PAID"
+  | "PROJECT_CREATED";
+
+export type AutomationAction =
+  | "SEND_EMAIL"
+  | "SEND_NOTIFICATION"
+  | "CREATE_PROJECT"
+  | "CREATE_INVOICE"
+  | "SYNC_CALENDAR"
+  | "GENERATE_AI_SUMMARY";
