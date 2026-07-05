@@ -1,5 +1,5 @@
 import type { ExecutiveInboxItem } from "@/lib/services/intelligence/executive-inbox";
-import { ActionCard } from "@/components/ui/action-card";
+import { RecommendationCard } from "@/components/ui/recommendation-card";
 import { CommandCard } from "@/components/ui/command-card";
 
 type Props = {
@@ -19,7 +19,7 @@ export function ExecutiveInboxCard({ items }: Props) {
         >
             <div className="space-y-4">
                 {items.map((item) => (
-                    <ActionCard
+                    <RecommendationCard
                         key={item.id}
                         title={item.title}
                         description={item.description}
