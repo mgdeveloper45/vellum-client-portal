@@ -41,6 +41,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# coverage
+coverage
+
+
+
+
 /src/lib/generated/prisma
 prisma/dev.db
 prisma/dev.db-journal
