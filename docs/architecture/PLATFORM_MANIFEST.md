@@ -52,6 +52,12 @@ Database
 
 ---
 
+### Engine Contract
+
+All new domain engines should target the shared `EngineResult<T>` shape.
+
+Existing engines may be migrated incrementally as they are enhanced.
+
 ## Core Domains
 
 ### Booking Domain
