@@ -50,6 +50,16 @@ This document tracks the major engines, services, components, tests, and documen
 - `src/lib/services/intelligence/recommendation-engine.ts`
 - `src/lib/services/intelligence/executive-inbox.ts`
 
+### Finance
+
+- `src/lib/services/finance/finance-types.ts`
+- `src/lib/services/finance/finance-health.ts`
+- `src/lib/services/finance/finance-cash-flow.ts`
+- `src/lib/services/finance/finance-forecast.ts`
+- `src/lib/services/finance/finance-collections.ts`
+- `src/lib/services/finance/finance-opportunities.ts`
+- `src/lib/services/finance/finance-engine.ts`
+
 ### Events
 
 - `src/lib/services/events/event-types.ts`
