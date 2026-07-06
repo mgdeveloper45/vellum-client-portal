@@ -19,6 +19,7 @@ import { WorkspaceRiskCard } from "@/components/dashboard/workspace-risk-card";
 import { WorkspaceHealthCard } from "@/components/dashboard/workspace-health-card";
 import { WorkspaceCommandCenter } from "@/components/dashboard/workspace-command-center";
 import { WorkspaceOpportunityCard } from "@/components/dashboard/workspace-opportunity-card";
+import { buildRecommendationEngine } from "@/lib/services/intelligence/recommendation-engine";
 import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quick-actions-dock";
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { WorkspaceRevenueOpportunityCard } from "@/components/dashboard/workspace-revenue-opportunity-card";
@@ -355,6 +356,18 @@ export default async function DashboardPage() {
     completedProjects,
   });
 
+  // Executive Inbox aggregates recommendations from every domain.
+  // Each engine contributes Recommendation[].
+  // The Recommendation Engine merges and prioritizes them.
+
+  const executiveInbox = buildRecommendationEngine(
+    workspaceEngine.recommendations,
+
+    // clientRecommendations,
+    // bookingRecommendations,
+    // financeRecommendations,
+  );
+
   return (
     <BrandedDashboardShell>
       <DashboardHero firstName={currentUser.firstName} />
@@ -390,7 +403,7 @@ export default async function DashboardPage() {
         </div>
         <div className="mt-8">
           <ExecutiveInboxCard
-            items={workspaceEngine.executiveInbox}
+            items={executiveInbox}
           />
         </div>
       </WorkspaceCommandCenter>

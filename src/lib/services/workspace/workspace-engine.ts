@@ -4,7 +4,6 @@ import { determineWorkspaceMission } from "./workspace-mission";
 import { calculateWorkspaceOpportunities } from "./workspace-opportunity";
 import { calculateRevenueOpportunity } from "./workspace-revenue-opportunity";
 import { generateWorkspaceExecutiveBrief } from "./workspace-executive-brief";
-import { buildExecutiveInbox } from "@/lib/services/intelligence/executive-inbox";
 import type { Recommendation } from "@/lib/services/intelligence/recommendation";
 
 export type WorkspaceEngineInput = {
@@ -53,7 +52,7 @@ export function buildWorkspaceEngine({
   completedProjects,
   outstandingRevenue,
 });
-const executiveInboxItems: Recommendation[] = [
+const recommendations: Recommendation[] = [
   ...risks.map((risk): Recommendation => ({
     id: `risk-${risk.title}`,
     title: risk.title,
@@ -78,8 +77,6 @@ const executiveInboxItems: Recommendation[] = [
   })),
 ];
 
-const executiveInbox = buildExecutiveInbox(executiveInboxItems);
-
   return {
     mission,
     health,
@@ -87,6 +84,6 @@ const executiveInbox = buildExecutiveInbox(executiveInboxItems);
     revenueOpportunity,
     risks,
     opportunities,
-    executiveInbox,
+    recommendations,
   };
 }
