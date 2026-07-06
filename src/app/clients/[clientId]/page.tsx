@@ -1,6 +1,17 @@
+import Link from "next/link";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
+import { buildClientEngine } from "@/lib/services/clients/client-engine";
+import { ClientCommandCenter } from "@/components/client-command-center/client-command-center";
+import { ClientHeader } from "@/components/client-command-center/client-header";
+import { ClientLifetimeValueCard } from "@/components/client-command-center/client-lifetime-value-card";
+import { ClientHealthCard } from "@/components/client-command-center/client-health-card";
+import { ClientRetentionCard } from "@/components/client-command-center/client-retention-card";
+import { ClientOpportunitiesCard } from "@/components/client-command-center/client-opportunities-card";
+import { ClientSummaryCard } from "@/components/client-command-center/client-summary-card";
+import { MetricCard } from "@/components/ui/metric-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { CommandCard } from "@/components/ui/command-card";
 
 interface Props {
   params: Promise<{
@@ -8,9 +19,7 @@ interface Props {
   }>;
 }
 
-export default async function ClientDetailPage({
-  params,
-}: Props) {
+export default async function ClientDetailPage({ params }: Props) {
   const { clientId } = await params;
 
   const client = await prisma.user.findUnique({
@@ -24,6 +33,9 @@ export default async function ClientDetailPage({
           invoices: true,
           proposals: true,
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       },
     },
   });
@@ -31,129 +43,137 @@ export default async function ClientDetailPage({
   if (!client) {
     return (
       <DashboardShell>
-        <p>Client not found.</p>
+        <EmptyState
+          title="Client not found"
+          description="This client does not exist or may have been removed."
+          action={
+            <Link href="/clients" className="workspace-accent-text">
+              Back to clients
+            </Link>
+          }
+        />
       </DashboardShell>
     );
   }
 
+  const totalProjects = client.clientProjects.length;
+
+  const invoices = client.clientProjects.flatMap((project) => project.invoices);
+  const messages = client.clientProjects.flatMap((project) => project.messages);
+  const proposals = client.clientProjects.flatMap((project) => project.proposals);
+
+  const totalRevenue = invoices
+    .filter((invoice) => invoice.paid)
+    .reduce((total, invoice) => total + invoice.amount, 0);
+
+  const lastProject = client.clientProjects[0];
+
+  const clientIntelligence = buildClientEngine({
+    id: client.id,
+    name: `${client.firstName} ${client.lastName}`,
+    email: client.email,
+    totalBookings: totalProjects,
+    totalRevenue,
+    lastBookingAt: lastProject?.createdAt ?? null,
+    averageBookingValue:
+      totalProjects === 0 ? 0 : Math.round(totalRevenue / totalProjects),
+  });
+
   return (
     <DashboardShell>
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-light">
-            {client.firstName} {client.lastName}
-          </h1>
+      <ClientCommandCenter>
+        <div className="flex items-start justify-between gap-6">
+          <ClientHeader
+            name={`${client.firstName} ${client.lastName}`}
+            email={client.email}
+            health={clientIntelligence.health.status}
+          />
 
-          <p className="mt-2 text-foreground/70">
-            {client.email}
-          </p>
-
-        </div>
-
-        <div className="flex items-center gap-3">
           <Link
             href={`/clients/${client.id}/edit`}
             className="rounded-full border border-border px-4 py-2 text-sm"
           >
             Edit Client
           </Link>
+        </div>
 
-          <div
-            className={`rounded-full px-4 py-2 text-sm ${client.isBlacklisted
-                ? "bg-red-500/20 text-red-400"
-                : "bg-green-500/20 text-green-400"
-              }`}
-          >
-            {client.isBlacklisted ? "Blacklisted" : "Active Client"}
+        <ClientSummaryCard summary={clientIntelligence.summary} />
+
+        <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
+          <ClientLifetimeValueCard
+            lifetimeValue={clientIntelligence.lifetimeValue}
+            averageBookingValue={clientIntelligence.averageBookingValue}
+          />
+
+          <MetricCard
+            label="Projects"
+            value={totalProjects}
+            helper="Total client projects"
+          />
+
+          <MetricCard
+            label="Messages"
+            value={messages.length}
+            helper="Project messages"
+          />
+
+          <MetricCard
+            label="Invoices"
+            value={invoices.length}
+            helper="Client invoices"
+          />
+
+          <MetricCard
+            label="Proposals"
+            value={proposals.length}
+            helper="Client proposals"
+          />
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-2">
+          <ClientHealthCard
+            score={clientIntelligence.health.score}
+            reasons={clientIntelligence.health.reasons}
+          />
+
+          <ClientRetentionCard
+            risk={clientIntelligence.retention.risk}
+            recommendedAction={clientIntelligence.retention.recommendedAction}
+          />
+        </section>
+
+        <ClientOpportunitiesCard opportunities={clientIntelligence.opportunities} />
+
+        <CommandCard title="Client Notes" subtitle="Internal notes">
+          <p className="text-foreground/80">
+            {client.notes || "No notes available."}
+          </p>
+        </CommandCard>
+
+        <CommandCard title="Projects" subtitle="Client project history">
+          <div className="space-y-3">
+            {client.clientProjects.length === 0 ? (
+              <EmptyState
+                title="No projects yet"
+                description="Projects associated with this client will appear here."
+              />
+            ) : (
+              client.clientProjects.map((project) => (
+                <div
+                  key={project.id}
+                  className="rounded-2xl border border-border bg-background p-4"
+                >
+                  <h3 className="font-medium">{project.name}</h3>
+
+                  <p className="mt-1 text-sm text-foreground/60">
+                    {project.description}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
-        </div>
-
-      </div>
-
-      <div className="mt-8 grid gap-4 md:grid-cols-4">
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <p className="text-sm text-foreground/60">
-            Projects
-          </p>
-
-          <p className="mt-2 text-3xl font-light">
-            {client.clientProjects.length}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <p className="text-sm text-foreground/60">
-            Messages
-          </p>
-
-          <p className="mt-2 text-3xl font-light">
-            {client.clientProjects.reduce(
-              (total, project) =>
-                total + project.messages.length,
-              0
-            )}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <p className="text-sm text-foreground/60">
-            Invoices
-          </p>
-
-          <p className="mt-2 text-3xl font-light">
-            {client.clientProjects.reduce(
-              (total, project) =>
-                total + project.invoices.length,
-              0
-            )}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <p className="text-sm text-foreground/60">
-            Proposals
-          </p>
-
-          <p className="mt-2 text-3xl font-light">
-            {client.clientProjects.reduce(
-              (total, project) =>
-                total + project.proposals.length,
-              0
-            )}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-8 rounded-2xl border border-border bg-card p-6">
-        <h2 className="text-xl font-medium">
-          Client Notes
-        </h2>
-
-        <p className="mt-4 text-foreground/80">
-          {client.notes || "No notes available."}
-        </p>
-      </div>
-
-      <div className="mt-8 rounded-2xl border border-border bg-card p-6">
-        <h2 className="text-xl font-medium">
-          Projects
-        </h2>
-
-        <div className="mt-4 space-y-3">
-          {client.clientProjects.map((project) => (
-            <div
-              key={project.id}
-              className="rounded-lg border border-border p-4"
-            >
-              <h3>{project.name}</h3>
-
-              <p className="mt-1 text-sm text-foreground/60">
-                {project.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+        </CommandCard>
+      </ClientCommandCenter>
     </DashboardShell>
   );
 }
