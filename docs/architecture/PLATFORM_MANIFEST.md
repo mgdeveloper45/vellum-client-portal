@@ -1,18 +1,24 @@
 # Vellum Platform Manifest
 
-## Philosophy
+## Completion Estimate
 
-Vellum is an intelligent operating system for service businesses.
+Vellum is approximately 65–70% complete as a production SaaS platform.
 
-Every architectural decision should reinforce one of three goals:
-
-1. Help businesses make better decisions.
-2. Reduce repetitive work through automation.
-3. Maintain a clean, scalable platform.
+The platform foundation is strong. Remaining work is focused on security hardening, end-to-end testing, finance intelligence, automation, AI assistant capabilities, deployment readiness, and production polish.
 
 ---
 
-# Layered Architecture
+## Product Identity
+
+Vellum is an intelligent operating system for service businesses built around the booking lifecycle.
+
+The core promise:
+
+Open Vellum. See what matters. Take action.
+
+---
+
+## Core Layers
 
 Presentation
 
@@ -22,19 +28,23 @@ Command Centers
 
 ↓
 
-Intelligence Layer
-
-↓
-
 Domain Engines
 
 ↓
 
-Automation Engine
+Intelligence Layer
 
 ↓
 
-Event Engine
+Recommendation Engine
+
+↓
+
+Automation Layer
+
+↓
+
+Event Layer
 
 ↓
 
@@ -42,122 +52,237 @@ Database
 
 ---
 
-# Responsibilities
+## Core Domains
 
-## Pages
+### Booking Domain
 
-Pages never contain business logic.
+Status: Mature
 
-Pages:
+Includes:
 
-- authenticate users
-- load data
-- call engines
-- render components
+- Booking Engine
+- Booking Command Center
+- Booking Health
+- Booking Timeline
+- Booking Mission
+- Booking Countdown
+- Booking AI Brief
+- Booking Actions
 
----
+### Workspace Domain
 
-## Domain Engines
+Status: Mature
 
-Domain Engines contain business rules.
+Includes:
 
-Examples:
+- Workspace Engine
+- Workspace Command Center
+- Workspace Mission
+- Workspace Health
+- Executive Brief
+- Revenue Opportunity
+- Risks
+- Opportunities
+- Executive Inbox
 
-Booking Engine
+### Client Domain
 
-Workspace Engine
+Status: Strong
 
-Future:
+Includes:
 
-Client Engine
+- Client Engine
+- Client Health
+- Client Retention
+- Lifetime Value
+- Client Opportunities
+- Client Command Center
 
-Finance Engine
+### Finance Domain
 
-Growth Engine
+Status: Planned
+
+Will include:
+
+- Finance Engine
+- Revenue Health
+- Cash Flow
+- Collections
+- Forecasting
+- Aging Invoices
+
+### Automation Domain
+
+Status: Foundation
+
+Will include:
+
+- Rules
+- Triggers
+- Workflow execution
+- Email automation
+- AI-assisted automation
+
+### Event Domain
+
+Status: Foundation
+
+Will include:
+
+- Event stream
+- Activity history
+- Notification triggers
+- Automation triggers
+- AI context
 
 ---
 
 ## Intelligence Layer
 
-The Intelligence Layer combines outputs from multiple engines.
+The Intelligence Layer provides reusable business intelligence primitives.
 
-It never queries Prisma directly.
+Current services:
 
-Responsibilities include:
+- score
+- priority
+- recommendation
+- recommendation engine
+- executive inbox
 
-- Recommendations
-- Executive Inbox
-- Prioritization
-- Scoring
-- AI summaries
+Rules:
 
----
-
-## Automation Layer
-
-Automation reacts to Events.
-
-Automation executes workflows.
-
-Automation never owns business rules.
+- Intelligence services should stay generic.
+- Intelligence services should not query Prisma directly.
+- Domain engines should convert domain data into intelligence outputs.
+- Recommendations should flow through the Recommendation Engine.
 
 ---
 
-## Event Layer
+## Design System
 
-Major business actions create events.
+The Vellum Design System standardizes UI composition.
 
-Events become the source of truth for:
-
-- automation
-- notifications
-- activity feeds
-- analytics
-- AI context
-
----
-
-# Design System
-
-Dashboard components should use the Vellum Design System.
-
-Prefer:
+Current primitives:
 
 - CommandCard
 - RecommendationCard
 - MetricCard
 - StatusBadge
 - SectionHeader
+- EmptyState
+- ActionCard
 
-Never duplicate layout or styling.
+Rules:
 
----
-
-# Engineering Rules
-
-✓ Extend existing abstractions before creating new ones.
-
-✓ One concept should have one implementation.
-
-✓ Business logic belongs in engines.
-
-✓ Components render.
-
-✓ Engines think.
-
-✓ Intelligence combines.
-
-✓ Automation executes.
-
-✓ Events record.
+- Do not duplicate card styling.
+- Prefer VDS primitives before creating new UI patterns.
+- Pages should compose components, not contain large UI implementations.
 
 ---
 
-# Definition of Done
+## Engineering Rules
 
-Every significant feature should include:
+### Pages
 
-- implementation
-- tests
-- documentation (if architecture changes)
-- clean commit
+Pages should:
+
+- authenticate users
+- load scoped data
+- call services or engines
+- render components
+
+Pages should not:
+
+- contain complex business rules
+- duplicate authorization logic
+- duplicate engine logic
+
+### Engines
+
+Engines should:
+
+- contain business logic
+- return typed results
+- produce recommendations where appropriate
+- remain testable
+
+### Components
+
+Components should:
+
+- render UI
+- receive typed props
+- avoid database access
+- avoid business logic
+
+### Authorization
+
+Authorization should:
+
+- use shared authorization helpers
+- validate user session
+- validate workspace ownership
+- enforce role permissions
+
+### Testing
+
+Business logic should be unit tested.
+
+Priority test targets:
+
+- intelligence utilities
+- domain engines
+- authorization rules
+- recommendation logic
+
+---
+
+## Current Production Readiness
+
+Completed:
+
+- Unit tests
+- Coverage
+- Lint
+- Production build
+- Error page
+- Not found page
+- Logger foundation
+- Security audit checklist
+- Architecture docs
+
+Remaining:
+
+- Playwright end-to-end tests
+- Full route protection audit
+- Security headers
+- Input validation audit
+- Observability integration
+- Performance profiling
+- Deployment checklist
+
+---
+
+## Definition of Done
+
+A significant feature is complete when:
+
+- implementation works
+- tests pass
+- lint passes
+- production build passes
+- architecture remains consistent
+- documentation is updated if a new pattern is introduced
+- changes are committed cleanly
+
+---
+
+## Next Priorities
+
+1. Standardize engine contracts.
+2. Complete client route security audit.
+3. Add Playwright E2E tests.
+4. Build Finance Intelligence.
+5. Build Automation workflows.
+6. Build AI Executive Assistant.
+7. Prepare beta launch checklist.
