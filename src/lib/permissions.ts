@@ -35,3 +35,7 @@ export function canManageFiles(role: Role) {
 export function canViewAdminNav(role: Role) {
   return role === "OWNER" || role === "ADMIN" || role === "MANAGER";
 }
+
+export function canManageClients(role?: string | null) {
+  return role === "ADMIN" || role === "OWNER";
+}

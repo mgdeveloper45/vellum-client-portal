@@ -62,6 +62,12 @@ export async function changePasswordAction(
     return { error: "User not found." };
   }
 
+  if (!user.password) {
+    return {
+      error: "Password is not set for this account.",
+    };
+  }
+
   const currentPasswordMatches = await bcrypt.compare(
     currentPassword,
     user.password,

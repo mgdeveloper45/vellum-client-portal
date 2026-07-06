@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+type AppRole = "OWNER" | "ADMIN" | "MANAGER" | "CLIENT";
 
 declare module "next-auth" {
   interface Session {
@@ -6,11 +6,13 @@ declare module "next-auth" {
       id: string;
       name?: string | null;
       email?: string | null;
-      role: "ADMIN" | "CLIENT";
+      role: AppRole;
     };
   }
 
   interface User {
-    role: "ADMIN" | "CLIENT";
+    role: AppRole;
   }
 }
+
+export {};

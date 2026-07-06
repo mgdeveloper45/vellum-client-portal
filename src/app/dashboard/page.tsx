@@ -362,7 +362,6 @@ export default async function DashboardPage() {
 
   const executiveInbox = buildRecommendationEngine(
     workspaceEngine.recommendations,
-
     // clientRecommendations,
     // bookingRecommendations,
     // financeRecommendations,
