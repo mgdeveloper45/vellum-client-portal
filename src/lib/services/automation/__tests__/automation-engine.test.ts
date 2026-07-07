@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getMatchingAutomationRules } from "../automation-engine";
+import {
+  getMatchingAutomationRules,
+  buildAutomationExecutionPlan,
+} from "../automation-engine";
 import type { AutomationRule } from "../automation-rule";
+import { createPlatformEvent } from "../../events/event-engine";
 
 describe("getMatchingAutomationRules", () => {
   const rules: AutomationRule[] = [
@@ -51,5 +55,15 @@ describe("getMatchingAutomationRules", () => {
 
     expect(matches).toHaveLength(1);
     expect(matches[0].name).toContain("Invoice");
+  });
+
+  it("builds an execution plan for a platform event", () => {
+    const event = createPlatformEvent("BOOKING_CREATED", "booking-123");
+
+    const plan = buildAutomationExecutionPlan(event, rules);
+
+    expect(plan.event.entityId).toBe("booking-123");
+    expect(plan.matchedRules).toHaveLength(1);
+    expect(plan.actionCount).toBe(2);
   });
 });
