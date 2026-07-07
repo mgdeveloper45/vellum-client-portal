@@ -14,5 +14,6 @@ describe("buildFinanceEngine", () => {
     expect(engine.health.status).toBe("NEEDS_ATTENTION");
     expect(engine.cashFlow.availableRevenue).toBe(9000);
     expect(engine.forecast.projectedRevenue).toBe(11000);
+    expect(engine.collections.requiresAttention).toBe(true);
   });
 });
