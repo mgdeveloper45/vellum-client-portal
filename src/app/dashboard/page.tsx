@@ -7,6 +7,7 @@ import { AICommandCenter } from "@/components/ai/command-center";
 import { MetricsGrid } from "@/components/dashboard/metrics-grid";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
+import { buildFinanceEngine } from "@/lib/services/finance/finance-engine";
 import { WorkspaceAICard } from "@/components/dashboard/workspace-ai-card";
 import { BookingsTrendChart } from "@/components/dashboard/bookings-trend-chart";
 import { ProfessionalMetrics } from "@/components/dashboard/professional-metrics";
@@ -356,15 +357,23 @@ export default async function DashboardPage() {
     completedProjects,
   });
 
+const financeEngine = buildFinanceEngine({
+  totalRevenue: revenueCollected,
+  outstandingRevenue: revenueOutstanding,
+  overdueInvoices: openInvoices,
+  paidInvoices,
+  totalInvoices,
+});
+
   // Executive Inbox aggregates recommendations from every domain.
   // Each engine contributes Recommendation[].
   // The Recommendation Engine merges and prioritizes them.
 
   const executiveInbox = buildRecommendationEngine(
     workspaceEngine.recommendations,
+    financeEngine.recommendations,
     // clientRecommendations,
     // bookingRecommendations,
-    // financeRecommendations,
   );
 
   return (
