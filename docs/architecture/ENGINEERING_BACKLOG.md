@@ -34,7 +34,7 @@ Overall Platform: ~75%
 
 # Automation Platform
 
-- [ ] Event Model
+- [x] Event Model
 - [ ] Automation Rules
 - [ ] Automation Engine
 - [ ] Scheduler

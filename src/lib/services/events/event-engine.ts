@@ -1,36 +1,21 @@
-import type { WorkspaceEvent } from "./workspace-events";
+import type { AutomationTrigger } from "../automation/automation-types";
 
-export function sortWorkspaceEvents(
-  events: WorkspaceEvent[],
-): WorkspaceEvent[] {
-  return [...events].sort(
-    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
-  );
-}
+export type PlatformEvent = {
+  trigger: AutomationTrigger;
+  entityId: string;
+  occurredAt: Date;
+  payload?: Record<string, unknown>;
+};
 
-export function getLatestWorkspaceEvent(
-  events: WorkspaceEvent[],
-): WorkspaceEvent | null {
-  if (events.length === 0) {
-    return null;
-  }
-
-  return sortWorkspaceEvents(events)[0];
-}
-
-export function groupWorkspaceEventsByDay(events: WorkspaceEvent[]) {
-  return sortWorkspaceEvents(events).reduce<Record<string, WorkspaceEvent[]>>(
-    (groups, event) => {
-      const key = event.createdAt.toLocaleDateString();
-
-      if (!groups[key]) {
-        groups[key] = [];
-      }
-
-      groups[key].push(event);
-
-      return groups;
-    },
-    {},
-  );
+export function createPlatformEvent(
+  trigger: AutomationTrigger,
+  entityId: string,
+  payload: Record<string, unknown> = {},
+): PlatformEvent {
+  return {
+    trigger,
+    entityId,
+    occurredAt: new Date(),
+    payload,
+  };
 }
