@@ -1,6 +1,7 @@
 import type { PlatformEvent } from "../events/event-engine";
 import type { AutomationRule } from "./automation-rule";
 import type { AutomationTrigger } from "./automation-types";
+import type { AutomationExecutionResult } from "./automation-result";
 
 export type AutomationExecutionPlan = {
   event: PlatformEvent;
@@ -21,6 +22,7 @@ export function buildAutomationExecutionPlan(
 ): AutomationExecutionPlan {
   const matchedRules = getMatchingAutomationRules(event.trigger, rules);
 
+
   return {
     event,
     matchedRules,
@@ -28,5 +30,24 @@ export function buildAutomationExecutionPlan(
       (total, rule) => total + rule.actions.length,
       0,
     ),
+  };
+}
+
+export function executeAutomationPlan(
+  plan: AutomationExecutionPlan,
+): AutomationExecutionResult {
+  const executedActions =
+    plan.matchedRules.flatMap((rule) =>
+      rule.actions.map((action) => ({
+        action,
+        success: true,
+        message: "Simulated execution",
+      })),
+    );
+
+  return {
+    executedActions,
+    successfulActions: executedActions.length,
+    failedActions: 0,
   };
 }

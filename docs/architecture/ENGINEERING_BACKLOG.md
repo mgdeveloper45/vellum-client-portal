@@ -35,8 +35,8 @@ Overall Platform: ~75%
 # Automation Platform
 
 - [x] Event Model
-- [ ] Automation Rules
-- [ ] Automation Engine
+- [x] Automation Rules
+- [x] Automation Engine
 - [ ] Scheduler
 - [ ] Email Actions
 - [ ] Notification Actions
