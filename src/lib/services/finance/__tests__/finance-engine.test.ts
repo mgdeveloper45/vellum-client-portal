@@ -17,5 +17,10 @@ describe("buildFinanceEngine", () => {
     expect(engine.collections.requiresAttention).toBe(true);
     expect(engine.opportunities).toHaveLength(1);
     expect(engine.opportunities[0].priority).toBe("HIGH");
+    expect(engine.recommendations.length).toBeGreaterThan(0);
+
+    expect(engine.recommendations[0].category).toBe("FINANCE");
+
+    expect(engine.recommendations[0].priority).toBe("HIGH");
   });
 });

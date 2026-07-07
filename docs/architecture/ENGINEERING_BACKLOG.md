@@ -25,8 +25,8 @@ Overall Platform: ~75%
 ## Remaining
 
 - [x] Collections
-- [ ] Opportunities
-- [ ] Recommendation Generation
+- [x] Opportunities
+- [x] Recommendation Generation
 - [ ] Dashboard Integration
 - [ ] Unit Test Coverage 100%
 
