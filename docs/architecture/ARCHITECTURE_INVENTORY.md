@@ -72,6 +72,14 @@ This document tracks the major engines, services, components, tests, and documen
 - `src/lib/services/automation/automation-rule.ts`
 - `src/lib/services/automation/automation-engine.ts`
 
+### AI
+
+- `src/lib/services/ai/executive-brief.ts`
+- `src/lib/services/ai/executive-summary.ts`
+- `src/lib/services/ai/executive-insights.ts`
+- `src/lib/services/ai/executive-actions.ts`
+- `src/lib/services/ai/executive-engine.ts`
+
 ### Authorization
 
 - `src/lib/auth/authorization.ts`

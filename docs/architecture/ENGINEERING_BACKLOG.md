@@ -53,6 +53,18 @@ Overall Platform: ~75%
 
 ---
 
+# AI Executive Assistant
+
+## Foundation
+
+- [ ] Executive Brief
+- [ ] Executive Summary
+- [ ] Executive Insights
+- [ ] Executive Actions
+- [ ] Executive Engine
+- [ ] Dashboard Integration
+- [ ] LLM Adapter (Optional)
+
 # Workspace
 
 - [ ] Workspace Engine standardization

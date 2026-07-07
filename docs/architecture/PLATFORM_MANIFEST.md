@@ -283,6 +283,18 @@ A significant feature is complete when:
 
 ---
 
+## Quality Gates
+
+Every new capability must satisfy:
+
+- Architecture standards
+- Engine audit (if applicable)
+- Component audit (if applicable)
+- Unit tests
+- Production build
+- Documentation updates
+- Engineering backlog updates
+
 ## Next Priorities
 
 1. Standardize engine contracts.
