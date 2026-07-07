@@ -45,4 +45,11 @@ describe("getMatchingAutomationRules", () => {
 
     expect(matches).toEqual([]);
   });
+
+  it("matches invoice workflows", () => {
+    const matches = getMatchingAutomationRules("INVOICE_PAID", rules);
+
+    expect(matches).toHaveLength(1);
+    expect(matches[0].name).toContain("Invoice");
+  });
 });
