@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getLatestTimelineEvents,
   sortTimelineEvents,
+  buildTimelineEngine,
 } from "../timeline-engine";
 import type { TimelineEvent } from "../timeline-types";
 
@@ -37,5 +38,12 @@ describe("timeline engine", () => {
 
     expect(latest).toHaveLength(1);
     expect(latest[0].id).toBe("2");
+  });
+
+  it("builds the timeline engine", () => {
+    const engine = buildTimelineEngine(events);
+
+    expect(engine.summary.totalEvents).toBe(2);
+    expect(engine.events[0].id).toBe("2");
   });
 });

@@ -1,4 +1,5 @@
 import type { TimelineEvent } from "./timeline-types";
+import { buildTimelineSummary } from "./timeline-summary";
 
 export function sortTimelineEvents(events: TimelineEvent[]): TimelineEvent[] {
   return [...events].sort(
@@ -11,4 +12,11 @@ export function getLatestTimelineEvents(
   limit = 5,
 ): TimelineEvent[] {
   return sortTimelineEvents(events).slice(0, limit);
+}
+
+export function buildTimelineEngine(events: TimelineEvent[]) {
+  return {
+    events: sortTimelineEvents(events),
+    summary: buildTimelineSummary(events),
+  };
 }
