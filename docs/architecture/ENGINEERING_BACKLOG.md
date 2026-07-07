@@ -24,7 +24,7 @@ Overall Platform: ~75%
 
 ## Remaining
 
-- [ ] Collections
+- [x] Collections
 - [ ] Opportunities
 - [ ] Recommendation Generation
 - [ ] Dashboard Integration
