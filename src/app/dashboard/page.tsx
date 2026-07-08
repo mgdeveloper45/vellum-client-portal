@@ -20,11 +20,17 @@ import { WorkspaceRiskCard } from "@/components/dashboard/workspace-risk-card";
 import { WorkspaceHealthCard } from "@/components/dashboard/workspace-health-card";
 import { WorkspaceCommandCenter } from "@/components/dashboard/workspace-command-center";
 import { WorkspaceOpportunityCard } from "@/components/dashboard/workspace-opportunity-card";
+import { buildTimelineFromRecommendations } from "@/lib/services/timeline/timeline-builder";
 import { buildRecommendationEngine } from "@/lib/services/intelligence/recommendation-engine";
 import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quick-actions-dock";
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { WorkspaceRevenueOpportunityCard } from "@/components/dashboard/workspace-revenue-opportunity-card";
 import { buildWorkspaceEngine } from "@/lib/services/workspace/workspace-engine";
+import { buildExecutiveContext } from "@/lib/services/ai/executive-engine";
+import { buildExecutiveBrief } from "@/lib/services/ai/executive-brief";
+import { buildDashboardContext } from "@/lib/services/dashboard/dashboard-engine";
+import { ExecutiveDashboardCard } from "@/components/dashboard/executive-dashboard-card";
+import { ExecutiveTimelineCard } from "@/components/dashboard/executive-timeline-card";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -357,13 +363,13 @@ export default async function DashboardPage() {
     completedProjects,
   });
 
-const financeEngine = buildFinanceEngine({
-  totalRevenue: revenueCollected,
-  outstandingRevenue: revenueOutstanding,
-  overdueInvoices: openInvoices,
-  paidInvoices,
-  totalInvoices,
-});
+  const financeEngine = buildFinanceEngine({
+    totalRevenue: revenueCollected,
+    outstandingRevenue: revenueOutstanding,
+    overdueInvoices: openInvoices,
+    paidInvoices,
+    totalInvoices,
+  });
 
   // Executive Inbox aggregates recommendations from every domain.
   // Each engine contributes Recommendation[].
@@ -376,16 +382,51 @@ const financeEngine = buildFinanceEngine({
     // bookingRecommendations,
   );
 
+
+const timelineEvents = buildTimelineFromRecommendations(
+  executiveInbox,
+);
+
+  const executiveContext = buildExecutiveContext(
+    {
+      overallHealth: Math.round(
+        (
+          workspaceEngine.health.score +
+          financeEngine.health.score +
+          90 +
+          90
+        ) / 4,
+      ),
+      revenueHealth: financeEngine.health.score,
+      clientHealth: 90,
+      workspaceHealth: workspaceEngine.health.score,
+      bookingHealth: 90,
+      generatedAt: new Date(),
+    },
+    executiveInbox,
+  );
+
+  const executiveBrief = buildExecutiveBrief(executiveContext);
+
+  const dashboardContext = buildDashboardContext({
+    executiveContext,
+    executiveBrief,
+    timeline: timelineEvents,
+  });
+
   return (
     <BrandedDashboardShell>
       <DashboardHero firstName={currentUser.firstName} />
       <WorkspaceCommandCenter>
+        <ExecutiveDashboardCard context={dashboardContext} />
+        <ExecutiveTimelineCard events={timelineEvents} />
         <section className="mt-8 grid gap-6 xl:grid-cols-2">
           <WorkspaceMissionCard
             mission={workspaceEngine.mission}
           />
           <WorkspaceHealthCard
             health={workspaceEngine.health}
+
           />
         </section>
         <div className="mt-8">
