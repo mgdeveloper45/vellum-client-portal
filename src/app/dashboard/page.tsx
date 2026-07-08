@@ -3,6 +3,7 @@ import {
   requireDashboardUser,
   loadDashboardWorkspace,
   getDashboardDateRanges,
+  loadDashboardCounts,
 } from "@/lib/dashboard/dashboard-loader";
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
@@ -89,23 +90,7 @@ export default async function DashboardPage() {
       })
       : Promise.resolve(1),
 
-    prisma.project.count({
-      where: {
-        ...workspaceProjectFilter,
-        status: "ACTIVE",
-      },
-    }),
-
-    prisma.project.count({
-      where: {
-        ...workspaceProjectFilter,
-        status: "COMPLETED",
-      },
-    }),
-
-    prisma.project.count({
-      where: workspaceProjectFilter,
-    }),
+    ...(await loadDashboardCounts(workspaceProjectFilter)),
 
     prisma.invoice.count({
       where: {

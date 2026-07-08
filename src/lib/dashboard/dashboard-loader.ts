@@ -59,3 +59,30 @@ export function getDashboardDateRanges() {
     nextSevenDays,
   };
 }
+
+export async function loadDashboardCounts(
+  workspaceProjectFilter: {
+    workspaceId: string;
+    clientId?: string;
+  },
+) {
+  return Promise.all([
+    prisma.project.count({
+      where: {
+        ...workspaceProjectFilter,
+        status: "ACTIVE",
+      },
+    }),
+
+    prisma.project.count({
+      where: {
+        ...workspaceProjectFilter,
+        status: "COMPLETED",
+      },
+    }),
+
+    prisma.project.count({
+      where: workspaceProjectFilter,
+    }),
+  ]);
+}
