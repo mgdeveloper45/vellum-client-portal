@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { requireDashboardUser } from "@/lib/dashboard/dashboard-loader";
+import { 
+  requireDashboardUser,
+  loadDashboardWorkspace, 
+} from "@/lib/dashboard/dashboard-loader";
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
@@ -38,19 +41,11 @@ if (!user) {
 
   const isProfessional = await hasProfessionalPlan(user.id);
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: user.id,
-    },
-    select: {
-      workspaceId: true,
-      firstName: true,
-    },
-  });
+const currentUser = await loadDashboardWorkspace(user.id);
 
-  if (!currentUser?.workspaceId) {
-    return null;
-  }
+if (!currentUser) {
+  return null;
+}
 
   const workspaceId = currentUser.workspaceId;
 
