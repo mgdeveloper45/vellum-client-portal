@@ -1,5 +1,5 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { requireDashboardUser } from "@/lib/dashboard/dashboard-loader";
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
@@ -30,17 +30,17 @@ import { ExecutiveDashboardCard } from "@/components/dashboard/executive-dashboa
 import { ExecutiveTimelineCard } from "@/components/dashboard/executive-timeline-card";
 
 export default async function DashboardPage() {
-  const session = await auth();
+  const user = await requireDashboardUser();
 
-  if (!session?.user) {
-    return null;
-  }
+if (!user) {
+  return null;
+}
 
-  const isProfessional = await hasProfessionalPlan(session.user.id);
+  const isProfessional = await hasProfessionalPlan(user.id);
 
   const currentUser = await prisma.user.findUnique({
     where: {
-      id: session.user.id,
+      id: user.id,
     },
     select: {
       workspaceId: true,
@@ -55,9 +55,9 @@ export default async function DashboardPage() {
   const workspaceId = currentUser.workspaceId;
 
   const workspaceProjectFilter =
-    session.user.role === "ADMIN"
+    user.role === "ADMIN"
       ? { workspaceId }
-      : { workspaceId, clientId: session.user.id };
+      : { workspaceId, clientId: user.id };
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
     recentActivity,
     recentNotifications,
   ] = await Promise.all([
-    session.user.role === "ADMIN"
+    user.role === "ADMIN"
       ? prisma.user.count({
         where: {
           role: "CLIENT",
@@ -265,7 +265,7 @@ export default async function DashboardPage() {
 
     prisma.notification.findMany({
       where: {
-        userId: session.user.id,
+        userId: user.id,
       },
       orderBy: {
         createdAt: "desc",
@@ -477,7 +477,7 @@ export default async function DashboardPage() {
 
       <div className="mt-8">
         <WorkspaceActionsCard
-          userId={session.user.id}
+          userId={user.id}
           workspaceId={workspaceId}
         />
       </div>
