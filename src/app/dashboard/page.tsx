@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { 
+import {
   requireDashboardUser,
-  loadDashboardWorkspace, 
+  loadDashboardWorkspace,
+  getDashboardDateRanges,
 } from "@/lib/dashboard/dashboard-loader";
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
@@ -35,17 +36,17 @@ import { ExecutiveTimelineCard } from "@/components/dashboard/executive-timeline
 export default async function DashboardPage() {
   const user = await requireDashboardUser();
 
-if (!user) {
-  return null;
-}
+  if (!user) {
+    return null;
+  }
 
   const isProfessional = await hasProfessionalPlan(user.id);
 
-const currentUser = await loadDashboardWorkspace(user.id);
+  const currentUser = await loadDashboardWorkspace(user.id);
 
-if (!currentUser) {
-  return null;
-}
+  if (!currentUser) {
+    return null;
+  }
 
   const workspaceId = currentUser.workspaceId;
 
@@ -54,25 +55,11 @@ if (!currentUser) {
       ? { workspaceId }
       : { workspaceId, clientId: user.id };
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
-  const todayEnd = new Date(todayStart);
-  todayEnd.setDate(todayStart.getDate() + 1);
-
-  const nextSevenDays = Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(todayStart);
-    date.setDate(todayStart.getDate() + index);
-
-    const nextDate = new Date(date);
-    nextDate.setDate(date.getDate() + 1);
-
-    return {
-      date,
-      nextDate,
-      label: date.toLocaleDateString(undefined, { weekday: "short" }),
-    };
-  });
+  const {
+    todayStart,
+    todayEnd,
+    nextSevenDays,
+  } = getDashboardDateRanges();
 
   const [
     totalClients,

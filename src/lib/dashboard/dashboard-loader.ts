@@ -31,3 +31,31 @@ export async function requireDashboardUser() {
 
   return session.user;
 }
+
+export function getDashboardDateRanges() {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const todayEnd = new Date(todayStart);
+  todayEnd.setDate(todayStart.getDate() + 1);
+
+  const nextSevenDays = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(todayStart);
+    date.setDate(todayStart.getDate() + index);
+
+    const nextDate = new Date(date);
+    nextDate.setDate(date.getDate() + 1);
+
+    return {
+      date,
+      nextDate,
+      label: date.toLocaleDateString(undefined, { weekday: "short" }),
+    };
+  });
+
+  return {
+    todayStart,
+    todayEnd,
+    nextSevenDays,
+  };
+}
