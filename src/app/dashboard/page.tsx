@@ -7,6 +7,9 @@ import {
 } from "@/lib/dashboard/dashboard-loader";
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
+import { createAiProvider } from "@/lib/services/ai/ai-provider-factory";
+import { ExecutiveAiCard } from "@/components/dashboard/executive-ai-card";
+import { ExecutiveNarrativeService } from "@/lib/services/ai/executive-narrative-service";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { DashboardScheduleSection } from "@/components/dashboard/dashboard-schedule-section";
@@ -378,11 +381,24 @@ export default async function DashboardPage() {
     timeline: timelineEvents,
   });
 
+  const aiProvider = createAiProvider();
+
+  const executiveNarrativeService =
+    new ExecutiveNarrativeService(aiProvider);
+
+  const executiveNarrative =
+    await executiveNarrativeService.generate(
+      dashboardContext,
+    );
+
   return (
     <BrandedDashboardShell>
       <DashboardHero firstName={currentUser.firstName} />
       <WorkspaceCommandCenter>
         <ExecutiveDashboardCard context={dashboardContext} />
+        <ExecutiveAiCard
+          narrative={executiveNarrative}
+        />
         <ExecutiveTimelineCard events={dashboardContext.timeline} />
         <section className="mt-8 grid gap-6 xl:grid-cols-2">
           <WorkspaceMissionCard
