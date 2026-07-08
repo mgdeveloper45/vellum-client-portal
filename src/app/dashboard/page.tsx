@@ -1,12 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { formatActivityTitle } from "@/lib/activity";
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
 import { MetricsGrid } from "@/components/dashboard/metrics-grid";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { DashboardScheduleSection } from "@/components/dashboard/dashboard-schedule-section";
+import { DashboardRecentActivitySection } from "@/components/dashboard/dashboard-recent-activity-section";
 import { buildFinanceEngine } from "@/lib/services/finance/finance-engine";
 import { WorkspaceAICard } from "@/components/dashboard/workspace-ai-card";
 import { BookingsTrendChart } from "@/components/dashboard/bookings-trend-chart";
@@ -504,36 +504,7 @@ export default async function DashboardPage() {
         <ActivityFeed activities={recentNotifications} />
       </div>
 
-      <section className="mt-8 rounded-3xl border border-border bg-card p-6">
-        <h2 className="text-2xl font-light">Recent Activity</h2>
-
-        <div className="mt-5 grid gap-3">
-          {recentActivity.map((activity) => (
-            <div
-              key={activity.id}
-              className="rounded-2xl border border-border bg-background p-4"
-            >
-              <p className="font-medium">{formatActivityTitle(activity)}</p>
-
-              <p className="mt-1 text-sm text-foreground/70">
-                {activity.user
-                  ? `${activity.user.firstName} ${activity.user.lastName}`
-                  : "System"}
-              </p>
-
-              <p className="mt-2 text-xs text-foreground/50">
-                {activity.entity} · {activity.createdAt.toLocaleString()}
-              </p>
-            </div>
-          ))}
-
-          {recentActivity.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-foreground/60">
-              No recent activity yet.
-            </div>
-          )}
-        </div>
-      </section>
+      <DashboardRecentActivitySection recentActivity={recentActivity} />
     </BrandedDashboardShell>
   );
 }

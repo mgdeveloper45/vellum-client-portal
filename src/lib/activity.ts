@@ -1,6 +1,6 @@
 import { Prisma } from "@/lib/generated/prisma/client";
 
-type ActivityInput = {
+export type ActivityInput = {
   action: string;
   entity: string;
   metadata: Prisma.JsonValue | null;
