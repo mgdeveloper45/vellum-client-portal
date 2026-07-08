@@ -22,7 +22,6 @@ import { WorkspaceRiskCard } from "@/components/dashboard/workspace-risk-card";
 import { WorkspaceHealthCard } from "@/components/dashboard/workspace-health-card";
 import { WorkspaceCommandCenter } from "@/components/dashboard/workspace-command-center";
 import { WorkspaceOpportunityCard } from "@/components/dashboard/workspace-opportunity-card";
-import { buildTimelineFromRecommendations } from "@/lib/services/timeline/timeline-builder";
 import { buildRecommendationEngine } from "@/lib/services/intelligence/recommendation-engine";
 import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quick-actions-dock";
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
@@ -31,6 +30,7 @@ import { buildWorkspaceEngine } from "@/lib/services/workspace/workspace-engine"
 import { buildExecutiveContext } from "@/lib/services/ai/executive-engine";
 import { buildExecutiveBrief } from "@/lib/services/ai/executive-brief";
 import { buildDashboardContext } from "@/lib/services/dashboard/dashboard-engine";
+import { buildTimelineFromAuditLogs } from "@/lib/services/timeline/audit-log-timeline";
 import { ExecutiveDashboardCard } from "@/components/dashboard/executive-dashboard-card";
 import { ExecutiveTimelineCard } from "@/components/dashboard/executive-timeline-card";
 
@@ -347,8 +347,8 @@ export default async function DashboardPage() {
   );
 
 
-  const timelineEvents = buildTimelineFromRecommendations(
-    executiveInbox,
+  const timelineEvents = buildTimelineFromAuditLogs(
+    recentActivity,
   );
 
   const executiveContext = buildExecutiveContext(
@@ -383,7 +383,7 @@ export default async function DashboardPage() {
       <DashboardHero firstName={currentUser.firstName} />
       <WorkspaceCommandCenter>
         <ExecutiveDashboardCard context={dashboardContext} />
-        <ExecutiveTimelineCard events={timelineEvents} />
+        <ExecutiveTimelineCard events={dashboardContext.timeline} />
         <section className="mt-8 grid gap-6 xl:grid-cols-2">
           <WorkspaceMissionCard
             mission={workspaceEngine.mission}
