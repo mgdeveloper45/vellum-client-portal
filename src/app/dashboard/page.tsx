@@ -2,16 +2,13 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
-import { MetricsGrid } from "@/components/dashboard/metrics-grid";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { DashboardScheduleSection } from "@/components/dashboard/dashboard-schedule-section";
+import { DashboardAnalyticsSection } from "@/components/dashboard/dashboard-analytics-section";
 import { DashboardRecentActivitySection } from "@/components/dashboard/dashboard-recent-activity-section";
 import { buildFinanceEngine } from "@/lib/services/finance/finance-engine";
 import { WorkspaceAICard } from "@/components/dashboard/workspace-ai-card";
-import { BookingsTrendChart } from "@/components/dashboard/bookings-trend-chart";
-import { ProfessionalMetrics } from "@/components/dashboard/professional-metrics";
-import { RevenueSummaryChart } from "@/components/dashboard/revenue-summary-chart";
 import { ExecutiveInboxCard } from "@/components/dashboard/executive-inbox-card";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { WorkspaceActionsCard } from "@/components/dashboard/workspace-actions-card";
@@ -466,20 +463,14 @@ export default async function DashboardPage() {
           </p>
         </div>
       )}
-
-      <MetricsGrid metrics={heroMetrics} />
-
-      {isProfessional && <ProfessionalMetrics metrics={professionalMetrics} />}
-
-      <section className="mt-8 grid gap-6 xl:grid-cols-2">
-        <BookingsTrendChart data={bookingTrendData} />
-
-        <RevenueSummaryChart
-          collected={revenueCollected}
-          outstanding={revenueOutstanding}
-        />
-      </section>
-
+      <DashboardAnalyticsSection
+        heroMetrics={heroMetrics}
+        professionalMetrics={professionalMetrics}
+        bookingTrendData={bookingTrendData}
+        revenueCollected={revenueCollected}
+        revenueOutstanding={revenueOutstanding}
+        isProfessional={isProfessional}
+      />
       <div className="mt-8">
         <WorkspaceAICard />
       </div>
