@@ -133,3 +133,15 @@ Requirements:
 - E2E tests
 - Security audit complete
 - Production deployment
+
+# Enterprise UX Polish
+
+- [ ] Review Figma screenshots
+- [ ] Match premium visual direction
+- [ ] Improve dashboard spacing and hierarchy
+- [ ] Polish Executive Dashboard cards
+- [ ] Polish Executive Timeline
+- [ ] Mobile-first dashboard review
+- [ ] Tablet layout review
+- [ ] Empty states and loading states
+- [ ] Fortune 500-style visual refinement

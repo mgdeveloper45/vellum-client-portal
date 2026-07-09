@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import {
+  getExecutiveBrief,
+  saveExecutiveBrief,
+} from "@/lib/services/ai/executive-brief-cache";
+import {
   requireDashboardUser,
   loadDashboardWorkspace,
   getDashboardDateRanges,
@@ -381,15 +385,30 @@ export default async function DashboardPage() {
     timeline: timelineEvents,
   });
 
+  const cachedBrief = await getExecutiveBrief(workspaceId);
+
+let aiResult;
+
+if (cachedBrief) {
+  aiResult = {
+    narrative: cachedBrief.narrative,
+    provider: cachedBrief.provider,
+    durationMs: cachedBrief.durationMs,
+    mode: cachedBrief.mode as "mock" | "production",
+  };
+} else {
   const aiProvider = createAiProvider();
 
   const executiveNarrativeService =
     new ExecutiveNarrativeService(aiProvider);
 
-  const aiResult =
-  await executiveNarrativeService.generate(
-    dashboardContext,
-  );
+  aiResult =
+    await executiveNarrativeService.generate(
+      dashboardContext,
+    );
+
+  await saveExecutiveBrief(workspaceId, aiResult);
+}
 
   return (
     <BrandedDashboardShell>
