@@ -1,14 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { DashboardContext } from "@/lib/services/dashboard/dashboard-context";
-import { ExecutiveNarrativeService } from "../executive-narrative-service";
-import type { AiProvider } from "../ai-provider";
+import { buildExecutivePrompt } from "../executive-prompt";
 
-describe("ExecutiveNarrativeService", () => {
-  it("delegates to the AI provider", async () => {
-    const provider: AiProvider = {
-      generateNarrative: async () => "Executive summary",
-    };
-
+describe("buildExecutivePrompt", () => {
+  it("includes executive overview", () => {
     const context: DashboardContext = {
       executiveContext: {
         summary: {
@@ -29,10 +24,9 @@ describe("ExecutiveNarrativeService", () => {
       timeline: [],
     };
 
-    const service = new ExecutiveNarrativeService(provider);
+    const prompt = buildExecutivePrompt(context);
 
-    const result = await service.generate(context);
-
-    expect(result).toBe("Executive summary");
+    expect(prompt).toContain("Business is healthy.");
+    expect(prompt).toContain("Overall: 95");
   });
 });

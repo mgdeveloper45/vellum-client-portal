@@ -2,6 +2,9 @@ import { openai } from "@/lib/openai";
 import type { AiProvider } from "./ai-provider";
 
 export class OpenAiProvider implements AiProvider {
+  readonly providerName = "OpenAI";
+  readonly mode = "production" as const;
+
   async generateNarrative(prompt: string): Promise<string> {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",

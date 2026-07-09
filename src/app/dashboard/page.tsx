@@ -386,10 +386,10 @@ export default async function DashboardPage() {
   const executiveNarrativeService =
     new ExecutiveNarrativeService(aiProvider);
 
-  const executiveNarrative =
-    await executiveNarrativeService.generate(
-      dashboardContext,
-    );
+  const aiResult =
+  await executiveNarrativeService.generate(
+    dashboardContext,
+  );
 
   return (
     <BrandedDashboardShell>
@@ -397,7 +397,7 @@ export default async function DashboardPage() {
       <WorkspaceCommandCenter>
         <ExecutiveDashboardCard context={dashboardContext} />
         <ExecutiveAiCard
-          narrative={executiveNarrative}
+          narrative={aiResult.narrative}
         />
         <ExecutiveTimelineCard events={dashboardContext.timeline} />
         <section className="mt-8 grid gap-6 xl:grid-cols-2">
