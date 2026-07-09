@@ -13,6 +13,7 @@ import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
 import { createAiProvider } from "@/lib/services/ai/ai-provider-factory";
 import { ExecutiveAiCard } from "@/components/dashboard/executive-ai-card";
+import { ExecutiveHero } from "@/components/dashboard/executive-hero";
 import { ExecutiveNarrativeService } from "@/lib/services/ai/executive-narrative-service";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
@@ -387,36 +388,43 @@ export default async function DashboardPage() {
 
   const cachedBrief = await getExecutiveBrief(workspaceId);
 
-let aiResult;
+  let aiResult;
 
-if (cachedBrief) {
-  aiResult = {
-    narrative: cachedBrief.narrative,
-    provider: cachedBrief.provider,
-    durationMs: cachedBrief.durationMs,
-    mode: cachedBrief.mode as "mock" | "production",
-  };
-} else {
-  const aiProvider = createAiProvider();
+  if (cachedBrief) {
+    aiResult = {
+      narrative: cachedBrief.narrative,
+      provider: cachedBrief.provider,
+      durationMs: cachedBrief.durationMs,
+      mode: cachedBrief.mode as "mock" | "production",
+    };
+  } else {
+    const aiProvider = createAiProvider();
 
-  const executiveNarrativeService =
-    new ExecutiveNarrativeService(aiProvider);
+    const executiveNarrativeService =
+      new ExecutiveNarrativeService(aiProvider);
 
-  aiResult =
-    await executiveNarrativeService.generate(
-      dashboardContext,
-    );
+    aiResult =
+      await executiveNarrativeService.generate(
+        dashboardContext,
+      );
 
-  await saveExecutiveBrief(workspaceId, aiResult);
-}
+    await saveExecutiveBrief(workspaceId, aiResult);
+  }
+  const firstName =
+    user?.name?.split(" ")[0] ?? null;
 
   return (
     <BrandedDashboardShell>
       <DashboardHero firstName={currentUser.firstName} />
       <WorkspaceCommandCenter>
         <ExecutiveDashboardCard context={dashboardContext} />
-        <ExecutiveAiCard
+        <ExecutiveHero
+          firstName={firstName}
           narrative={aiResult.narrative}
+          primaryAction={{
+            label: "Review Executive Center",
+            href: "/dashboard",
+          }}
         />
         <ExecutiveTimelineCard events={dashboardContext.timeline} />
         <section className="mt-8 grid gap-6 xl:grid-cols-2">
