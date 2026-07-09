@@ -126,3 +126,8 @@ export type Booking = Prisma.BookingModel
  * 
  */
 export type BusinessHour = Prisma.BusinessHourModel
+/**
+ * Model ExecutiveBriefCache
+ * 
+ */
+export type ExecutiveBriefCache = Prisma.ExecutiveBriefCacheModel

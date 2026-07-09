@@ -400,7 +400,8 @@ export const ModelName = {
   Subscription: 'Subscription',
   Service: 'Service',
   Booking: 'Booking',
-  BusinessHour: 'BusinessHour'
+  BusinessHour: 'BusinessHour',
+  ExecutiveBriefCache: 'ExecutiveBriefCache'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "service" | "booking" | "businessHour"
+    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "service" | "booking" | "businessHour" | "executiveBriefCache"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1678,6 +1679,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ExecutiveBriefCache: {
+      payload: Prisma.$ExecutiveBriefCachePayload<ExtArgs>
+      fields: Prisma.ExecutiveBriefCacheFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExecutiveBriefCacheFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExecutiveBriefCacheFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload>
+        }
+        findFirst: {
+          args: Prisma.ExecutiveBriefCacheFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExecutiveBriefCacheFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload>
+        }
+        findMany: {
+          args: Prisma.ExecutiveBriefCacheFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload>[]
+        }
+        create: {
+          args: Prisma.ExecutiveBriefCacheCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload>
+        }
+        createMany: {
+          args: Prisma.ExecutiveBriefCacheCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ExecutiveBriefCacheCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload>[]
+        }
+        delete: {
+          args: Prisma.ExecutiveBriefCacheDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload>
+        }
+        update: {
+          args: Prisma.ExecutiveBriefCacheUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload>
+        }
+        deleteMany: {
+          args: Prisma.ExecutiveBriefCacheDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExecutiveBriefCacheUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ExecutiveBriefCacheUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload>[]
+        }
+        upsert: {
+          args: Prisma.ExecutiveBriefCacheUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExecutiveBriefCachePayload>
+        }
+        aggregate: {
+          args: Prisma.ExecutiveBriefCacheAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExecutiveBriefCache>
+        }
+        groupBy: {
+          args: Prisma.ExecutiveBriefCacheGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExecutiveBriefCacheGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExecutiveBriefCacheCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExecutiveBriefCacheCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1951,6 +2026,19 @@ export const BusinessHourScalarFieldEnum = {
 } as const
 
 export type BusinessHourScalarFieldEnum = (typeof BusinessHourScalarFieldEnum)[keyof typeof BusinessHourScalarFieldEnum]
+
+
+export const ExecutiveBriefCacheScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  narrative: 'narrative',
+  provider: 'provider',
+  mode: 'mode',
+  durationMs: 'durationMs',
+  generatedAt: 'generatedAt'
+} as const
+
+export type ExecutiveBriefCacheScalarFieldEnum = (typeof ExecutiveBriefCacheScalarFieldEnum)[keyof typeof ExecutiveBriefCacheScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2287,6 +2375,7 @@ export type GlobalOmitConfig = {
   service?: Prisma.ServiceOmit
   booking?: Prisma.BookingOmit
   businessHour?: Prisma.BusinessHourOmit
+  executiveBriefCache?: Prisma.ExecutiveBriefCacheOmit
 }
 
 /* Types for Logging */

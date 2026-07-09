@@ -250,7 +250,8 @@ model Workspace {
   invitations   WorkspaceInvitation[]
   bookings      Booking[]
 
-  subscription Subscription?
+  subscription        Subscription?
+  executiveBriefCache ExecutiveBriefCache?
 
   companyName  String?
   logoImageUrl String?
@@ -358,4 +359,20 @@ model BusinessHour {
   updatedAt DateTime @updatedAt
 
   @@unique([workspaceId, dayOfWeek])
+}
+
+model ExecutiveBriefCache {
+  id          String @id @default(cuid())
+  workspaceId String
+  narrative   String
+
+  provider   String
+  mode       String
+  durationMs Int
+
+  generatedAt DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId])
 }
