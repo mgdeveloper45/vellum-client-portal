@@ -1,4 +1,6 @@
 import type { WorkspaceHealth } from "@/lib/services/workspace/workspace-health";
+import { CommandCard } from "@/components/ui/command-card";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 type Props = {
     health: WorkspaceHealth;
@@ -6,71 +8,70 @@ type Props = {
 
 const config = {
     HEALTHY: {
-        dot: "bg-green-500",
-        ring: "border-green-500/30",
+        ring: "border-green-500/35",
+        glow: "shadow-[0_0_40px_rgba(34,197,94,0.10)]",
+        badge: "success",
         message: "Your workspace is operating smoothly.",
     },
     NEEDS_ATTENTION: {
-        dot: "bg-yellow-500",
-        ring: "border-yellow-500/30",
+        ring: "border-yellow-500/35",
+        glow: "shadow-[0_0_40px_rgba(234,179,8,0.10)]",
+        badge: "warning",
         message: "A few operational items need attention.",
     },
     AT_RISK: {
-        dot: "bg-red-500",
-        ring: "border-red-500/30",
+        ring: "border-red-500/35",
+        glow: "shadow-[0_0_40px_rgba(239,68,68,0.10)]",
+        badge: "danger",
         message: "Immediate action is recommended.",
     },
-};
+} as const;
 
-export function WorkspaceHealthCard({
-    health,
-}: Props) {
+export function WorkspaceHealthCard({ health }: Props) {
     const state = config[health.label];
 
     return (
-        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-lg">
-            <div className="flex items-center justify-between">
-                <h2 className="text-xl font-medium">
-                    Workspace Health
-                </h2>
-
-                <div className={`h-3 w-3 rounded-full ${state.dot}`} />
-            </div>
-
-            <div className="mt-8 flex justify-center">
+        <CommandCard
+            eyebrow="Workspace Intelligence"
+            title="Workspace Health"
+            subtitle="A live assessment of operational readiness."
+            actions={
+                <StatusBadge variant={state.badge}>
+                    {health.label.replaceAll("_", " ")}
+                </StatusBadge>
+            }
+            className="h-full"
+        >
+            <div className="grid gap-8 lg:grid-cols-[auto_1fr] lg:items-center">
                 <div
-                    className={`flex h-36 w-36 flex-col items-center justify-center rounded-full border-8 ${state.ring}`}
+                    className={`mx-auto flex h-40 w-40 shrink-0 flex-col items-center justify-center rounded-full border-8 bg-background/60 ${state.ring} ${state.glow}`}
                 >
-                    <p className="text-5xl font-light">
+                    <p className="text-5xl font-light tracking-tight">
                         {health.score}
                     </p>
 
-                    <p className="text-sm text-foreground/60">
-                        %
+                    <p className="mt-1 text-xs font-medium uppercase tracking-[0.2em] text-foreground/45">
+                        Health
                     </p>
                 </div>
-            </div>
 
-            <div className="mt-6 text-center">
-                <p className="text-lg font-medium">
-                    {health.label.replace("_", " ")}
-                </p>
+                <div>
+                    <p className="text-lg font-light leading-8 text-foreground/75">
+                        {state.message}
+                    </p>
 
-                <p className="mt-2 text-sm text-foreground/60">
-                    {state.message}
-                </p>
-            </div>
-
-            <div className="mt-8 space-y-3">
-                {health.reasons.map((reason) => (
-                    <div
-                        key={reason}
-                        className="rounded-2xl bg-background p-3 text-sm text-foreground/70"
-                    >
-                        {reason}
+                    <div className="mt-5 space-y-3">
+                        {health.reasons.map((reason) => (
+                            <div
+                                key={reason}
+                                className="rounded-2xl border border-border/50 bg-background/60 px-4 py-3 text-sm leading-6 text-foreground/65"
+                            >
+                                {reason}
+                            </div>
+                        ))}
                     </div>
-                ))}
+                </div>
             </div>
-        </section>
+        </CommandCard>
     );
 }

@@ -1,5 +1,6 @@
 import type { WorkspaceMission } from "@/lib/services/workspace/workspace-mission";
 import { CommandCard } from "@/components/ui/command-card";
+import { ExecutiveButton } from "@/components/ui/executive-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 
 type Props = {
@@ -12,28 +13,30 @@ const badgeVariant = {
     LOW: "success",
 } as const;
 
-export function WorkspaceMissionCard({
-    mission,
-}: Props) {
+export function WorkspaceMissionCard({ mission }: Props) {
     return (
         <CommandCard
+            eyebrow="Today’s Mission"
             title={mission.title}
-            subtitle="Today's Mission"
+            subtitle="The highest-impact action for your workspace today."
             actions={
-                <StatusBadge
-                    variant={badgeVariant[mission.priority]}
-                >
+                <StatusBadge variant={badgeVariant[mission.priority]}>
                     {mission.priority}
                 </StatusBadge>
             }
+            className="h-full"
         >
-            <p className="text-lg leading-8 text-foreground/75">
-                {mission.description}
-            </p>
+            <div className="flex h-full flex-col">
+                <p className="text-lg font-light leading-8 text-foreground/75">
+                    {mission.description}
+                </p>
 
-            <button className="workspace-accent-button mt-8 w-full rounded-2xl py-3 font-medium transition hover:opacity-90">
-                Start Mission
-            </button>
+                <div className="mt-auto pt-8">
+                    <ExecutiveButton size="lg" fullWidth>
+                        Start Mission
+                    </ExecutiveButton>
+                </div>
+            </div>
         </CommandCard>
     );
 }
