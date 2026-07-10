@@ -1,4 +1,7 @@
+import Link from "next/link";
 import { CommandCard } from "@/components/ui/command-card";
+import { ExecutiveButton } from "@/components/ui/executive-button";
+
 
 type Props = {
     firstName: string | null;
@@ -38,12 +41,11 @@ export function ExecutiveHero({
                     </p>
 
                     {primaryAction && (
-                        <a
-                            href={primaryAction.href}
-                            className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-                        >
-                            {primaryAction.label}
-                        </a>
+                        <Link href={primaryAction.href}>
+                            <ExecutiveButton size="lg">
+                                {primaryAction.label}
+                            </ExecutiveButton>
+                        </Link>
                     )}
                 </div>
             </div>
