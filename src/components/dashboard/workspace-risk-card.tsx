@@ -1,6 +1,7 @@
 import type { WorkspaceRisk } from "@/lib/services/workspace/workspace-risk";
 import { ActionCard } from "@/components/ui/action-card";
 import { CommandCard } from "@/components/ui/command-card";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 type Props = {
   risks: WorkspaceRisk[];
@@ -9,12 +10,20 @@ type Props = {
 export function WorkspaceRiskCard({ risks }: Props) {
   return (
     <CommandCard
+      eyebrow="Operational Risk"
       title="Workspace Risks"
-      subtitle="Items that may need attention"
+      subtitle="Items requiring executive attention."
+      className="h-full"
       actions={
-        <div className="rounded-full border border-border bg-background px-4 py-2 text-sm">
+        <StatusBadge
+          variant={
+            risks.length === 0
+              ? "success"
+              : "danger"
+          }
+        >
           {risks.length} Active
-        </div>
+        </StatusBadge>
       }
     >
       <div className="space-y-4">

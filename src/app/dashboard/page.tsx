@@ -433,7 +433,36 @@ export default async function DashboardPage() {
         </div>
 
         <ExecutiveSection
+          eyebrow="Performance"
+          title="Business Health"
+          description="A live snapshot of your business performance."
+          className="mt-8"
+        >
+          <DashboardAnalyticsSection
+            heroMetrics={heroMetrics}
+            professionalMetrics={professionalMetrics}
+            bookingTrendData={bookingTrendData}
+            revenueCollected={revenueCollected}
+            revenueOutstanding={revenueOutstanding}
+            isProfessional={isProfessional}
+          />
+        </ExecutiveSection>
+
+        <ExecutiveSection
           eyebrow="Operations"
+          title="Workspace Operations"
+          description="Today&apos;s mission and the overall health of your business."
+          className="mt-8"
+        >
+          <div className="grid gap-6 xl:grid-cols-2">
+            <WorkspaceMissionCard mission={workspaceEngine.mission} />
+
+            <WorkspaceHealthCard health={workspaceEngine.health} />
+          </div>
+        </ExecutiveSection>
+
+        <ExecutiveSection
+          eyebrow="Business History"
           title="Executive Timeline"
           description="Recent business activity and important events."
           className="mt-8"
@@ -441,30 +470,42 @@ export default async function DashboardPage() {
           <ExecutiveTimelineCard events={dashboardContext.timeline} />
         </ExecutiveSection>
 
-        <section className="mt-8 grid gap-6 xl:grid-cols-2">
-          <WorkspaceMissionCard mission={workspaceEngine.mission} />
-          <WorkspaceHealthCard health={workspaceEngine.health} />
-        </section>
+        <ExecutiveSection
+          eyebrow="Intelligence"
+          title="Executive Intelligence"
+          description="AI-generated insights based on your business performance."
+          className="mt-8"
+        >
+          <WorkspaceExecutiveBriefCard
+            brief={workspaceEngine.executiveBrief}
+          />
+        </ExecutiveSection>
 
-        <div className="mt-8">
-          <WorkspaceExecutiveBriefCard brief={workspaceEngine.executiveBrief} />
-        </div>
-
-        <div className="mt-8">
+        <ExecutiveSection
+          eyebrow="Revenue"
+          title="Revenue Intelligence"
+          description="Revenue opportunities and financial insights for your business."
+          className="mt-8"
+        >
           <WorkspaceRevenueOpportunityCard
             opportunity={workspaceEngine.revenueOpportunity}
           />
-        </div>
+        </ExecutiveSection>
 
-        <div className="mt-8">
-          <WorkspaceRiskCard risks={workspaceEngine.risks} />
-        </div>
+        <ExecutiveSection
+          eyebrow="Growth"
+          title="Business Outlook"
+          description="Opportunities to pursue and risks to monitor."
+          className="mt-8"
+        >
+          <div className="grid gap-6 xl:grid-cols-2">
+            <WorkspaceOpportunityCard
+              opportunities={workspaceEngine.opportunities}
+            />
 
-        <div className="mt-8">
-          <WorkspaceOpportunityCard
-            opportunities={workspaceEngine.opportunities}
-          />
-        </div>
+            <WorkspaceRiskCard risks={workspaceEngine.risks} />
+          </div>
+        </ExecutiveSection>
 
         <div className="mt-8">
           <WorkspaceQuickActionsDock />
@@ -481,46 +522,15 @@ export default async function DashboardPage() {
       </WorkspaceCommandCenter>
 
       {!isProfessional && (
-        <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+        <div className="mt-8 rounded-3xl border border-border/70 bg-card/95 p-6 shadow-sm">
           <p className="font-medium">Unlock Executive Analytics</p>
 
-          <p className="mt-2 text-sm text-foreground/70">
+          <p className="mt-2 text-sm leading-6 text-foreground/70">
             Upgrade to Professional to view revenue, collection, proposal, and
             project completion insights.
           </p>
         </div>
       )}
-
-      <ExecutiveSection
-        eyebrow="Performance"
-        title="Business Health"
-        description="A live snapshot of your business performance."
-        className="mt-8"
-      >
-        <DashboardAnalyticsSection
-          heroMetrics={heroMetrics}
-          professionalMetrics={professionalMetrics}
-          bookingTrendData={bookingTrendData}
-          revenueCollected={revenueCollected}
-          revenueOutstanding={revenueOutstanding}
-          isProfessional={isProfessional}
-        />
-      </ExecutiveSection>
-
-      <div className="mt-8">
-        <WorkspaceAICard />
-      </div>
-
-      <div className="mt-8">
-        <WorkspaceActionsCard
-          userId={user.id}
-          workspaceId={workspaceId}
-        />
-      </div>
-
-      <div className="mt-8">
-        <AICommandCenter />
-      </div>
 
       <DashboardScheduleSection
         todaysBookings={todaysBookings}
@@ -539,6 +549,26 @@ export default async function DashboardPage() {
       >
         <DashboardRecentActivitySection recentActivity={recentActivity} />
       </ExecutiveSection>
+
+      <ExecutiveSection
+        eyebrow="AI Workspace"
+        title="Command Center"
+        description="Explore workspace intelligence and run guided business commands."
+        className="mt-8"
+      >
+        <AICommandCenter />
+      </ExecutiveSection>
+
+      <div className="mt-8">
+        <WorkspaceActionsCard
+          userId={user.id}
+          workspaceId={workspaceId}
+        />
+      </div>
+
+      <div className="mt-8">
+        <WorkspaceAICard />
+      </div>
     </BrandedDashboardShell>
   );
 }

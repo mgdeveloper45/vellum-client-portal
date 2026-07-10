@@ -1,5 +1,6 @@
 import type { WorkspaceExecutiveBrief } from "@/lib/services/workspace/workspace-executive-brief";
 import { CommandCard } from "@/components/ui/command-card";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 type Props = {
     brief: WorkspaceExecutiveBrief;
@@ -10,15 +11,17 @@ export function WorkspaceExecutiveBriefCard({
 }: Props) {
     return (
         <CommandCard
+            eyebrow="Executive Intelligence"
             title={brief.headline}
-            subtitle="Executive Brief"
+            subtitle="AI-generated operational summary."
             actions={
-                <div className="rounded-full border border-border bg-background px-4 py-2 text-sm">
-                    {brief.confidence}% confidence
-                </div>
+                <StatusBadge variant="success">
+                    {brief.confidence}% Confidence
+                </StatusBadge>
             }
+            className="h-full"
         >
-            <p className="text-lg leading-8 text-foreground/75">
+            <p className="text-lg font-light leading-8 text-foreground/75">
                 {brief.summary}
             </p>
         </CommandCard>

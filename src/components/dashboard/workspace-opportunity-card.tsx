@@ -1,6 +1,7 @@
 import type { WorkspaceOpportunity } from "@/lib/services/workspace/workspace-opportunity";
 import { ActionCard } from "@/components/ui/action-card";
 import { CommandCard } from "@/components/ui/command-card";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 type Props = {
   opportunities: WorkspaceOpportunity[];
@@ -9,12 +10,14 @@ type Props = {
 export function WorkspaceOpportunityCard({ opportunities }: Props) {
   return (
     <CommandCard
-      title="Growth Opportunities"
-      subtitle="Ways to increase revenue or engagement"
+      eyebrow="Growth"
+      title="Revenue Opportunities"
+      subtitle="Recommended opportunities to grow the business."
+      className="h-full"
       actions={
-        <div className="rounded-full border border-border bg-background px-4 py-2 text-sm">
+        <StatusBadge variant="success">
           {opportunities.length} Found
-        </div>
+        </StatusBadge>
       }
     >
       <div className="space-y-4">
