@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { NotificationLinkCard } from "@/components/notifications/notification-link-card";
-
 
 export default async function NotificationsPage() {
     const session = await auth();
@@ -22,23 +22,40 @@ export default async function NotificationsPage() {
 
     return (
         <BrandedDashboardShell>
-            <h1 className="text-3xl font-light">Notifications</h1>
+            <div>
+                <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary">
+                    Workspace Updates
+                </p>
 
-            <div className="mt-8 grid gap-3">
-                {notifications.map((notification) => (
-                    <NotificationLinkCard
-                        key={notification.id}
-                        id={notification.id}
-                        title={notification.title}
-                        message={notification.message}
-                        href={notification.href}
-                        read={notification.read}
-                        createdAt={notification.createdAt.toLocaleString()}
+                <h1 className="mt-2 text-3xl font-light tracking-tight">
+                    Notifications
+                </h1>
+
+                <p className="mt-2 text-sm leading-6 text-foreground/60">
+                    Review important alerts, reminders, and workspace activity.
+                </p>
+            </div>
+
+            <div className="mt-8">
+                {notifications.length === 0 ? (
+                    <ExecutiveEmptyState
+                        title="You're all caught up"
+                        description="New reminders, booking updates, payment alerts, and important workspace notifications will appear here."
+                        className="min-h-[300px]"
                     />
-                ))}
-                {notifications.length === 0 && (
-                    <div className="rounded-2xl border border-dashed border-border bg-card p-6 text-sm text-foreground/60">
-                        No notifications yet.
+                ) : (
+                    <div className="grid gap-3">
+                        {notifications.map((notification) => (
+                            <NotificationLinkCard
+                                key={notification.id}
+                                id={notification.id}
+                                title={notification.title}
+                                message={notification.message}
+                                href={notification.href}
+                                read={notification.read}
+                                createdAt={notification.createdAt.toLocaleString()}
+                            />
+                        ))}
                     </div>
                 )}
             </div>

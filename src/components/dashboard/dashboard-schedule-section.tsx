@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ExecutiveButton } from "@/components/ui/executive-button";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 
 type Booking = {
     id: string;
@@ -25,7 +27,7 @@ export function DashboardScheduleSection({
                 <div className="flex items-center justify-between gap-4">
                     <div>
                         <h2 className="text-2xl font-light">
-                            Today’s Schedule
+                            Today&apos;s Schedule
                         </h2>
 
                         <p className="mt-1 text-sm text-foreground/60">
@@ -33,42 +35,52 @@ export function DashboardScheduleSection({
                         </p>
                     </div>
 
-                    <Link
-                        href="/bookings"
-                        className="text-sm workspace-accent-text"
-                    >
-                        View all
+                    <Link href="/bookings">
+                        <ExecutiveButton variant="ghost" size="sm">
+                            View all
+                        </ExecutiveButton>
                     </Link>
                 </div>
 
-                <div className="mt-6 grid gap-3">
+                <div className="mt-6">
                     {todaysBookings.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-foreground/60">
-                            No bookings scheduled for today.
-                        </div>
+                        <ExecutiveEmptyState
+                            title="No bookings scheduled today"
+                            description="Your confirmed appointments for today will appear here."
+                            action={
+                                <Link href="/bookings">
+                                    <ExecutiveButton variant="secondary">
+                                        View Booking Calendar
+                                    </ExecutiveButton>
+                                </Link>
+                            }
+                            className="min-h-[220px]"
+                        />
                     ) : (
-                        todaysBookings.map((booking) => (
-                            <div
-                                key={booking.id}
-                                className="rounded-2xl border border-border bg-background p-4"
-                            >
-                                <div className="flex items-start justify-between gap-4">
-                                    <div>
-                                        <p className="font-medium">
-                                            {booking.customerName}
-                                        </p>
+                        <div className="grid gap-3">
+                            {todaysBookings.map((booking) => (
+                                <div
+                                    key={booking.id}
+                                    className="rounded-2xl border border-border bg-background p-4"
+                                >
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p className="font-medium">
+                                                {booking.customerName}
+                                            </p>
 
-                                        <p className="mt-1 text-sm text-foreground/60">
-                                            {booking.service.name}
+                                            <p className="mt-1 text-sm text-foreground/60">
+                                                {booking.service.name}
+                                            </p>
+                                        </div>
+
+                                        <p className="workspace-accent-badge rounded-full px-3 py-1 text-sm">
+                                            {booking.startTime}
                                         </p>
                                     </div>
-
-                                    <p className="workspace-accent-badge rounded-full px-3 py-1 text-sm">
-                                        {booking.startTime}
-                                    </p>
                                 </div>
-                            </div>
-                        ))
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
@@ -82,31 +94,42 @@ export function DashboardScheduleSection({
                     Next scheduled appointments.
                 </p>
 
-                <div className="mt-6 grid gap-3">
+                <div className="mt-6">
                     {upcomingBookings.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-foreground/60">
-                            No upcoming bookings yet.
-                        </div>
+                        <ExecutiveEmptyState
+                            title="No upcoming bookings"
+                            description="Future appointments will appear here as clients reserve new times."
+                            action={
+                                <Link href="/bookings">
+                                    <ExecutiveButton variant="secondary">
+                                        Open Bookings
+                                    </ExecutiveButton>
+                                </Link>
+                            }
+                            className="min-h-[220px]"
+                        />
                     ) : (
-                        upcomingBookings.map((booking) => (
-                            <div
-                                key={booking.id}
-                                className="rounded-2xl border border-border bg-background p-4"
-                            >
-                                <p className="font-medium">
-                                    {booking.customerName}
-                                </p>
+                        <div className="grid gap-3">
+                            {upcomingBookings.map((booking) => (
+                                <div
+                                    key={booking.id}
+                                    className="rounded-2xl border border-border bg-background p-4"
+                                >
+                                    <p className="font-medium">
+                                        {booking.customerName}
+                                    </p>
 
-                                <p className="mt-1 text-sm text-foreground/60">
-                                    {booking.service.name}
-                                </p>
+                                    <p className="mt-1 text-sm text-foreground/60">
+                                        {booking.service.name}
+                                    </p>
 
-                                <p className="mt-2 text-xs text-foreground/50">
-                                    {booking.date.toLocaleDateString()} ·{" "}
-                                    {booking.startTime}
-                                </p>
-                            </div>
-                        ))
+                                    <p className="mt-2 text-xs text-foreground/50">
+                                        {booking.date.toLocaleDateString()} ·{" "}
+                                        {booking.startTime}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>

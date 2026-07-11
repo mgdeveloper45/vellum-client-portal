@@ -1,14 +1,15 @@
 import { formatActivityTitle, type ActivityInput } from "@/lib/activity";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 
 type Props = {
-  recentActivity: (ActivityInput & {
-    id: string;
-    createdAt: Date;
-    user: {
-      firstName: string | null;
-      lastName: string | null;
-    } | null;
-  })[];
+    recentActivity: (ActivityInput & {
+        id: string;
+        createdAt: Date;
+        user: {
+            firstName: string | null;
+            lastName: string | null;
+        } | null;
+    })[];
 };
 
 export function DashboardRecentActivitySection({
@@ -39,9 +40,11 @@ export function DashboardRecentActivitySection({
                 ))}
 
                 {recentActivity.length === 0 && (
-                    <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-foreground/60">
-                        No recent activity yet.
-                    </div>
+                    <ExecutiveEmptyState
+                        title="No recent activity"
+                        description="Workspace activity, client updates, bookings, invoices, and automation events will appear here as your business grows."
+                        className="min-h-[220px]"
+                    />
                 )}
             </div>
         </section>
