@@ -1,4 +1,5 @@
 import { createBookingAction } from "@/actions/booking-actions";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 
 type TimeSelectorProps = {
     slug: string;
@@ -18,15 +19,21 @@ export function TimeSelector({
     availableSlots,
 }: TimeSelectorProps) {
     return (
-        <section className="rounded-3xl border border-border bg-card p-8">
-            <p className="workspace-accent-text text-sm font-medium">Step 3</p>
+        <section className="rounded-3xl border border-border bg-card p-6 sm:p-8">
+            <p className="workspace-accent-text text-sm font-medium">
+                Step 3
+            </p>
 
-            <h2 className="mt-2 text-2xl font-light">Choose a time</h2>
+            <h2 className="mt-2 text-2xl font-light">
+                Choose a time
+            </h2>
 
             {availableSlots.length === 0 ? (
-                <p className="mt-6 text-sm text-foreground/70">
-                    No available times for this date.
-                </p>
+                <ExecutiveEmptyState
+                    title="No times available"
+                    description="There are no open appointments for this date. Choose another date to see additional availability."
+                    className="mt-6 min-h-[220px]"
+                />
             ) : (
                 <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                     {availableSlots.map((slot) => {
@@ -52,14 +59,35 @@ export function TimeSelector({
             {selectedTime && (
                 <form
                     action={createBookingAction}
-                    className="mt-8 rounded-2xl border border-border bg-background p-6"
+                    className="mt-8 rounded-2xl border border-border bg-background p-5 sm:p-6"
                 >
-                    <input type="hidden" name="workspaceId" value={workspaceId} />
-                    <input type="hidden" name="serviceId" value={serviceId} />
-                    <input type="hidden" name="date" value={selectedDate} />
-                    <input type="hidden" name="startTime" value={selectedTime} />
+                    <input
+                        type="hidden"
+                        name="workspaceId"
+                        value={workspaceId}
+                    />
 
-                    <h3 className="text-xl font-medium">Your information</h3>
+                    <input
+                        type="hidden"
+                        name="serviceId"
+                        value={serviceId}
+                    />
+
+                    <input
+                        type="hidden"
+                        name="date"
+                        value={selectedDate}
+                    />
+
+                    <input
+                        type="hidden"
+                        name="startTime"
+                        value={selectedTime}
+                    />
+
+                    <h3 className="text-xl font-medium">
+                        Your information
+                    </h3>
 
                     <p className="mt-2 text-sm text-foreground/70">
                         You selected {selectedTime}. Enter your details to confirm.

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { updateBookingStatusAction } from "@/actions/booking-actions";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 
 type BookingTimelineProps = {
     bookings: {
@@ -46,6 +47,24 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
         {},
     );
 
+    if (bookings.length === 0) {
+        return (
+            <ExecutiveEmptyState
+                title="No bookings yet"
+                description="Confirmed and pending appointments will appear here in your operational timeline."
+                action={
+                    <Link
+                        href="/availability"
+                        className="inline-flex min-h-11 items-center justify-center rounded-full border border-primary bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90"
+                    >
+                        Review Availability
+                    </Link>
+                }
+                className="min-h-[320px]"
+            />
+        );
+    }
+
     return (
         <div className="grid gap-6">
             {Object.entries(bookingsByDate).map(([date, dateBookings]) => (
@@ -55,7 +74,8 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
                     <div className="overflow-hidden rounded-2xl border border-border bg-card">
                         {HOURS.map((hour) => {
                             const hourBookings = dateBookings.filter(
-                                (booking) => Number(booking.startTime.split(":")[0]) === hour,
+                                (booking) =>
+                                    Number(booking.startTime.split(":")[0]) === hour,
                             );
 
                             return (
@@ -80,7 +100,7 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
                                                             booking.status,
                                                         )}`}
                                                     >
-                                                        <div className="flex items-center justify-between">
+                                                        <div className="flex items-center justify-between gap-4">
                                                             <p className="font-medium">
                                                                 {booking.customerName}
                                                             </p>
@@ -98,8 +118,15 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
                                                             {booking.status}
                                                         </p>
 
-                                                        <form action={updateBookingStatusAction} className="mt-3 flex gap-2">
-                                                            <input type="hidden" name="bookingId" value={booking.id} />
+                                                        <form
+                                                            action={updateBookingStatusAction}
+                                                            className="mt-3 flex gap-2"
+                                                        >
+                                                            <input
+                                                                type="hidden"
+                                                                name="bookingId"
+                                                                value={booking.id}
+                                                            />
 
                                                             <select
                                                                 name="status"
@@ -116,7 +143,6 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
                                                                 Save
                                                             </button>
                                                         </form>
-
                                                     </Link>
                                                 ))}
                                             </div>
@@ -128,12 +154,6 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
                     </div>
                 </div>
             ))}
-
-            {bookings.length === 0 && (
-                <div className="rounded-2xl border border-border bg-card p-6">
-                    <p className="text-foreground/70">No bookings yet.</p>
-                </div>
-            )}
         </div>
     );
 }

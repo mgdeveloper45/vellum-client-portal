@@ -2,12 +2,12 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { rescheduleBookingAction } from "@/actions/booking-actions";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import {
     generateTimeSlots,
     removeBookedSlots,
 } from "@/lib/services/booking/availability-service";
-
 
 export default async function RescheduleBookingPage({
     params,
@@ -30,7 +30,8 @@ export default async function RescheduleBookingPage({
     const resolvedSearchParams = await searchParams;
 
     const selectedDate =
-        resolvedSearchParams.date ?? new Date().toISOString().slice(0, 10);
+        resolvedSearchParams.date ??
+        new Date().toISOString().slice(0, 10);
 
     const currentUser = await prisma.user.findUnique({
         where: {
@@ -58,13 +59,18 @@ export default async function RescheduleBookingPage({
     if (!booking) {
         return (
             <BrandedDashboardShell>
-                <div className="rounded-2xl border border-border bg-card p-6">
-                    <h1 className="text-2xl font-light">Booking not found</h1>
-
-                    <Link href="/bookings" className="mt-4 inline-block workspace-accent-text">
-                        Back to bookings
-                    </Link>
-                </div>
+                <ExecutiveEmptyState
+                    title="Booking not found"
+                    description="This booking does not exist or may have been removed from the workspace."
+                    action={
+                        <Link
+                            href="/bookings"
+                            className="inline-flex min-h-11 items-center justify-center rounded-full border border-primary bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90"
+                        >
+                            Back to Bookings
+                        </Link>
+                    }
+                />
             </BrandedDashboardShell>
         );
     }
@@ -81,9 +87,8 @@ export default async function RescheduleBookingPage({
         6: "SATURDAY",
     } as const;
 
-    const dayOfWeek = dayMap[
-        selectedDateObject.getDay() as keyof typeof dayMap
-    ];
+    const dayOfWeek =
+        dayMap[selectedDateObject.getDay() as keyof typeof dayMap];
 
     const businessHour = await prisma.businessHour.findUnique({
         where: {
@@ -125,22 +130,29 @@ export default async function RescheduleBookingPage({
 
     return (
         <BrandedDashboardShell>
-            <Link href={`/bookings/${booking.id}`} className="workspace-accent-text text-sm">
+            <Link
+                href={`/bookings/${booking.id}`}
+                className="workspace-accent-text text-sm"
+            >
                 ← Back to booking
             </Link>
 
-            <h1 className="mt-4 text-3xl font-light">Reschedule Booking</h1>
+            <h1 className="mt-4 text-3xl font-light">
+                Reschedule Booking
+            </h1>
 
             <p className="mt-2 text-foreground/70">
                 Choose a new date and time for this appointment.
             </p>
 
             <section className="mt-8 rounded-3xl border border-border bg-card p-6">
-                <h2 className="text-2xl font-light">{booking.service.name}</h2>
+                <h2 className="text-2xl font-light">
+                    {booking.service.name}
+                </h2>
 
                 <p className="mt-2 text-foreground/70">
-                    Current time: {booking.date.toLocaleDateString()} · {booking.startTime}–
-                    {booking.endTime}
+                    Current time: {booking.date.toLocaleDateString()} ·{" "}
+                    {booking.startTime}–{booking.endTime}
                 </p>
 
                 <form className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -158,12 +170,16 @@ export default async function RescheduleBookingPage({
             </section>
 
             <section className="mt-6 rounded-3xl border border-border bg-card p-6">
-                <h2 className="text-2xl font-light">Available times</h2>
+                <h2 className="text-2xl font-light">
+                    Available times
+                </h2>
 
                 {availableSlots.length === 0 ? (
-                    <p className="mt-4 text-sm text-foreground/70">
-                        No available times for this date.
-                    </p>
+                    <ExecutiveEmptyState
+                        title="No times available"
+                        description="There are no open appointment times for this date. Choose another date to continue rescheduling."
+                        className="mt-5 min-h-[240px]"
+                    />
                 ) : (
                     <div className="mt-5 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                         {availableSlots.map((slot) => (
@@ -172,9 +188,23 @@ export default async function RescheduleBookingPage({
                                 action={rescheduleBookingAction}
                                 className="rounded-2xl border border-border bg-background p-4"
                             >
-                                <input type="hidden" name="bookingId" value={booking.id} />
-                                <input type="hidden" name="date" value={selectedDate} />
-                                <input type="hidden" name="startTime" value={slot} />
+                                <input
+                                    type="hidden"
+                                    name="bookingId"
+                                    value={booking.id}
+                                />
+
+                                <input
+                                    type="hidden"
+                                    name="date"
+                                    value={selectedDate}
+                                />
+
+                                <input
+                                    type="hidden"
+                                    name="startTime"
+                                    value={slot}
+                                />
 
                                 <p className="font-medium">{slot}</p>
 

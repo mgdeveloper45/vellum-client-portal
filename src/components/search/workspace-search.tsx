@@ -3,12 +3,17 @@
 import Link from "next/link";
 import { useDebounce } from "use-debounce";
 import { getKeyboardShortcutLabel } from "@/lib/platform";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
+import {
+    useEffect,
+    useMemo,
+    useState,
+    useTransition,
+} from "react";
 import {
     searchWorkspaceAction,
     type SearchResult,
 } from "@/actions/search-actions";
-
 
 export function WorkspaceSearch() {
     const [query, setQuery] = useState("");
@@ -31,7 +36,9 @@ export function WorkspaceSearch() {
         }
 
         startTransition(async () => {
-            const nextResults = await searchWorkspaceAction(debouncedQuery);
+            const nextResults =
+                await searchWorkspaceAction(debouncedQuery);
+
             setResults(nextResults);
         });
     }, [debouncedQuery]);
@@ -42,21 +49,28 @@ export function WorkspaceSearch() {
                 value={query}
                 onChange={(event) => handleSearch(event.target.value)}
                 placeholder="Search clients, bookings, projects..."
-                className="w-full rounded-full border border-border bg-card px-5 py-3 text-sm outline-none transition focus:border-foreground/40"
+                aria-label="Search workspace"
+                className="w-full rounded-full border border-border bg-card px-5 py-3 pr-16 text-sm outline-none transition focus:border-foreground/40"
             />
+
             <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 rounded-lg border border-border bg-muted px-2 py-1 text-xs text-foreground/50">
                 {shortcut}
             </div>
+
             {query.length >= 2 && (
                 <div className="absolute left-0 right-0 top-14 z-50 rounded-2xl border border-border bg-card p-3 shadow-xl">
                     {isPending && (
-                        <p className="px-3 py-2 text-sm text-foreground/60">Searching...</p>
+                        <div className="px-3 py-4 text-center text-sm text-foreground/60">
+                            Searching workspace…
+                        </div>
                     )}
 
                     {!isPending && results.length === 0 && (
-                        <p className="px-3 py-2 text-sm text-foreground/60">
-                            No results found.
-                        </p>
+                        <ExecutiveEmptyState
+                            title="No results found"
+                            description={`No clients, bookings, or projects matched “${query}”.`}
+                            className="!min-h-0 !rounded-xl px-4 py-6"
+                        />
                     )}
 
                     {!isPending &&
@@ -74,7 +88,9 @@ export function WorkspaceSearch() {
                                     {result.type}
                                 </p>
 
-                                <p className="mt-1 font-medium">{result.title}</p>
+                                <p className="mt-1 font-medium">
+                                    {result.title}
+                                </p>
 
                                 <p className="mt-1 truncate text-sm text-foreground/60">
                                     {result.subtitle}
