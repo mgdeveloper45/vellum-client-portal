@@ -12,7 +12,6 @@ import {
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
 import { createAiProvider } from "@/lib/services/ai/ai-provider-factory";
-import { ExecutiveAiCard } from "@/components/dashboard/executive-ai-card";
 import { ExecutiveSection } from "@/components/ui/executive-section";
 import { ExecutiveHero } from "@/components/dashboard/executive-hero";
 import { ExecutiveNarrativeService } from "@/lib/services/ai/executive-narrative-service";
@@ -422,8 +421,19 @@ export default async function DashboardPage() {
         <ExecutiveHero
           firstName={firstName}
           narrative={aiResult.narrative}
+          projectedRevenue={revenueCollected.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+            maximumFractionDigits: 0,
+          })}
+          outstandingRevenue={revenueOutstanding.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+            maximumFractionDigits: 0,
+          })}
+          priorityCount={executiveInbox.length}
           primaryAction={{
-            label: "Review Today’s Priorities",
+            label: "Start Today’s Mission",
             href: "#recommended-actions",
           }}
         />

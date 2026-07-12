@@ -9,7 +9,7 @@ export class MockAiProvider implements AiProvider {
   readonly providerName = "Vellum Executive Advisor";
   readonly mode = "mock" as const;
 
-  async generateNarrative(_prompt: string): Promise<string> {
+  async generateNarrative(): Promise<string> {
     return [
       "Your business is performing well overall.",
       "",
