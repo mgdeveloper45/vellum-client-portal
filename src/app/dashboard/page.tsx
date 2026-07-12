@@ -441,21 +441,27 @@ export default async function DashboardPage() {
         <ExecutiveSection
           eyebrow="Today"
           title="Your Operating Priorities"
-          description="The most important mission and current health of your business."
-          className="mt-8"
+          description="The mission, health, and financial opportunity that deserve attention today."
         >
-          <div className="grid gap-6 xl:grid-cols-2">
-            <WorkspaceMissionCard mission={workspaceEngine.mission} />
+          <div className="grid gap-6 xl:grid-cols-12">
+            <div className="xl:col-span-7">
+              <WorkspaceMissionCard
+                mission={workspaceEngine.mission}
+              />
+            </div>
 
-            <WorkspaceHealthCard health={workspaceEngine.health} />
+            <div className="xl:col-span-5">
+              <WorkspaceHealthCard
+                health={workspaceEngine.health}
+              />
+            </div>
           </div>
         </ExecutiveSection>
 
         <ExecutiveSection
           eyebrow="Financial Focus"
           title="Revenue and Executive Intelligence"
-          description="The financial opportunity requiring attention and Vellum’s assessment of the business."
-          className="mt-8"
+          description="Your highest-value financial opportunity and Vellum’s current assessment of the business."
         >
           <div className="grid gap-6 xl:grid-cols-2">
             <WorkspaceRevenueOpportunityCard
@@ -468,73 +474,78 @@ export default async function DashboardPage() {
           </div>
         </ExecutiveSection>
 
-        <div className="mt-8">
-          <DashboardScheduleSection
-            todaysBookings={todaysBookings}
-            upcomingBookings={upcomingBookings}
-          />
-        </div>
+        <DashboardScheduleSection
+          todaysBookings={todaysBookings}
+          upcomingBookings={upcomingBookings}
+        />
 
         <ExecutiveSection
           eyebrow="Recommended"
           title="What to Do Next"
           description="The highest-impact actions generated from your current business data."
-          className="mt-8"
         >
           <div id="recommended-actions">
-            <ExecutiveInboxCard items={executiveInbox.slice(0, 3)} />
+            <ExecutiveInboxCard
+              items={executiveInbox.slice(0, 3)}
+            />
           </div>
         </ExecutiveSection>
 
         <ExecutiveSection
-          eyebrow="Business History"
-          title="Recent Business Events"
-          description="The three most recent events across your workspace."
-          className="mt-8"
+          eyebrow="Business Activity"
+          title="Recent Events and Updates"
+          description="A concise view of what has changed across your workspace."
         >
-          <ExecutiveTimelineCard
-            events={dashboardContext.timeline.slice(0, 3)}
-          />
+          <div className="grid gap-6 xl:grid-cols-2">
+            <ExecutiveTimelineCard
+              events={dashboardContext.timeline.slice(0, 3)}
+            />
+
+            <ActivityFeed
+              activities={recentNotifications.slice(0, 3)}
+            />
+          </div>
         </ExecutiveSection>
 
-        <div className="mt-8">
+        <div className="mt-10">
           <WorkspaceQuickActionsDock />
         </div>
 
         <details className="mt-10 overflow-hidden rounded-3xl border border-border/70 bg-card/60">
-          <summary className="cursor-pointer list-none px-6 py-5 transition hover:bg-primary/5">
-            <div className="flex items-center justify-between gap-4">
+          <summary className="cursor-pointer list-none px-5 py-5 transition hover:bg-primary/5 sm:px-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
                   Advanced Workspace
                 </p>
 
                 <h2 className="mt-2 text-2xl font-light tracking-tight">
-                  Analytics, Risks, Activity and AI Tools
+                  Analytics, Risks and Intelligence Tools
                 </h2>
 
-                <p className="mt-2 text-sm leading-6 text-foreground/60">
-                  Expand for deeper reporting, historical activity, risks,
-                  opportunities, and guided AI commands.
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-foreground/60">
+                  Expand for deeper reporting, historical activity, business
+                  risks, growth opportunities, and guided advisor commands.
                 </p>
               </div>
 
-              <span className="rounded-full border border-border px-4 py-2 text-sm text-foreground/70">
+              <span className="inline-flex w-fit shrink-0 rounded-full border border-border px-4 py-2 text-sm text-foreground/70">
                 Explore
               </span>
             </div>
           </summary>
 
-          <div className="border-t border-border/60 px-6 pb-8">
+          <div className="border-t border-border/60 px-4 pb-8 sm:px-6">
             <div className="mt-8">
-              <ExecutiveDashboardCard context={dashboardContext} />
+              <ExecutiveDashboardCard
+                context={dashboardContext}
+              />
             </div>
 
             <ExecutiveSection
               eyebrow="Performance"
               title="Full Business Analytics"
               description="Detailed operational, booking, project, and financial performance."
-              className="mt-8"
             >
               <DashboardAnalyticsSection
                 heroMetrics={heroMetrics}
@@ -547,34 +558,25 @@ export default async function DashboardPage() {
             </ExecutiveSection>
 
             <ExecutiveSection
-              eyebrow="Growth"
-              title="Business Outlook"
-              description="Opportunities to pursue and operational risks to monitor."
-              className="mt-8"
+              eyebrow="Business Outlook"
+              title="Opportunities and Risks"
+              description="Growth opportunities to pursue and operational risks to monitor."
             >
               <div className="grid gap-6 xl:grid-cols-2">
                 <WorkspaceOpportunityCard
                   opportunities={workspaceEngine.opportunities}
                 />
 
-                <WorkspaceRiskCard risks={workspaceEngine.risks} />
+                <WorkspaceRiskCard
+                  risks={workspaceEngine.risks}
+                />
               </div>
             </ExecutiveSection>
 
             <ExecutiveSection
-              eyebrow="Notifications"
-              title="Workspace Updates"
-              description="Recent booking, payment, and workspace notifications."
-              className="mt-8"
-            >
-              <ActivityFeed activities={recentNotifications} />
-            </ExecutiveSection>
-
-            <ExecutiveSection
               eyebrow="Audit History"
-              title="Detailed Activity"
-              description="A complete view of recent workspace changes."
-              className="mt-8"
+              title="Detailed Workspace Activity"
+              description="A complete record of recent changes across the workspace."
             >
               <DashboardRecentActivitySection
                 recentActivity={recentActivity}
@@ -582,22 +584,19 @@ export default async function DashboardPage() {
             </ExecutiveSection>
 
             <ExecutiveSection
-              eyebrow="AI Workspace"
+              eyebrow="Executive Advisor"
               title="Command Center"
               description="Run guided business commands and explore workspace intelligence."
-              className="mt-8"
             >
               <AICommandCenter />
             </ExecutiveSection>
 
-            <div className="mt-8">
+            <div className="mt-10 grid gap-6 xl:grid-cols-2">
               <WorkspaceActionsCard
                 userId={user.id}
                 workspaceId={workspaceId}
               />
-            </div>
 
-            <div className="mt-8">
               <WorkspaceAICard />
             </div>
           </div>
@@ -605,14 +604,14 @@ export default async function DashboardPage() {
       </WorkspaceCommandCenter>
 
       {!isProfessional && (
-        <div className="mt-8 rounded-3xl border border-border/70 bg-card/95 p-6 shadow-sm">
-          <p className="font-medium">
+        <div className="mt-10 rounded-3xl border border-primary/20 bg-primary/[0.05] p-6 shadow-sm">
+          <p className="text-lg font-medium">
             Unlock Executive Analytics
           </p>
 
-          <p className="mt-2 text-sm leading-6 text-foreground/70">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground/70">
             Upgrade to Professional to view revenue, collection, proposal, and
-            project completion insights.
+            project-completion insights.
           </p>
         </div>
       )}
