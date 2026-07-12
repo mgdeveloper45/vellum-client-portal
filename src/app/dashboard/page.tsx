@@ -34,6 +34,8 @@ import { buildRecommendationEngine } from "@/lib/services/intelligence/recommend
 import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quick-actions-dock";
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { WorkspaceRevenueOpportunityCard } from "@/components/dashboard/workspace-revenue-opportunity-card";
+import { WorkspaceMorningBriefCard } from "@/components/dashboard/workspace-morning-brief-card";
+import { buildWorkspaceMorningBrief } from "@/lib/services/workspace/workspace-morning-brief";
 import { buildWorkspaceEngine } from "@/lib/services/workspace/workspace-engine";
 import { buildExecutiveContext } from "@/lib/services/ai/executive-engine";
 import { buildExecutiveBrief } from "@/lib/services/ai/executive-brief";
@@ -413,6 +415,26 @@ export default async function DashboardPage() {
   const firstName =
     user?.name?.split(" ")[0] ?? null;
 
+  const morningBrief = buildWorkspaceMorningBrief({
+    firstName,
+
+    yesterday: {
+      revenue: revenueCollected,
+      completedBookings: completedProjects,
+      newClients: totalClients,
+      proposalsAccepted: approvedProposals,
+    },
+
+    today: {
+      appointments: todaysBookings.length,
+      overdueInvoices: openInvoices,
+      followUps: executiveInbox.length,
+    },
+
+    estimatedRevenue:
+      revenueCollected + revenueOutstanding,
+  });
+
   return (
     <BrandedDashboardShell>
       <DashboardHero firstName={currentUser.firstName} />
@@ -437,6 +459,14 @@ export default async function DashboardPage() {
             href: "#recommended-actions",
           }}
         />
+        
+        <ExecutiveSection
+          eyebrow="Daily Briefing"
+          title="Your Morning Brief"
+          description="Yesterday’s performance, today’s workload, and Vellum’s recommended priorities."
+        >
+          <WorkspaceMorningBriefCard brief={morningBrief} />
+        </ExecutiveSection>
 
         <ExecutiveSection
           eyebrow="Today"
