@@ -30,7 +30,6 @@ import { WorkspaceRiskCard } from "@/components/dashboard/workspace-risk-card";
 import { WorkspaceHealthCard } from "@/components/dashboard/workspace-health-card";
 import { WorkspaceCommandCenter } from "@/components/dashboard/workspace-command-center";
 import { WorkspaceOpportunityCard } from "@/components/dashboard/workspace-opportunity-card";
-import { buildRecommendationEngine } from "@/lib/services/intelligence/recommendation-engine";
 import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quick-actions-dock";
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { WorkspaceRevenueOpportunityCard } from "@/components/dashboard/workspace-revenue-opportunity-card";
@@ -41,6 +40,8 @@ import { buildExecutiveContext } from "@/lib/services/ai/executive-engine";
 import { buildExecutiveBrief } from "@/lib/services/ai/executive-brief";
 import { buildDashboardContext } from "@/lib/services/dashboard/dashboard-engine";
 import { buildTimelineFromAuditLogs } from "@/lib/services/timeline/audit-log-timeline";
+import { buildExecutiveIntelligence } from "@/lib/services/intelligence/executive-intelligence-engine";
+import { adaptExecutiveInsights } from "@/lib/services/intelligence/executive-insight-adapter";
 import { ExecutiveDashboardCard } from "@/components/dashboard/executive-dashboard-card";
 import { ExecutiveTimelineCard } from "@/components/dashboard/executive-timeline-card";
 
@@ -349,12 +350,42 @@ export default async function DashboardPage() {
   // Each engine contributes Recommendation[].
   // The Recommendation Engine merges and prioritizes them.
 
-  const executiveInbox = buildRecommendationEngine(
-    workspaceEngine.recommendations,
-    financeEngine.recommendations,
-    // clientRecommendations,
-    // bookingRecommendations,
-  );
+  const executiveInsights =
+    buildExecutiveIntelligence({
+      finance: {
+        outstandingRevenue: revenueOutstanding,
+        overdueInvoices: openInvoices,
+        collectionRate,
+      },
+
+      bookings: {
+        todaysBookings: todaysBookings.length,
+        nextSevenDaysBookings: upcomingBookings.length,
+        bookingsNeedingAttention: 0,
+      },
+
+      clients: {
+        totalClients,
+        followUpsDue: 0,
+      },
+
+      projects: {
+        activeProjects,
+        pendingMilestones,
+        pendingProposals:
+          totalProposals - approvedProposals,
+      },
+
+      workspace: {
+        healthScore:
+          workspaceEngine.health.score,
+      },
+    });
+
+  const executiveInbox =
+    adaptExecutiveInsights(
+      executiveInsights,
+    );
 
 
   const timelineEvents = buildTimelineFromAuditLogs(
@@ -459,7 +490,7 @@ export default async function DashboardPage() {
             href: "#recommended-actions",
           }}
         />
-        
+
         <ExecutiveSection
           eyebrow="Daily Briefing"
           title="Your Morning Brief"
