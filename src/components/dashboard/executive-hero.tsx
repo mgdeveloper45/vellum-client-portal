@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { CommandCard } from "@/components/ui/command-card";
 import { ExecutiveButton } from "@/components/ui/executive-button";
+import { ExecutiveCallout } from "@/components/ui/executive-callout";
+import { ExecutiveMetricTile } from "@/components/ui/executive-metric-tile";
 
 type HeroMetric = {
     label: string;
@@ -32,7 +34,7 @@ export function ExecutiveHero({
         {
             label: "Projected Revenue",
             value: projectedRevenue,
-            helper: "Expected from current business activity",
+            helper: "Expected from current activity",
         },
         {
             label: "Collections Attention",
@@ -50,42 +52,29 @@ export function ExecutiveHero({
         <CommandCard
             eyebrow="Executive Brief"
             title={`Good afternoon${firstName ? `, ${firstName}` : ""}.`}
-            subtitle="Your business priorities, financial outlook, and recommended focus for today."
-            className="overflow-hidden border-primary/20 bg-gradient-to-br from-card via-card to-primary/10"
+            subtitle="Your priorities, financial outlook, and recommended focus for today."
+            className="border-primary/20 bg-gradient-to-br from-card via-card to-primary/10"
         >
-            <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-stretch">
+            <div className="grid gap-8 xl:grid-cols-[1.25fr_0.75fr]">
                 <div className="flex flex-col">
-                    <div className="max-w-3xl">
-                        <p className="text-xl font-light leading-9 text-foreground/80">
-                            {narrative}
-                        </p>
-                    </div>
+                    <ExecutiveCallout
+                        title="Vellum Executive Advisor"
+                        description={narrative}
+                    />
 
-                    <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                    <div className="mt-6 grid gap-4 sm:grid-cols-3">
                         {metrics.map((metric) => (
-                            <div
+                            <ExecutiveMetricTile
                                 key={metric.label}
-                                className="rounded-3xl border border-border/60 bg-background/55 p-5"
-                            >
-                                <p className="text-xs font-medium uppercase tracking-[0.22em] text-foreground/45">
-                                    {metric.label}
-                                </p>
-
-                                <p className="mt-3 text-3xl font-light tracking-tight">
-                                    {metric.value}
-                                </p>
-
-                                {metric.helper && (
-                                    <p className="mt-2 text-xs leading-5 text-foreground/50">
-                                        {metric.helper}
-                                    </p>
-                                )}
-                            </div>
+                                label={metric.label}
+                                value={metric.value}
+                                helper={metric.helper}
+                            />
                         ))}
                     </div>
 
                     {primaryAction && (
-                        <div className="mt-8">
+                        <div className="mt-6">
                             <Link href={primaryAction.href}>
                                 <ExecutiveButton size="lg">
                                     {primaryAction.label}
@@ -96,7 +85,7 @@ export function ExecutiveHero({
                 </div>
 
                 <aside className="flex h-full flex-col rounded-3xl border border-primary/20 bg-primary/[0.06] p-6">
-                    <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
+                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
                         Recommended Focus
                     </p>
 
@@ -110,19 +99,11 @@ export function ExecutiveHero({
                     </p>
 
                     <div className="mt-auto pt-8">
-                        <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
-                            <p className="text-xs uppercase tracking-[0.2em] text-foreground/40">
-                                Estimated Impact
-                            </p>
-
-                            <p className="mt-2 text-2xl font-light">
-                                {outstandingRevenue}
-                            </p>
-
-                            <p className="mt-1 text-xs text-foreground/50">
-                                Potential near-term recovery
-                            </p>
-                        </div>
+                        <ExecutiveMetricTile
+                            label="Estimated Impact"
+                            value={outstandingRevenue}
+                            helper="Potential near-term recovery"
+                        />
                     </div>
                 </aside>
             </div>

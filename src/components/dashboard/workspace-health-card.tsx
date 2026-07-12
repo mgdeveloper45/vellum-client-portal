@@ -32,45 +32,33 @@ export function WorkspaceHealthCard({ health }: Props) {
 
     return (
         <CommandCard
-            eyebrow="Workspace Intelligence"
-            title="Workspace Health"
-            subtitle="A live assessment of operational readiness."
+            eyebrow="Business Health"
+            title={`${health.score}%`}
+            subtitle={state.message}
+            className="h-full"
             actions={
-                <StatusBadge variant={state.badge}>
-                    {health.label.replaceAll("_", " ")}
+                <StatusBadge
+                    variant={
+                        health.label === "HEALTHY"
+                            ? "success"
+                            : health.label === "NEEDS_ATTENTION"
+                                ? "warning"
+                                : "danger"
+                    }
+                >
+                    {health.label.replace("_", " ")}
                 </StatusBadge>
             }
-            className="h-full"
         >
-            <div className="grid gap-8 lg:grid-cols-[auto_1fr] lg:items-center">
-                <div
-                    className={`mx-auto flex h-40 w-40 shrink-0 flex-col items-center justify-center rounded-full border-8 bg-background/60 ${state.ring} ${state.glow}`}
-                >
-                    <p className="text-5xl font-light tracking-tight">
-                        {health.score}
-                    </p>
-
-                    <p className="mt-1 text-xs font-medium uppercase tracking-[0.2em] text-foreground/45">
-                        Health
-                    </p>
-                </div>
-
-                <div>
-                    <p className="text-lg font-light leading-8 text-foreground/75">
-                        {state.message}
-                    </p>
-
-                    <div className="mt-5 space-y-3">
-                        {health.reasons.map((reason) => (
-                            <div
-                                key={reason}
-                                className="rounded-2xl border border-border/50 bg-background/60 px-4 py-3 text-sm leading-6 text-foreground/65"
-                            >
-                                {reason}
-                            </div>
-                        ))}
+            <div className="space-y-3">
+                {health.reasons.map((reason) => (
+                    <div
+                        key={reason}
+                        className="rounded-2xl border border-border bg-background p-4"
+                    >
+                        {reason}
                     </div>
-                </div>
+                ))}
             </div>
         </CommandCard>
     );

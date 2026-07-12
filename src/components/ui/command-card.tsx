@@ -1,57 +1,66 @@
-import type { ReactNode } from "react";
 import clsx from "clsx";
+import type { ReactNode } from "react";
+import { ExecutiveSectionHeader } from "@/components/ui/executive-section-header";
+import {
+  executiveRadius,
+  executiveShadow,
+  executiveSpacing,
+} from "@/components/ui/executive-design";
 
 type CommandCardProps = {
-    title?: string;
-    subtitle?: string;
-    eyebrow?: string;
-    actions?: ReactNode;
-    children: ReactNode;
-    className?: string;
+  title?: string;
+  subtitle?: string;
+  eyebrow?: string;
+  actions?: ReactNode;
+  children: ReactNode;
+  className?: string;
 };
 
 export function CommandCard({
-    title,
-    subtitle,
-    eyebrow,
-    actions,
-    children,
-    className,
+  title,
+  subtitle,
+  eyebrow,
+  actions,
+  children,
+  className,
 }: CommandCardProps) {
-    return (
-        <section
-            className={clsx(
-                "overflow-hidden rounded-3xl border border-border/70 bg-card/95 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg",
-                className,
-            )}
+  const hasHeader = Boolean(
+    title || subtitle || eyebrow || actions,
+  );
+
+  return (
+    <section
+      className={clsx(
+        "overflow-hidden border border-border/70 bg-card/95",
+        executiveRadius.panel,
+        executiveShadow.panel,
+        className,
+      )}
+    >
+      {hasHeader && (
+        <header
+          className={clsx(
+            "flex flex-col gap-4 border-b border-border/50 sm:flex-row sm:items-start sm:justify-between",
+            executiveSpacing.cardPadding,
+          )}
         >
-            {(title || subtitle || eyebrow || actions) && (
-                <header className="flex items-start justify-between gap-4 border-b border-border/50 p-6">
-                    <div>
-                        {eyebrow && (
-                            <p className="mb-2 text-xs font-medium uppercase tracking-[0.28em] text-primary">
-                                {eyebrow}
-                            </p>
-                        )}
+          <ExecutiveSectionHeader
+            eyebrow={eyebrow}
+            title={title}
+            description={subtitle}
+          />
 
-                        {title && (
-                            <h2 className="text-2xl font-light tracking-tight">
-                                {title}
-                            </h2>
-                        )}
+          {actions && (
+            <div className="shrink-0">
+              {actions}
+            </div>
+          )}
+        </header>
+      )}
 
-                        {subtitle && (
-                            <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground/60">
-                                {subtitle}
-                            </p>
-                        )}
-                    </div>
-
-                    {actions}
-                </header>
-            )}
-
-            <div className="p-6">{children}</div>
-        </section>
-    );
+      <div className={executiveSpacing.cardPadding}>
+        {children}
+      </div>
+    </section>
+  );
 }

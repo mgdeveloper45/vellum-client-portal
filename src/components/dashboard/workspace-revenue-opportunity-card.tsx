@@ -1,49 +1,55 @@
 import type { WorkspaceRevenueOpportunity } from "@/lib/services/workspace/workspace-revenue-opportunity";
+import { CommandCard } from "@/components/ui/command-card";
+import { ExecutiveCallout } from "@/components/ui/executive-callout";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 type Props = {
     opportunity: WorkspaceRevenueOpportunity;
 };
 
-const urgencyColor = {
-    HIGH: "bg-red-500",
-    MEDIUM: "bg-yellow-500",
-    LOW: "bg-green-500",
-};
+const badgeVariant = {
+    HIGH: "danger",
+    MEDIUM: "warning",
+    LOW: "success",
+} as const;
 
 export function WorkspaceRevenueOpportunityCard({
     opportunity,
 }: Props) {
+    const formattedAmount = opportunity.amount.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+    });
+
+    const description =
+        opportunity.invoices > 0
+            ? `${opportunity.invoices} outstanding ${opportunity.invoices === 1 ? "invoice" : "invoices"
+            } could recover ${formattedAmount}.`
+            : "No outstanding invoices currently require collection.";
+
     return (
-        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-lg">
-            <div className="flex items-center justify-between">
-                <div>
-                    <p className="text-sm uppercase tracking-[0.2em] text-foreground/50">
-                        Revenue Opportunity
-                    </p>
+        <CommandCard
+            eyebrow="Revenue"
+            title={opportunity.title}
+            subtitle="Highest-value financial opportunity."
+            className="h-full"
+            actions={
+                <StatusBadge variant={badgeVariant[opportunity.urgency]}>
+                    {opportunity.urgency}
+                </StatusBadge>
+            }
+        >
+            <ExecutiveCallout
+                title={formattedAmount}
+                description={description}
+            />
 
-                    <h2 className="mt-2 text-4xl font-light">
-                        ${opportunity.amount.toLocaleString()}
-                    </h2>
-                </div>
-
-                <div
-                    className={`h-3 w-3 rounded-full ${urgencyColor[opportunity.urgency]}`}
-                />
-            </div>
-
-            <p className="mt-6 text-lg text-foreground/75">
-                {opportunity.title}
-            </p>
-
-            <div className="mt-8 rounded-2xl bg-background p-4">
-                <p className="text-xs uppercase tracking-wide text-foreground/50">
-                    Outstanding Invoices
-                </p>
-
-                <p className="mt-2 text-2xl font-medium">
-                    {opportunity.invoices}
-                </p>
-            </div>
-        </section>
+            {opportunity.invoices > 0 && (
+                <button className="workspace-accent-button mt-6 w-full rounded-2xl py-3 font-medium transition hover:opacity-90">
+                    Review Opportunity
+                </button>
+            )}
+        </CommandCard>
     );
 }

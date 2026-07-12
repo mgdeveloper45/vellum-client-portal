@@ -1,4 +1,6 @@
 import { CommandCard } from "@/components/ui/command-card";
+import { ExecutiveCallout } from "@/components/ui/executive-callout";
+import { ExecutiveMetricTile } from "@/components/ui/executive-metric-tile";
 import type { DashboardContext } from "@/lib/services/dashboard/dashboard-context";
 
 type Props = {
@@ -6,60 +8,56 @@ type Props = {
 };
 
 export function ExecutiveDashboardCard({ context }: Props) {
+    const summary = context.executiveContext.summary;
+
+    const metrics = [
+        {
+            label: "Overall",
+            value: summary.overallHealth.toString(),
+            helper: "Combined business health",
+        },
+        {
+            label: "Revenue",
+            value: summary.revenueHealth.toString(),
+            helper: "Financial performance",
+        },
+        {
+            label: "Clients",
+            value: summary.clientHealth.toString(),
+            helper: "Client relationship health",
+        },
+        {
+            label: "Workspace",
+            value: summary.workspaceHealth.toString(),
+            helper: "Operational readiness",
+        },
+        {
+            label: "Bookings",
+            value: summary.bookingHealth.toString(),
+            helper: "Scheduling performance",
+        },
+    ];
+
     return (
         <CommandCard
+            eyebrow="Business Snapshot"
             title={context.executiveBrief.title}
-            subtitle="Executive Operating System"
+            subtitle="A concise view of your organization’s current health."
         >
-            <p className="text-lg leading-8 text-foreground/70">
-                {context.executiveBrief.overview}
-            </p>
+            <ExecutiveCallout
+                title="Executive Overview"
+                description={context.executiveBrief.overview}
+            />
 
-            <div className="mt-6 grid gap-4 md:grid-cols-5">
-                <div className="rounded-2xl bg-background p-4">
-                    <p className="text-xs uppercase tracking-wide text-foreground/50">
-                        Overall
-                    </p>
-                    <p className="mt-2 text-2xl font-light">
-                        {context.executiveContext.summary.overallHealth}
-                    </p>
-                </div>
-
-                <div className="rounded-2xl bg-background p-4">
-                    <p className="text-xs uppercase tracking-wide text-foreground/50">
-                        Revenue
-                    </p>
-                    <p className="mt-2 text-2xl font-light">
-                        {context.executiveContext.summary.revenueHealth}
-                    </p>
-                </div>
-
-                <div className="rounded-2xl bg-background p-4">
-                    <p className="text-xs uppercase tracking-wide text-foreground/50">
-                        Clients
-                    </p>
-                    <p className="mt-2 text-2xl font-light">
-                        {context.executiveContext.summary.clientHealth}
-                    </p>
-                </div>
-
-                <div className="rounded-2xl bg-background p-4">
-                    <p className="text-xs uppercase tracking-wide text-foreground/50">
-                        Workspace
-                    </p>
-                    <p className="mt-2 text-2xl font-light">
-                        {context.executiveContext.summary.workspaceHealth}
-                    </p>
-                </div>
-
-                <div className="rounded-2xl bg-background p-4">
-                    <p className="text-xs uppercase tracking-wide text-foreground/50">
-                        Bookings
-                    </p>
-                    <p className="mt-2 text-2xl font-light">
-                        {context.executiveContext.summary.bookingHealth}
-                    </p>
-                </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                {metrics.map((metric) => (
+                    <ExecutiveMetricTile
+                        key={metric.label}
+                        label={metric.label}
+                        value={metric.value}
+                        helper={metric.helper}
+                    />
+                ))}
             </div>
         </CommandCard>
     );
