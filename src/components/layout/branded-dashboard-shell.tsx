@@ -5,7 +5,6 @@ import { CommandPalette } from "@/components/search/command-palette";
 import { WorkspaceSearch } from "@/components/search/workspace-search";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 
-
 export async function BrandedDashboardShell({
   children,
 }: {
@@ -28,24 +27,26 @@ export async function BrandedDashboardShell({
 
   const unreadNotifications = currentUser?.workspaceId
     ? await prisma.notification.count({
-      where: {
-        userId: currentUser.id,
-        read: false,
-      },
-    })
+        where: {
+          userId: currentUser.id,
+          read: false,
+        },
+      })
     : 0;
 
-  const rawLogoImageUrl = currentUser?.workspace?.logoImageUrl;
+  const rawLogoImageUrl =
+    currentUser?.workspace?.logoImageUrl;
 
   const logoImageUrl =
     rawLogoImageUrl &&
-      rawLogoImageUrl !== "NULL" &&
-      rawLogoImageUrl !== "null"
+    rawLogoImageUrl !== "NULL" &&
+    rawLogoImageUrl !== "null"
       ? rawLogoImageUrl
       : null;
 
   const accentColor =
-    currentUser?.workspace?.accentColor || "#8B5CF6";
+    currentUser?.workspace?.accentColor ||
+    "#8B5CF6";
 
   return (
     <DashboardShell
@@ -54,10 +55,19 @@ export async function BrandedDashboardShell({
       accentColor={accentColor}
     >
       <CommandPalette />
-      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <WorkspaceSearch />
-        <NotificationBell unreadCount={unreadNotifications} />
+
+      <div className="mb-8 flex flex-col gap-4 rounded-3xl border border-border/60 bg-card/60 p-4 shadow-sm sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0 flex-1">
+          <WorkspaceSearch />
+        </div>
+
+        <div className="flex shrink-0 items-center justify-end">
+          <NotificationBell
+            unreadCount={unreadNotifications}
+          />
+        </div>
       </div>
+
       {children}
     </DashboardShell>
   );
