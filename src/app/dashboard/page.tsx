@@ -1,20 +1,12 @@
-import { prisma } from "@/lib/prisma";
-import {
-  getExecutiveBrief,
-  saveExecutiveBrief,
-} from "@/lib/services/ai/executive-brief-cache";
 import {
   requireDashboardUser,
   loadDashboardWorkspace,
-  getDashboardDateRanges,
-  loadDashboardCounts,
 } from "@/lib/dashboard/dashboard-loader";
+import { buildDashboard } from "@/lib/services/dashboard/dashboard-builder";
 import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
-import { createAiProvider } from "@/lib/services/ai/ai-provider-factory";
 import { ExecutiveSection } from "@/components/ui/executive-section";
 import { ExecutiveHero } from "@/components/dashboard/executive-hero";
-import { ExecutiveNarrativeService } from "@/lib/services/ai/executive-narrative-service";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { DashboardScheduleSection } from "@/components/dashboard/dashboard-schedule-section";
@@ -33,7 +25,6 @@ import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quic
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { WorkspaceRevenueOpportunityCard } from "@/components/dashboard/workspace-revenue-opportunity-card";
 import { WorkspaceMorningBriefCard } from "@/components/dashboard/workspace-morning-brief-card";
-import { buildDashboardOrchestrator } from "@/lib/services/dashboard/dashboard-orchestrator";
 import { ExecutiveDashboardCard } from "@/components/dashboard/executive-dashboard-card";
 import { ExecutiveTimelineCard } from "@/components/dashboard/executive-timeline-card";
 
@@ -54,269 +45,30 @@ export default async function DashboardPage() {
 
   const workspaceId = currentUser.workspaceId;
 
-  const workspaceProjectFilter =
-    user.role === "ADMIN"
-      ? { workspaceId }
-      : { workspaceId, clientId: user.id };
+  const dashboard = await buildDashboard({
+  userId: user.id,
+  userName: user.name,
+  userRole: user.role,
+  workspaceId,
+});
 
-  const {
-    todayStart,
-    todayEnd,
-    nextSevenDays,
-  } = getDashboardDateRanges();
-
-  const [
-    totalClients,
-    activeProjects,
-    completedProjects,
-    totalProjects,
-    openInvoices,
-    totalInvoices,
-    paidInvoices,
-    totalRevenue,
-    outstandingRevenue,
-    pendingMilestones,
-    approvedProposals,
-    totalProposals,
-    todaysBookings,
-    upcomingBookings,
-    bookingTrendCounts,
-    recentActivity,
-    recentNotifications,
-  ] = await Promise.all([
-    user.role === "ADMIN"
-      ? prisma.user.count({
-        where: {
-          role: "CLIENT",
-          workspaceId,
-        },
-      })
-      : Promise.resolve(1),
-
-    ...(await loadDashboardCounts(workspaceProjectFilter)),
-
-    prisma.invoice.count({
-      where: {
-        paid: false,
-        project: workspaceProjectFilter,
-      },
-    }),
-
-    prisma.invoice.count({
-      where: {
-        project: workspaceProjectFilter,
-      },
-    }),
-
-    prisma.invoice.count({
-      where: {
-        paid: true,
-        project: workspaceProjectFilter,
-      },
-    }),
-
-    prisma.invoice.aggregate({
-      _sum: {
-        amount: true,
-      },
-      where: {
-        paid: true,
-        project: workspaceProjectFilter,
-      },
-    }),
-
-    prisma.invoice.aggregate({
-      _sum: {
-        amount: true,
-      },
-      where: {
-        paid: false,
-        project: workspaceProjectFilter,
-      },
-    }),
-
-    prisma.milestone.count({
-      where: {
-        status: {
-          in: ["PENDING", "IN_PROGRESS"],
-        },
-        project: workspaceProjectFilter,
-      },
-    }),
-
-    prisma.proposal.count({
-      where: {
-        approved: true,
-        project: workspaceProjectFilter,
-      },
-    }),
-
-    prisma.proposal.count({
-      where: {
-        project: workspaceProjectFilter,
-      },
-    }),
-
-    prisma.booking.findMany({
-      where: {
-        workspaceId,
-        date: {
-          gte: todayStart,
-          lt: todayEnd,
-        },
-        status: {
-          not: "CANCELLED",
-        },
-      },
-      include: {
-        service: true,
-      },
-      orderBy: {
-        startTime: "asc",
-      },
-      take: 6,
-    }),
-
-    prisma.booking.findMany({
-      where: {
-        workspaceId,
-        date: {
-          gte: todayStart,
-        },
-        status: {
-          not: "CANCELLED",
-        },
-      },
-      include: {
-        service: true,
-      },
-      orderBy: [
-        {
-          date: "asc",
-        },
-        {
-          startTime: "asc",
-        },
-      ],
-      take: 5,
-    }),
-
-    Promise.all(
-      nextSevenDays.map((day) =>
-        prisma.booking.count({
-          where: {
-            workspaceId,
-            date: {
-              gte: day.date,
-              lt: day.nextDate,
-            },
-            status: {
-              not: "CANCELLED",
-            },
-          },
-        }),
-      ),
-    ),
-
-    prisma.auditLog.findMany({
-      where: {
-        user: {
-          workspaceId,
-        },
-      },
-      include: {
-        user: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 6,
-    }),
-
-    prisma.notification.findMany({
-      where: {
-        userId: user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 6,
-    }),
-  ]);
-
-  const revenueCollected =
-    totalRevenue._sum.amount ?? 0;
-
-  const revenueOutstanding =
-    outstandingRevenue._sum.amount ?? 0;
-
-  const firstName =
-    user?.name?.split(" ")[0] ?? null;
-
-  const dashboard = buildDashboardOrchestrator({
-    firstName,
-
-    totalClients,
-    activeProjects,
-    completedProjects,
-    totalProjects,
-
-    openInvoices,
-    totalInvoices,
-    paidInvoices,
-
-    revenueCollected,
-    revenueOutstanding,
-
-    pendingMilestones,
-    approvedProposals,
-    totalProposals,
-
-    todaysBookings: todaysBookings.length,
-    upcomingBookings: upcomingBookings.length,
-
-    bookingTrendCounts,
-    nextSevenDayLabels: nextSevenDays.map(
-      (day) => day.label,
-    ),
-
-    recentActivity,
-  });
-
-  const {
-    workspaceEngine,
-    executiveInbox,
-    dashboardContext,
-    morningBrief,
-    heroMetrics,
-    professionalMetrics,
-    bookingTrendData,
-  } = dashboard;
-
-  const cachedBrief = await getExecutiveBrief(workspaceId);
-
-  let aiResult;
-
-  if (cachedBrief) {
-    aiResult = {
-      narrative: cachedBrief.narrative,
-      provider: cachedBrief.provider,
-      durationMs: cachedBrief.durationMs,
-      mode: cachedBrief.mode as "mock" | "production",
-    };
-  } else {
-    const aiProvider = createAiProvider();
-
-    const executiveNarrativeService =
-      new ExecutiveNarrativeService(aiProvider);
-
-    aiResult =
-      await executiveNarrativeService.generate(
-        dashboardContext,
-      );
-
-    await saveExecutiveBrief(workspaceId, aiResult);
-  }
+const {
+  workspaceEngine,
+  executiveInbox,
+  dashboardContext,
+  morningBrief,
+  heroMetrics,
+  professionalMetrics,
+  bookingTrendData,
+  aiResult,
+  firstName,
+  revenueCollected,
+  revenueOutstanding,
+  todaysBookings,
+  upcomingBookings,
+  recentActivity,
+  recentNotifications,
+} = dashboard;
 
   return (
     <BrandedDashboardShell>
