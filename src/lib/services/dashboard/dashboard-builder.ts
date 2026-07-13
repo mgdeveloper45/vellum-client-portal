@@ -6,6 +6,7 @@ import { createAiProvider } from "@/lib/services/ai/ai-provider-factory";
 import { ExecutiveNarrativeService } from "@/lib/services/ai/executive-narrative-service";
 import { loadDashboardData } from "@/lib/services/dashboard/dashboard-data-loader";
 import { buildDashboardOrchestrator } from "@/lib/services/dashboard/dashboard-orchestrator";
+import { buildRevenueForecast } from "@/lib/services/intelligence/forecasting/revenue-forecast-engine";
 
 type BuildDashboardInput = {
   userId: string;
@@ -26,14 +27,18 @@ export async function buildDashboard({
     workspaceId,
   });
 
-  const revenueCollected =
-    data.totalRevenue._sum.amount ?? 0;
+  const revenueCollected = data.totalRevenue._sum.amount ?? 0;
 
-  const revenueOutstanding =
-    data.outstandingRevenue._sum.amount ?? 0;
+  const revenueOutstanding = data.outstandingRevenue._sum.amount ?? 0;
 
-  const firstName =
-    userName?.split(" ")[0] ?? null;
+  const previousPeriodRevenue = data.previousPeriodRevenue._sum.amount ?? 0;
+
+  const upcomingBookingRevenue = data.upcomingBookingsForForecast.reduce(
+    (total, booking) => total + booking.service.price,
+    0,
+  );
+
+  const firstName = userName?.split(" ")[0] ?? null;
 
   const dashboard = buildDashboardOrchestrator({
     firstName,
@@ -58,15 +63,28 @@ export async function buildDashboard({
     upcomingBookings: data.upcomingBookings.length,
 
     bookingTrendCounts: data.bookingTrendCounts,
-    nextSevenDayLabels: data.nextSevenDays.map(
-      (day) => day.label,
-    ),
+
+    nextSevenDayLabels: data.nextSevenDays.map((day) => day.label),
 
     recentActivity: data.recentActivity,
   });
 
-  const cachedBrief =
-    await getExecutiveBrief(workspaceId);
+  const forecast = buildRevenueForecast({
+    revenueCollected,
+    outstandingRevenue: revenueOutstanding,
+
+    // Invoice has no dueDate yet, so genuinely overdue
+    // revenue cannot currently be determined.
+    overdueRevenue: 0,
+
+    paidInvoices: data.paidInvoices,
+    totalInvoices: data.totalInvoices,
+
+    upcomingBookingRevenue,
+    previousPeriodRevenue,
+  });
+
+  const cachedBrief = await getExecutiveBrief(workspaceId);
 
   let aiResult: {
     narrative: string;
@@ -80,39 +98,38 @@ export async function buildDashboard({
       narrative: cachedBrief.narrative,
       provider: cachedBrief.provider,
       durationMs: cachedBrief.durationMs,
-      mode: cachedBrief.mode as
-        | "mock"
-        | "production",
+      mode: cachedBrief.mode as "mock" | "production",
     };
   } else {
     const provider = createAiProvider();
 
-    const narrativeService =
-      new ExecutiveNarrativeService(provider);
+    const narrativeService = new ExecutiveNarrativeService(provider);
 
-    aiResult = await narrativeService.generate(
-      dashboard.dashboardContext,
-    );
+    aiResult = await narrativeService.generate(dashboard.dashboardContext);
 
-    await saveExecutiveBrief(
-      workspaceId,
-      aiResult,
-    );
+    await saveExecutiveBrief(workspaceId, aiResult);
   }
 
   return {
     ...dashboard,
+
+    forecast,
     aiResult,
     firstName,
+
     revenueCollected,
     revenueOutstanding,
+    previousPeriodRevenue,
+    upcomingBookingRevenue,
 
     todaysBookings: data.todaysBookings,
+
     upcomingBookings: data.upcomingBookings,
+
     recentActivity: data.recentActivity,
+
     recentNotifications: data.recentNotifications,
   };
 }
 
-export type DashboardViewModel =
-  Awaited<ReturnType<typeof buildDashboard>>;
+export type DashboardViewModel = Awaited<ReturnType<typeof buildDashboard>>;

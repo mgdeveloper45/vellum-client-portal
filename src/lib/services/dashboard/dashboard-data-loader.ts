@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { loadDashboardCounts } from "@/lib/dashboard/dashboard-loader";
-import { getDashboardDateRanges } from "@/lib/dashboard/dashboard-loader";
+import {
+  getDashboardDateRanges,
+  loadDashboardCounts,
+} from "@/lib/dashboard/dashboard-loader";
 
 export async function loadDashboardData(user: {
   id: string;
@@ -21,6 +23,15 @@ export async function loadDashboardData(user: {
 
   type DashboardDay = (typeof nextSevenDays)[number];
 
+  const now = new Date();
+
+  const currentPeriodStart = new Date(now);
+  currentPeriodStart.setDate(currentPeriodStart.getDate() - 30);
+
+  const previousPeriodStart = new Date(currentPeriodStart);
+
+  previousPeriodStart.setDate(previousPeriodStart.getDate() - 30);
+
   const [
     totalClients,
     activeProjects,
@@ -31,11 +42,13 @@ export async function loadDashboardData(user: {
     paidInvoices,
     totalRevenue,
     outstandingRevenue,
+    previousPeriodRevenue,
     pendingMilestones,
     approvedProposals,
     totalProposals,
     todaysBookings,
     upcomingBookings,
+    upcomingBookingsForForecast,
     bookingTrendCounts,
     recentActivity,
     recentNotifications,
@@ -49,7 +62,6 @@ export async function loadDashboardData(user: {
         })
       : Promise.resolve(1),
 
-    // Keep using your existing helper
     ...(await loadDashboardCounts(workspaceProjectFilter)),
 
     prisma.invoice.count({
@@ -88,6 +100,20 @@ export async function loadDashboardData(user: {
       },
       where: {
         paid: false,
+        project: workspaceProjectFilter,
+      },
+    }),
+
+    prisma.invoice.aggregate({
+      _sum: {
+        amount: true,
+      },
+      where: {
+        paid: true,
+        createdAt: {
+          gte: previousPeriodStart,
+          lt: currentPeriodStart,
+        },
         project: workspaceProjectFilter,
       },
     }),
@@ -158,6 +184,25 @@ export async function loadDashboardData(user: {
       take: 5,
     }),
 
+    prisma.booking.findMany({
+      where: {
+        workspaceId,
+        date: {
+          gte: todayStart,
+        },
+        status: {
+          not: "CANCELLED",
+        },
+      },
+      include: {
+        service: {
+          select: {
+            price: true,
+          },
+        },
+      },
+    }),
+
     Promise.all(
       nextSevenDays.map((day: DashboardDay) =>
         prisma.booking.count({
@@ -216,6 +261,7 @@ export async function loadDashboardData(user: {
 
     totalRevenue,
     outstandingRevenue,
+    previousPeriodRevenue,
 
     pendingMilestones,
 
@@ -224,6 +270,7 @@ export async function loadDashboardData(user: {
 
     todaysBookings,
     upcomingBookings,
+    upcomingBookingsForForecast,
 
     bookingTrendCounts,
 

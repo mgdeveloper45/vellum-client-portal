@@ -25,6 +25,7 @@ import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quic
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { WorkspaceRevenueOpportunityCard } from "@/components/dashboard/workspace-revenue-opportunity-card";
 import { WorkspaceMorningBriefCard } from "@/components/dashboard/workspace-morning-brief-card";
+import { WorkspaceExecutiveForecastCard } from "@/components/dashboard/workspace-executive-forecast-card";
 import { ExecutiveDashboardCard } from "@/components/dashboard/executive-dashboard-card";
 import { ExecutiveTimelineCard } from "@/components/dashboard/executive-timeline-card";
 
@@ -57,6 +58,7 @@ const {
   executiveInbox,
   dashboardContext,
   morningBrief,
+  forecast,
   heroMetrics,
   professionalMetrics,
   bookingTrendData,
@@ -94,6 +96,16 @@ const {
             href: "#recommended-actions",
           }}
         />
+
+<ExecutiveSection
+    eyebrow="Forecast"
+    title="Executive Revenue Outlook"
+    description="Projected financial performance based on current business activity."
+>
+    <WorkspaceExecutiveForecastCard
+        forecast={forecast}
+    />
+</ExecutiveSection>
 
         <ExecutiveSection
           eyebrow="Daily Briefing"
