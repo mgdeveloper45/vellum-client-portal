@@ -20,7 +20,6 @@ import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { DashboardScheduleSection } from "@/components/dashboard/dashboard-schedule-section";
 import { DashboardAnalyticsSection } from "@/components/dashboard/dashboard-analytics-section";
 import { DashboardRecentActivitySection } from "@/components/dashboard/dashboard-recent-activity-section";
-import { buildFinanceEngine } from "@/lib/services/finance/finance-engine";
 import { WorkspaceAICard } from "@/components/dashboard/workspace-ai-card";
 import { ExecutiveInboxCard } from "@/components/dashboard/executive-inbox-card";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
@@ -34,14 +33,7 @@ import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quic
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { WorkspaceRevenueOpportunityCard } from "@/components/dashboard/workspace-revenue-opportunity-card";
 import { WorkspaceMorningBriefCard } from "@/components/dashboard/workspace-morning-brief-card";
-import { buildWorkspaceMorningBrief } from "@/lib/services/workspace/workspace-morning-brief";
-import { buildWorkspaceEngine } from "@/lib/services/workspace/workspace-engine";
-import { buildExecutiveContext } from "@/lib/services/ai/executive-engine";
-import { buildExecutiveBrief } from "@/lib/services/ai/executive-brief";
-import { buildDashboardContext } from "@/lib/services/dashboard/dashboard-engine";
-import { buildTimelineFromAuditLogs } from "@/lib/services/timeline/audit-log-timeline";
-import { buildExecutiveIntelligence } from "@/lib/services/intelligence/executive-intelligence-engine";
-import { adaptExecutiveInsights } from "@/lib/services/intelligence/executive-insight-adapter";
+import { buildDashboardOrchestrator } from "@/lib/services/dashboard/dashboard-orchestrator";
 import { ExecutiveDashboardCard } from "@/components/dashboard/executive-dashboard-card";
 import { ExecutiveTimelineCard } from "@/components/dashboard/executive-timeline-card";
 
@@ -252,172 +244,54 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  const collectionRate =
-    totalInvoices === 0 ? 0 : Math.round((paidInvoices / totalInvoices) * 100);
+  const revenueCollected =
+    totalRevenue._sum.amount ?? 0;
 
-  const proposalConversionRate =
-    totalProposals === 0
-      ? 0
-      : Math.round((approvedProposals / totalProposals) * 100);
+  const revenueOutstanding =
+    outstandingRevenue._sum.amount ?? 0;
 
-  const projectCompletionRate =
-    totalProjects === 0
-      ? 0
-      : Math.round((completedProjects / totalProjects) * 100);
+  const firstName =
+    user?.name?.split(" ")[0] ?? null;
 
-  const revenueCollected = totalRevenue._sum.amount ?? 0;
-  const revenueOutstanding = outstandingRevenue._sum.amount ?? 0;
+  const dashboard = buildDashboardOrchestrator({
+    firstName,
 
-  const heroMetrics = [
-    {
-      label: "Bookings Today",
-      value: todaysBookings.length,
-      helper: "Scheduled appointments",
-    },
-    {
-      label: "Active Projects",
-      value: activeProjects,
-      helper: "Currently in progress",
-    },
-    {
-      label: "Pending Milestones",
-      value: pendingMilestones,
-      helper: "Need attention",
-    },
-    {
-      label: "Open Invoices",
-      value: openInvoices,
-      helper: "Awaiting payment",
-    },
-    {
-      label: "Clients",
-      value: totalClients,
-      helper: "Total client accounts",
-    },
-  ];
-
-  const professionalMetrics = [
-    {
-      label: "Revenue Collected",
-      value: `$${revenueCollected.toLocaleString()}`,
-      helper: "Paid invoices",
-    },
-    {
-      label: "Outstanding Revenue",
-      value: `$${revenueOutstanding.toLocaleString()}`,
-      helper: "Awaiting payment",
-    },
-    {
-      label: "Collection Rate",
-      value: `${collectionRate}%`,
-      helper: "Invoices paid",
-    },
-    {
-      label: "Proposal Conversion",
-      value: `${proposalConversionRate}%`,
-      helper: "Proposals approved",
-    },
-    {
-      label: "Project Completion",
-      value: `${projectCompletionRate}%`,
-      helper: "Projects completed",
-    },
-  ];
-
-  const bookingTrendData = nextSevenDays.map((day, index) => ({
-    label: day.label,
-    count: bookingTrendCounts[index] ?? 0,
-  }));
-
-  const workspaceEngine = buildWorkspaceEngine({
-    overdueInvoices: openInvoices,
-    todaysBookings: todaysBookings.length,
-    bookingsNeedingAttention: 0,
-    outstandingRevenue: revenueOutstanding,
-    pendingProposals: totalProposals - approvedProposals,
+    totalClients,
+    activeProjects,
     completedProjects,
-  });
+    totalProjects,
 
-  const financeEngine = buildFinanceEngine({
-    totalRevenue: revenueCollected,
-    outstandingRevenue: revenueOutstanding,
-    overdueInvoices: openInvoices,
-    paidInvoices,
+    openInvoices,
     totalInvoices,
-  });
+    paidInvoices,
 
-  // Executive Inbox aggregates recommendations from every domain.
-  // Each engine contributes Recommendation[].
-  // The Recommendation Engine merges and prioritizes them.
+    revenueCollected,
+    revenueOutstanding,
 
-  const executiveInsights =
-    buildExecutiveIntelligence({
-      finance: {
-        outstandingRevenue: revenueOutstanding,
-        overdueInvoices: openInvoices,
-        collectionRate,
-      },
+    pendingMilestones,
+    approvedProposals,
+    totalProposals,
 
-      bookings: {
-        todaysBookings: todaysBookings.length,
-        nextSevenDaysBookings: upcomingBookings.length,
-        bookingsNeedingAttention: 0,
-      },
+    todaysBookings: todaysBookings.length,
+    upcomingBookings: upcomingBookings.length,
 
-      clients: {
-        totalClients,
-        followUpsDue: 0,
-      },
+    bookingTrendCounts,
+    nextSevenDayLabels: nextSevenDays.map(
+      (day) => day.label,
+    ),
 
-      projects: {
-        activeProjects,
-        pendingMilestones,
-        pendingProposals:
-          totalProposals - approvedProposals,
-      },
-
-      workspace: {
-        healthScore:
-          workspaceEngine.health.score,
-      },
-    });
-
-  const executiveInbox =
-    adaptExecutiveInsights(
-      executiveInsights,
-    );
-
-
-  const timelineEvents = buildTimelineFromAuditLogs(
     recentActivity,
-  );
-
-  const executiveContext = buildExecutiveContext(
-    {
-      overallHealth: Math.round(
-        (
-          workspaceEngine.health.score +
-          financeEngine.health.score +
-          90 +
-          90
-        ) / 4,
-      ),
-      revenueHealth: financeEngine.health.score,
-      clientHealth: 90,
-      workspaceHealth: workspaceEngine.health.score,
-      bookingHealth: 90,
-      generatedAt: new Date(),
-    },
-    executiveInbox,
-  );
-
-  const executiveBrief = buildExecutiveBrief(executiveContext);
-
-  const dashboardContext = buildDashboardContext({
-    executiveContext,
-    executiveBrief,
-    timeline: timelineEvents,
   });
+
+  const {
+    workspaceEngine,
+    executiveInbox,
+    dashboardContext,
+    morningBrief,
+    heroMetrics,
+    professionalMetrics,
+    bookingTrendData,
+  } = dashboard;
 
   const cachedBrief = await getExecutiveBrief(workspaceId);
 
@@ -443,28 +317,6 @@ export default async function DashboardPage() {
 
     await saveExecutiveBrief(workspaceId, aiResult);
   }
-  const firstName =
-    user?.name?.split(" ")[0] ?? null;
-
-  const morningBrief = buildWorkspaceMorningBrief({
-    firstName,
-
-    yesterday: {
-      revenue: revenueCollected,
-      completedBookings: completedProjects,
-      newClients: totalClients,
-      proposalsAccepted: approvedProposals,
-    },
-
-    today: {
-      appointments: todaysBookings.length,
-      overdueInvoices: openInvoices,
-      followUps: executiveInbox.length,
-    },
-
-    estimatedRevenue:
-      revenueCollected + revenueOutstanding,
-  });
 
   return (
     <BrandedDashboardShell>
