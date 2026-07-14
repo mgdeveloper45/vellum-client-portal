@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 export default auth((req) => {
-  console.log("PROXY RUNNING");
 
   if (!req.auth) {
     return NextResponse.redirect(

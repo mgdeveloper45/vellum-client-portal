@@ -21,20 +21,12 @@ const required = [
   "GOOGLE_CALENDAR_ID",
 ] as const;
 
-const optional = [
-  "AUTH_MICROSOFT_ENTRA_ID_ID",
-  "AUTH_MICROSOFT_ENTRA_ID_SECRET",
-  "AUTH_MICROSOFT_ENTRA_ID_ISSUER",
-] as const;
-
 export function validateEnvironment() {
-  const missing = required.filter(
-    (key) => !process.env[key] || process.env[key]?.trim() === "",
-  );
+  const missingRequired = required.filter((key) => !process.env[key]?.trim());
 
-  if (missing.length > 0) {
+  if (missingRequired.length > 0) {
     throw new Error(
-      `Missing required environment variables:\n${missing.join("\n")}`,
+      `Missing required environment variables:\n${missingRequired.join("\n")}`,
     );
   }
 }

@@ -44,7 +44,10 @@ next-env.d.ts
 # coverage
 coverage
 
-
+# Test and coverage artifacts
+coverage/
+playwright-report/
+test-results/
 
 
 /src/lib/generated/prisma
