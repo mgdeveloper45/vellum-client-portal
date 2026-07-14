@@ -1,5 +1,6 @@
 import { AICommandCenter } from "@/components/ai/command-center";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { BusinessPulseCard } from "@/components/dashboard/business-pulse-card";
 import { DashboardAnalyticsSection } from "@/components/dashboard/dashboard-analytics-section";
 import { DashboardRecentActivitySection } from "@/components/dashboard/dashboard-recent-activity-section";
 import { DashboardScheduleSection } from "@/components/dashboard/dashboard-schedule-section";
@@ -13,8 +14,6 @@ import { WorkspaceActionsCard } from "@/components/dashboard/workspace-actions-c
 import { WorkspaceCommandCenter } from "@/components/dashboard/workspace-command-center";
 import { WorkspaceExecutiveBriefCard } from "@/components/dashboard/workspace-executive-brief-card";
 import { WorkspaceExecutiveForecastCard } from "@/components/dashboard/workspace-executive-forecast-card";
-import { WorkspaceHealthCard } from "@/components/dashboard/workspace-health-card";
-import { WorkspaceMissionCard } from "@/components/dashboard/workspace-mission-card";
 import { WorkspaceMorningBriefCard } from "@/components/dashboard/workspace-morning-brief-card";
 import { WorkspaceOpportunityCard } from "@/components/dashboard/workspace-opportunity-card";
 import { WorkspaceQuickActionsDock } from "@/components/dashboard/workspace-quick-actions-dock";
@@ -43,6 +42,8 @@ export function DashboardContent({
         dashboardContext,
         morningBrief,
         revenueForecast,
+        bookingForecast,
+        workspaceCapacity,
         topAdvice,
         heroMetrics,
         professionalMetrics,
@@ -104,23 +105,21 @@ export function DashboardContent({
                 </ExecutiveSection>
 
                 <ExecutiveSection
-                    eyebrow="Today"
-                    title="Your Operating Priorities"
-                    description="The mission, health, and financial opportunity that deserve attention today."
+                    eyebrow="Business Health"
+                    title="Business Pulse"
+                    description="A concise view of financial, booking, capacity, and operational performance."
                 >
-                    <div className="grid gap-6 xl:grid-cols-12">
-                        <div className="xl:col-span-7">
-                            <WorkspaceMissionCard
-                                mission={workspaceEngine.mission}
-                            />
-                        </div>
-
-                        <div className="xl:col-span-5">
-                            <WorkspaceHealthCard
-                                health={workspaceEngine.health}
-                            />
-                        </div>
-                    </div>
+                    <BusinessPulseCard
+                        overall={
+                            dashboardContext.executiveContext.summary.overallHealth
+                        }
+                        revenue={
+                            dashboardContext.executiveContext.summary.revenueHealth
+                        }
+                        bookings={bookingForecast.utilizationWeek}
+                        workspace={workspaceEngine.health.score}
+                        capacity={workspaceCapacity.weeklyUtilizationRate}
+                    />
                 </ExecutiveSection>
 
                 <ExecutiveSection
