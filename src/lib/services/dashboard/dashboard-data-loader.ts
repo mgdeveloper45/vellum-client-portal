@@ -32,24 +32,48 @@ export async function loadDashboardData(user: {
 
   previousPeriodStart.setDate(previousPeriodStart.getDate() - 30);
 
+  const previousSevenDaysStart = new Date(todayStart);
+
+  previousSevenDaysStart.setDate(previousSevenDaysStart.getDate() - 7);
+
+  const thirtyDaysAgo = new Date(todayStart);
+
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const nextSevenDaysEnd =
+    nextSevenDays.at(-1)?.nextDate ??
+    new Date(todayStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+
   const [
     totalClients,
     activeProjects,
     completedProjects,
     totalProjects,
+
     openInvoices,
     totalInvoices,
     paidInvoices,
     totalRevenue,
     outstandingRevenue,
     previousPeriodRevenue,
+
     pendingMilestones,
     approvedProposals,
     totalProposals,
+
     todaysBookings,
     upcomingBookings,
     upcomingBookingsForForecast,
+    nextSevenDaysBookings,
+
     bookingTrendCounts,
+    previousSevenDaysBookings,
+    cancellationsLastThirtyDays,
+    totalBookingsLastThirtyDays,
+
+    businessHours,
+    activeServices,
+
     recentActivity,
     recentNotifications,
   ] = await Promise.all([
@@ -203,6 +227,22 @@ export async function loadDashboardData(user: {
       },
     }),
 
+    prisma.booking.findMany({
+      where: {
+        workspaceId,
+        date: {
+          gte: todayStart,
+          lt: nextSevenDaysEnd,
+        },
+        status: {
+          not: "CANCELLED",
+        },
+      },
+      select: {
+        date: true,
+      },
+    }),
+
     Promise.all(
       nextSevenDays.map((day: DashboardDay) =>
         prisma.booking.count({
@@ -219,6 +259,61 @@ export async function loadDashboardData(user: {
         }),
       ),
     ),
+
+    prisma.booking.count({
+      where: {
+        workspaceId,
+        date: {
+          gte: previousSevenDaysStart,
+          lt: todayStart,
+        },
+        status: {
+          not: "CANCELLED",
+        },
+      },
+    }),
+
+    prisma.booking.count({
+      where: {
+        workspaceId,
+        createdAt: {
+          gte: thirtyDaysAgo,
+        },
+        status: "CANCELLED",
+      },
+    }),
+
+    prisma.booking.count({
+      where: {
+        workspaceId,
+        createdAt: {
+          gte: thirtyDaysAgo,
+        },
+      },
+    }),
+
+    prisma.businessHour.findMany({
+      where: {
+        workspaceId,
+      },
+      select: {
+        dayOfWeek: true,
+        openTime: true,
+        closeTime: true,
+        closed: true,
+      },
+    }),
+
+    prisma.service.findMany({
+      where: {
+        workspaceId,
+        active: true,
+      },
+      select: {
+        duration: true,
+        price: true,
+      },
+    }),
 
     prisma.auditLog.findMany({
       where: {
@@ -271,8 +366,15 @@ export async function loadDashboardData(user: {
     todaysBookings,
     upcomingBookings,
     upcomingBookingsForForecast,
+    nextSevenDaysBookings,
 
     bookingTrendCounts,
+    previousSevenDaysBookings,
+    cancellationsLastThirtyDays,
+    totalBookingsLastThirtyDays,
+
+    businessHours,
+    activeServices,
 
     recentActivity,
     recentNotifications,

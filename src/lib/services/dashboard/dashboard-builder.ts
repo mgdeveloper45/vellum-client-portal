@@ -6,7 +6,10 @@ import { createAiProvider } from "@/lib/services/ai/ai-provider-factory";
 import { ExecutiveNarrativeService } from "@/lib/services/ai/executive-narrative-service";
 import { loadDashboardData } from "@/lib/services/dashboard/dashboard-data-loader";
 import { buildDashboardOrchestrator } from "@/lib/services/dashboard/dashboard-orchestrator";
+import { buildWorkspaceCapacity } from "@/lib/services/intelligence/capacity/workspace-capacity-engine";
+import { buildBookingForecast } from "@/lib/services/intelligence/forecasting/booking-forecast-engine";
 import { buildRevenueForecast } from "@/lib/services/intelligence/forecasting/revenue-forecast-engine";
+import { buildExecutiveIntelligencePipeline } from "@/lib/services/intelligence/executive-intelligence-pipeline";
 
 type BuildDashboardInput = {
   userId: string;
@@ -14,6 +17,26 @@ type BuildDashboardInput = {
   userRole: string;
   workspaceId: string;
 };
+
+const dayOfWeekNames = [
+  "SUNDAY",
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+] as const;
+
+function parseTimeToMinutes(value: string) {
+  const [hours, minutes] = value.split(":").map(Number);
+
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+    return 0;
+  }
+
+  return hours * 60 + minutes;
+}
 
 export async function buildDashboard({
   userId,
@@ -37,6 +60,29 @@ export async function buildDashboard({
     (total, booking) => total + booking.service.price,
     0,
   );
+
+  const averageServiceDuration =
+    data.activeServices.length === 0
+      ? 60
+      : Math.max(
+          1,
+          Math.round(
+            data.activeServices.reduce(
+              (total, service) => total + service.duration,
+              0,
+            ) / data.activeServices.length,
+          ),
+        );
+
+  const averageBookingValue =
+    data.activeServices.length === 0
+      ? 0
+      : Math.round(
+          data.activeServices.reduce(
+            (total, service) => total + service.price,
+            0,
+          ) / data.activeServices.length,
+        );
 
   const firstName = userName?.split(" ")[0] ?? null;
 
@@ -69,12 +115,71 @@ export async function buildDashboard({
     recentActivity: data.recentActivity,
   });
 
-  const forecast = buildRevenueForecast({
+  const capacityDays = data.nextSevenDays.map((day, index) => {
+    const dayName = dayOfWeekNames[day.date.getDay()];
+
+    const businessHour = data.businessHours.find(
+      (hours) => hours.dayOfWeek === dayName,
+    );
+
+    const openMinutes =
+      !businessHour || businessHour.closed
+        ? 0
+        : Math.max(
+            0,
+            parseTimeToMinutes(businessHour.closeTime) -
+              parseTimeToMinutes(businessHour.openTime),
+          );
+
+    const capacity =
+      openMinutes === 0 ? 0 : Math.floor(openMinutes / averageServiceDuration);
+
+    return {
+      label: day.label,
+      capacity,
+      bookings: data.bookingTrendCounts[index] ?? 0,
+      averageBookingValue,
+    };
+  });
+
+  const todayLabel = data.nextSevenDays[0]?.label ?? "Today";
+
+  const tomorrowLabel = data.nextSevenDays[1]?.label ?? "Tomorrow";
+
+  const workspaceCapacity = buildWorkspaceCapacity({
+    todayLabel,
+    tomorrowLabel,
+    days: capacityDays,
+  });
+
+  const bookingForecast = buildBookingForecast({
+    todaysBookings: workspaceCapacity.today.bookings,
+
+    todayCapacity: workspaceCapacity.today.capacity,
+
+    tomorrowsBookings: workspaceCapacity.tomorrow.bookings,
+
+    tomorrowCapacity: workspaceCapacity.tomorrow.capacity,
+
+    nextSevenDays: workspaceCapacity.days.map((day) => ({
+      label: day.label,
+      bookings: day.bookings,
+      capacity: day.capacity,
+    })),
+
+    previousSevenDaysBookings: data.previousSevenDaysBookings,
+
+    cancellationsLastThirtyDays: data.cancellationsLastThirtyDays,
+
+    totalBookingsLastThirtyDays: data.totalBookingsLastThirtyDays,
+  });
+
+  const revenueForecast = buildRevenueForecast({
     revenueCollected,
     outstandingRevenue: revenueOutstanding,
 
-    // Invoice has no dueDate yet, so genuinely overdue
-    // revenue cannot currently be determined.
+    // Invoice has no dueDate, so truly overdue
+    // revenue cannot yet be distinguished.
     overdueRevenue: 0,
 
     paidInvoices: data.paidInvoices,
@@ -82,6 +187,14 @@ export async function buildDashboard({
 
     upcomingBookingRevenue,
     previousPeriodRevenue,
+  });
+
+  const executiveIntelligence = buildExecutiveIntelligencePipeline({
+    revenueForecast,
+    bookingForecast,
+    workspaceCapacity,
+
+    executiveInsights: dashboard.executiveInsights,
   });
 
   const cachedBrief = await getExecutiveBrief(workspaceId);
@@ -113,7 +226,15 @@ export async function buildDashboard({
   return {
     ...dashboard,
 
-    forecast,
+    revenueForecast,
+    bookingForecast,
+    workspaceCapacity,
+    executiveIntelligence,
+
+    executiveAdvice: executiveIntelligence.executiveAdvice,
+
+    topAdvice: executiveIntelligence.topAdvice,
+
     aiResult,
     firstName,
 

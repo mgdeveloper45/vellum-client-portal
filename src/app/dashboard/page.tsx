@@ -58,7 +58,7 @@ const {
   executiveInbox,
   dashboardContext,
   morningBrief,
-  forecast,
+  revenueForecast,
   heroMetrics,
   professionalMetrics,
   bookingTrendData,
@@ -103,7 +103,7 @@ const {
     description="Projected financial performance based on current business activity."
 >
     <WorkspaceExecutiveForecastCard
-        forecast={forecast}
+        forecast={revenueForecast}
     />
 </ExecutiveSection>
 
