@@ -7,8 +7,8 @@ import { hasProfessionalPlan } from "@/lib/subscription";
 import { AICommandCenter } from "@/components/ai/command-center";
 import { ExecutiveSection } from "@/components/ui/executive-section";
 import { ExecutiveHero } from "@/components/dashboard/executive-hero";
+import { ExecutiveDailyBriefCard } from "@/components/dashboard/executive-daily-brief-card";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
-import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { DashboardScheduleSection } from "@/components/dashboard/dashboard-schedule-section";
 import { DashboardAnalyticsSection } from "@/components/dashboard/dashboard-analytics-section";
 import { DashboardRecentActivitySection } from "@/components/dashboard/dashboard-recent-activity-section";
@@ -58,6 +58,7 @@ const {
   executiveInbox,
   dashboardContext,
   morningBrief,
+  topAdvice,
   revenueForecast,
   heroMetrics,
   professionalMetrics,
@@ -74,9 +75,13 @@ const {
 
   return (
     <BrandedDashboardShell>
-      <DashboardHero firstName={currentUser.firstName} />
 
       <WorkspaceCommandCenter>
+    <ExecutiveDailyBriefCard
+        brief={morningBrief}
+        topAdvice={topAdvice}
+    />
+
         <ExecutiveHero
           firstName={firstName}
           narrative={aiResult.narrative}
