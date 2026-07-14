@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { formatStatus } from "@/lib/utils";
-import { getR2DownloadUrl } from "@/lib/r2";
 import { canManageProjects } from "@/lib/permissions";
 import { createMessageAction } from "@/actions/message-actions";
 import {
@@ -24,7 +23,7 @@ import {
   deleteInvoiceAction,
 } from "@/actions/invoice-actions";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { prisma } from "@/lib/prisma";
+import { buildProjectDetail } from "@/lib/services/projects/project-detail-builder";
 
 type ProjectDetailPageProps = {
   params: Promise<{
@@ -44,67 +43,24 @@ export default async function ProjectDetailPage({
   const canManageProject = canManageProjects(session.user.role);
   const { projectId } = await params;
 
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    include: {
-      client: true,
-      milestones: true,
-      invoices: true,
-      proposals: true,
-      files: true,
-      messages: {
-        include: {
-          sender: true,
-        },
-      },
-    },
-  });
+  const projectDetail =
+    await buildProjectDetail(projectId);
 
-  if (!project) {
+  if (!projectDetail) {
     return (
       <DashboardShell>
-        <h1 className="text-2xl font-light">Project not found</h1>
+        <h1 className="text-2xl font-light">
+          Project not found
+        </h1>
       </DashboardShell>
     );
   }
 
-  const timelineItems = [
-    ...project.messages.map((message) => ({
-      id: message.id,
-      type: "Message",
-      title: `${message.sender.firstName} ${message.sender.lastName} sent a message`,
-      detail: message.content,
-      date: message.createdAt,
-    })),
-    ...project.invoices.map((invoice) => ({
-      id: invoice.id,
-      type: "Invoice",
-      title: invoice.paid ? "Invoice paid" : "Invoice created",
-      detail: `$${invoice.amount.toLocaleString()}`,
-      date: invoice.createdAt,
-    })),
-    ...project.proposals.map((proposal) => ({
-      id: proposal.id,
-      type: "Proposal",
-      title: proposal.approved ? "Proposal approved" : "Proposal pending",
-      detail: "Project proposal",
-      date: proposal.createdAt,
-    })),
-    ...project.milestones.map((milestone) => ({
-      id: milestone.id,
-      type: "Milestone",
-      title: milestone.title,
-      detail: formatStatus(milestone.status),
-      date: milestone.dueDate || milestone.createdAt,
-    })),
-  ].sort((a, b) => b.date.getTime() - a.date.getTime());
-
-  const projectFiles = await Promise.all(
-    project.files.map(async (file) => ({
-      ...file,
-      downloadUrl: await getR2DownloadUrl(file.url),
-    }))
-  );
+  const {
+    project,
+    timelineItems,
+    projectFiles,
+  } = projectDetail;
 
   return (
     <DashboardShell>
