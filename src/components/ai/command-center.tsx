@@ -21,24 +21,40 @@ export function AICommandCenter() {
 
     return (
         <section className="rounded-3xl border border-border bg-card p-6">
-            <h2 className="text-2xl font-light">AI Command Center</h2>
+            <h2 className="text-2xl font-light">
+                AI Command Center
+            </h2>
 
             <p className="mt-1 text-sm text-foreground/60">
-                Ask Vellum to summarize your workspace, show invoices, bookings, or messages.
+                Ask Vellum to summarize your workspace,
+                show invoices, bookings, or messages.
             </p>
 
             <div className="mt-6 flex flex-col gap-3 md:flex-row">
                 <input
                     value={input}
-                    onChange={(event) => setInput(event.target.value)}
+                    onChange={(event) =>
+                        setInput(event.target.value)
+                    }
                     onKeyDown={(event) => {
                         if (event.key === "Enter") {
                             handleRunCommand();
                         }
                     }}
+                    aria-label="AI command"
+                    aria-describedby="ai-command-help"
                     placeholder="Try: Show unpaid invoices"
-                    className="flex-1 rounded-full border border-border bg-background px-5 py-3 text-sm outline-none focus:border-foreground/40"
+                    className="flex-1 rounded-full border border-border bg-background px-5 py-3 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus:border-foreground/40"
                 />
+
+                <p
+                    id="ai-command-help"
+                    className="sr-only"
+                >
+                    Enter a natural language command
+                    describing what you want Vellum AI
+                    to do.
+                </p>
 
                 <button
                     type="button"
@@ -46,7 +62,9 @@ export function AICommandCenter() {
                     disabled={isPending}
                     className="workspace-accent-button rounded-full px-5 py-3 text-sm font-medium disabled:opacity-60"
                 >
-                    {isPending ? "Running..." : "Run"}
+                    {isPending
+                        ? "Running..."
+                        : "Run"}
                 </button>
             </div>
 

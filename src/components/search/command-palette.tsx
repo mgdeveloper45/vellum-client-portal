@@ -148,7 +148,7 @@ export function CommandPalette() {
                     }
                     placeholder="Search clients, bookings, projects, invoices..."
                     aria-label="Search Vellum"
-                    className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-lg outline-none transition focus:border-foreground/40"
+                    className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus:border-foreground/40"
                 />
 
                 <div className="mt-4 max-h-96 overflow-y-auto">

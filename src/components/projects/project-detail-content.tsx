@@ -182,7 +182,10 @@ export function ProjectDetailContent({
                                             value={project.id}
                                         />
 
-                                        <button className="text-xs text-red-400">
+                                        <button
+                                            aria-label={`Delete file ${file.name}`}
+                                            className="text-xs text-red-400"
+                                        >
                                             Delete File
                                         </button>
                                     </form>
@@ -298,7 +301,10 @@ export function ProjectDetailContent({
                                                 value={project.id}
                                             />
 
-                                            <button className="text-xs text-red-400">
+                                            <button
+                                                aria-label={`Delete milestone ${milestone.title}`}
+                                                className="text-xs text-red-400"
+                                            >
                                                 Delete Milestone
                                             </button>
                                         </form>
@@ -467,7 +473,10 @@ export function ProjectDetailContent({
                                             value={project.id}
                                         />
 
-                                        <button className="text-xs text-red-400">
+                                        <button
+                                            aria-label={`Delete invoice for $${invoice.amount}`}
+                                            className="text-xs text-red-400"
+                                        >
                                             Delete Invoice
                                         </button>
                                     </form>
@@ -567,7 +576,10 @@ export function ProjectDetailContent({
                                                 value={project.id}
                                             />
 
-                                            <button className="text-xs text-red-400">
+                                            <button
+                                                aria-label="Delete proposal"
+                                                className="text-xs text-red-400"
+                                            >
                                                 Delete Proposal
                                             </button>
                                         </form>

@@ -102,10 +102,18 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <input
                     name="q"
                     defaultValue={query}
+                    aria-label="Search workspace"
+                    aria-describedby="workspace-search-help"
                     placeholder="Search clients, projects, messages, files..."
                     className="w-full rounded-lg border border-border bg-background px-4 py-3"
                 />
-
+                <p
+    id="workspace-search-help"
+    className="sr-only"
+>
+    Search clients, projects,
+    messages and files.
+</p>
                 <button className="rounded-lg bg-foreground px-5 py-3 text-background">
                     Search
                 </button>
@@ -169,7 +177,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                                     key={file.id}
                                     href={file.url}
                                     target="_blank"
-                                    rel="noreferrer"
+                                    rel="noopener noreferrer"
                                     className="rounded-xl border border-border bg-card p-4"
                                 >
                                     {file.name}

@@ -50,7 +50,7 @@ export function WorkspaceSearch() {
                 onChange={(event) => handleSearch(event.target.value)}
                 placeholder="Search clients, bookings, projects..."
                 aria-label="Search workspace"
-                className="w-full rounded-full border border-border bg-card px-5 py-3 pr-16 text-sm outline-none transition focus:border-foreground/40"
+                className="w-full rounded-full border border-border bg-card px-5 py-3 pr-16 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus:border-foreground/40"
             />
 
             <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 rounded-lg border border-border bg-muted px-2 py-1 text-xs text-foreground/50">
