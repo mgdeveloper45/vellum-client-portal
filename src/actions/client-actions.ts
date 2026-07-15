@@ -1,10 +1,26 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { canManageClients } from "@/lib/permissions";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import {
+  createClientSchema,
+  deleteClientSchema,
+  updateClientSchema,
+} from "@/lib/validation/client";
+
+async function getManagingUserWorkspace(userId: string) {
+  return prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      workspaceId: true,
+    },
+  });
+}
 
 /**
  * Creates a new client user.
@@ -13,25 +29,34 @@ import { prisma } from "@/lib/prisma";
 export async function createClientAction(formData: FormData) {
   const session = await auth();
 
-  if (!canManageClients(session?.user?.role)) {
+  if (!session?.user || !canManageClients(session.user.role)) {
     return;
   }
 
-  const firstName = String(formData.get("firstName"));
-  const lastName = String(formData.get("lastName"));
-  const email = String(formData.get("email"));
-  const notes = String(formData.get("notes") || "");
+  const input = createClientSchema.parse({
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName"),
+    email: formData.get("email"),
+    notes: formData.get("notes"),
+  });
+
+  const currentUser = await getManagingUserWorkspace(session.user.id);
+
+  if (!currentUser?.workspaceId) {
+    return;
+  }
 
   const hashedPassword = await bcrypt.hash("password123", 10);
 
   await prisma.user.create({
     data: {
-      firstName,
-      lastName,
-      email,
-      notes,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email,
+      notes: input.notes,
       password: hashedPassword,
       role: "CLIENT",
+      workspaceId: currentUser.workspaceId,
     },
   });
 
@@ -44,49 +69,72 @@ export async function createClientAction(formData: FormData) {
 export async function updateClientAction(formData: FormData) {
   const session = await auth();
 
-  if (!canManageClients(session?.user?.role)) {
+  if (!session?.user || !canManageClients(session.user.role)) {
     return;
   }
 
-  const clientId = String(formData.get("clientId"));
-  const firstName = String(formData.get("firstName"));
-  const lastName = String(formData.get("lastName"));
-  const email = String(formData.get("email"));
-  const notes = String(formData.get("notes") || "");
-  const isBlacklisted = formData.get("isBlacklisted") === "on";
+  const input = updateClientSchema.parse({
+    clientId: formData.get("clientId"),
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName"),
+    email: formData.get("email"),
+    notes: formData.get("notes"),
+    isBlacklisted: formData.get("isBlacklisted") === "on",
+  });
 
-  await prisma.user.update({
+  const currentUser = await getManagingUserWorkspace(session.user.id);
+
+  if (!currentUser?.workspaceId) {
+    return;
+  }
+
+  const result = await prisma.user.updateMany({
     where: {
-      id: clientId,
+      id: input.clientId,
+      role: "CLIENT",
+      workspaceId: currentUser.workspaceId,
     },
     data: {
-      firstName,
-      lastName,
-      email,
-      notes,
-      isBlacklisted,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email,
+      notes: input.notes,
+      isBlacklisted: input.isBlacklisted,
     },
   });
 
-  redirect(`/clients/${clientId}`);
+  if (result.count === 0) {
+    return;
+  }
+
+  redirect(`/clients/${input.clientId}`);
 }
 
 /**
  * Deletes a client account.
- * This is admin-only behavior for now.
  */
 export async function deleteClientAction(formData: FormData) {
   const session = await auth();
 
-  if (!canManageClients(session?.user?.role)) {
+  if (!session?.user || !canManageClients(session.user.role)) {
     return;
   }
 
-  const clientId = String(formData.get("clientId"));
+  const input = deleteClientSchema.parse({
+    clientId: formData.get("clientId"),
+  });
 
-  await prisma.user.delete({
+  const currentUser = await getManagingUserWorkspace(session.user.id);
+
+  if (!currentUser?.workspaceId) {
+    return;
+  }
+
+  await prisma.user.deleteMany({
     where: {
-      id: clientId,
+      id: input.clientId,
+      role: "CLIENT",
+      workspaceId: currentUser.workspaceId,
     },
   });
 
