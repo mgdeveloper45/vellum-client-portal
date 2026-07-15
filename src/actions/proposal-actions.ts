@@ -1,23 +1,62 @@
 "use server";
 
 import { auth } from "@/auth";
-import { canManageProposals } from "@/lib/permissions";
 import { createAuditLog } from "@/lib/audit";
-import { redirect } from "next/navigation";
+import { canManageProposals } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import {
+  createProposalSchema,
+  proposalMutationSchema,
+} from "@/lib/validation/proposal";
+import { redirect } from "next/navigation";
+
+async function getWorkspaceId(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      workspaceId: true,
+    },
+  });
+
+  return user?.workspaceId;
+}
 
 export async function createProposalAction(formData: FormData) {
   const session = await auth();
 
-  if (!canManageProposals(session?.user?.role)) {
+  if (!session?.user || !canManageProposals(session.user.role)) {
     return;
   }
 
-  const projectId = String(formData.get("projectId"));
+  const input = createProposalSchema.parse({
+    projectId: formData.get("projectId"),
+  });
+
+  const workspaceId = await getWorkspaceId(session.user.id);
+
+  if (!workspaceId) {
+    return;
+  }
+
+  const project = await prisma.project.findFirst({
+    where: {
+      id: input.projectId,
+      workspaceId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!project) {
+    return;
+  }
 
   const proposal = await prisma.proposal.create({
     data: {
-      projectId,
+      projectId: project.id,
       approved: false,
     },
   });
@@ -33,23 +72,34 @@ export async function createProposalAction(formData: FormData) {
     },
   });
 
-  redirect(`/projects/${projectId}`);
+  redirect(`/projects/${project.id}`);
 }
 
 export async function toggleProposalApprovalAction(formData: FormData) {
   const session = await auth();
 
-  if (!canManageProposals(session?.user?.role)) {
+  if (!session?.user || !canManageProposals(session.user.role)) {
     return;
   }
 
-  const proposalId = String(formData.get("proposalId"));
+  const input = proposalMutationSchema.parse({
+    proposalId: formData.get("proposalId"),
+    projectId: formData.get("projectId"),
+  });
 
-  const projectId = String(formData.get("projectId"));
+  const workspaceId = await getWorkspaceId(session.user.id);
 
-  const proposal = await prisma.proposal.findUnique({
+  if (!workspaceId) {
+    return;
+  }
+
+  const proposal = await prisma.proposal.findFirst({
     where: {
-      id: proposalId,
+      id: input.proposalId,
+      projectId: input.projectId,
+      project: {
+        workspaceId,
+      },
     },
   });
 
@@ -59,7 +109,7 @@ export async function toggleProposalApprovalAction(formData: FormData) {
 
   const updatedProposal = await prisma.proposal.update({
     where: {
-      id: proposalId,
+      id: proposal.id,
     },
     data: {
       approved: !proposal.approved,
@@ -79,25 +129,61 @@ export async function toggleProposalApprovalAction(formData: FormData) {
     },
   });
 
-  redirect(`/projects/${projectId}`);
+  redirect(`/projects/${input.projectId}`);
 }
 
 export async function deleteProposalAction(formData: FormData) {
   const session = await auth();
 
-  if (!canManageProposals(session?.user?.role)) {
+  if (!session?.user || !canManageProposals(session.user.role)) {
     return;
   }
 
-  const proposalId = String(formData.get("proposalId"));
+  const input = proposalMutationSchema.parse({
+    proposalId: formData.get("proposalId"),
+    projectId: formData.get("projectId"),
+  });
 
-  const projectId = String(formData.get("projectId"));
+  const workspaceId = await getWorkspaceId(session.user.id);
 
-  await prisma.proposal.delete({
+  if (!workspaceId) {
+    return;
+  }
+
+  const proposal = await prisma.proposal.findFirst({
     where: {
-      id: proposalId,
+      id: input.proposalId,
+      projectId: input.projectId,
+      project: {
+        workspaceId,
+      },
+    },
+    select: {
+      id: true,
+      approved: true,
     },
   });
 
-  redirect(`/projects/${projectId}`);
+  if (!proposal) {
+    return;
+  }
+
+  await prisma.proposal.delete({
+    where: {
+      id: proposal.id,
+    },
+  });
+
+  await createAuditLog({
+    action: "PROPOSAL_DELETED",
+    entity: "PROPOSAL",
+    entityId: proposal.id,
+    userId: session.user.id,
+    metadata: {
+      projectId: input.projectId,
+      approved: proposal.approved,
+    },
+  });
+
+  redirect(`/projects/${input.projectId}`);
 }
