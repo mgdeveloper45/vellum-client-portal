@@ -139,11 +139,11 @@ export const NotificationScalarFieldEnum = {
   id: 'id',
   title: 'title',
   message: 'message',
-  type: 'type',
-  href: 'href',
   read: 'read',
   userId: 'userId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  href: 'href',
+  type: 'type'
 } as const
 
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
@@ -299,11 +299,11 @@ export const BookingScalarFieldEnum = {
   startTime: 'startTime',
   endTime: 'endTime',
   status: 'status',
-  googleCalendarEventId: 'googleCalendarEventId',
   serviceId: 'serviceId',
   workspaceId: 'workspaceId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  googleCalendarEventId: 'googleCalendarEventId'
 } as const
 
 export type BookingScalarFieldEnum = (typeof BookingScalarFieldEnum)[keyof typeof BookingScalarFieldEnum]

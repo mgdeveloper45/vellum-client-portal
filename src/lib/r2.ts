@@ -5,6 +5,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { sanitizeFileName } from "@/lib/files/file-validation";
 
 export const r2 = new S3Client({
   region: "auto",
@@ -27,7 +28,8 @@ export async function uploadFileToR2({
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const safeFileName = file.name.replaceAll(" ", "-").toLowerCase();
+  const safeFileName =
+  sanitizeFileName(file.name);
 
   const key = `${folder}/${Date.now()}-${safeFileName}`;
 

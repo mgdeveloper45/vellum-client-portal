@@ -214,14 +214,14 @@ export type ProjectWhereInput = {
   workspaceId?: Prisma.StringNullableFilter<"Project"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
-  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  client?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
-  milestones?: Prisma.MilestoneListRelationFilter
-  messages?: Prisma.MessageListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
-  proposals?: Prisma.ProposalListRelationFilter
+  messages?: Prisma.MessageListRelationFilter
+  milestones?: Prisma.MilestoneListRelationFilter
+  client?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
   files?: Prisma.ProjectFileListRelationFilter
+  proposals?: Prisma.ProposalListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -234,14 +234,14 @@ export type ProjectOrderByWithRelationInput = {
   workspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  owner?: Prisma.UserOrderByWithRelationInput
-  client?: Prisma.UserOrderByWithRelationInput
-  workspace?: Prisma.WorkspaceOrderByWithRelationInput
-  milestones?: Prisma.MilestoneOrderByRelationAggregateInput
-  messages?: Prisma.MessageOrderByRelationAggregateInput
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
-  proposals?: Prisma.ProposalOrderByRelationAggregateInput
+  messages?: Prisma.MessageOrderByRelationAggregateInput
+  milestones?: Prisma.MilestoneOrderByRelationAggregateInput
+  client?: Prisma.UserOrderByWithRelationInput
+  owner?: Prisma.UserOrderByWithRelationInput
+  workspace?: Prisma.WorkspaceOrderByWithRelationInput
   files?: Prisma.ProjectFileOrderByRelationAggregateInput
+  proposals?: Prisma.ProposalOrderByRelationAggregateInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -257,14 +257,14 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   workspaceId?: Prisma.StringNullableFilter<"Project"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
-  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  client?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
-  milestones?: Prisma.MilestoneListRelationFilter
-  messages?: Prisma.MessageListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
-  proposals?: Prisma.ProposalListRelationFilter
+  messages?: Prisma.MessageListRelationFilter
+  milestones?: Prisma.MilestoneListRelationFilter
+  client?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
   files?: Prisma.ProjectFileListRelationFilter
+  proposals?: Prisma.ProposalListRelationFilter
 }, "id">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -304,14 +304,14 @@ export type ProjectCreateInput = {
   status: $Enums.ProjectStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
-  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
-  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
-  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -324,11 +324,11 @@ export type ProjectUncheckedCreateInput = {
   workspaceId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -338,14 +338,14 @@ export type ProjectUpdateInput = {
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
-  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
-  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
-  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
   files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -358,11 +358,11 @@ export type ProjectUncheckedUpdateInput = {
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -449,13 +449,6 @@ export type ProjectScalarRelationFilter = {
   isNot?: Prisma.ProjectWhereInput
 }
 
-export type ProjectCreateNestedManyWithoutOwnerInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput> | Prisma.ProjectCreateWithoutOwnerInput[] | Prisma.ProjectUncheckedCreateWithoutOwnerInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwnerInput | Prisma.ProjectCreateOrConnectWithoutOwnerInput[]
-  createMany?: Prisma.ProjectCreateManyOwnerInputEnvelope
-  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-}
-
 export type ProjectCreateNestedManyWithoutClientInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutClientInput, Prisma.ProjectUncheckedCreateWithoutClientInput> | Prisma.ProjectCreateWithoutClientInput[] | Prisma.ProjectUncheckedCreateWithoutClientInput[]
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutClientInput | Prisma.ProjectCreateOrConnectWithoutClientInput[]
@@ -463,7 +456,7 @@ export type ProjectCreateNestedManyWithoutClientInput = {
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
 }
 
-export type ProjectUncheckedCreateNestedManyWithoutOwnerInput = {
+export type ProjectCreateNestedManyWithoutOwnerInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput> | Prisma.ProjectCreateWithoutOwnerInput[] | Prisma.ProjectUncheckedCreateWithoutOwnerInput[]
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwnerInput | Prisma.ProjectCreateOrConnectWithoutOwnerInput[]
   createMany?: Prisma.ProjectCreateManyOwnerInputEnvelope
@@ -477,18 +470,11 @@ export type ProjectUncheckedCreateNestedManyWithoutClientInput = {
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
 }
 
-export type ProjectUpdateManyWithoutOwnerNestedInput = {
+export type ProjectUncheckedCreateNestedManyWithoutOwnerInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput> | Prisma.ProjectCreateWithoutOwnerInput[] | Prisma.ProjectUncheckedCreateWithoutOwnerInput[]
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwnerInput | Prisma.ProjectCreateOrConnectWithoutOwnerInput[]
-  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput | Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput[]
   createMany?: Prisma.ProjectCreateManyOwnerInputEnvelope
-  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutOwnerInput | Prisma.ProjectUpdateWithWhereUniqueWithoutOwnerInput[]
-  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutOwnerInput | Prisma.ProjectUpdateManyWithWhereWithoutOwnerInput[]
-  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
 export type ProjectUpdateManyWithoutClientNestedInput = {
@@ -505,7 +491,7 @@ export type ProjectUpdateManyWithoutClientNestedInput = {
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
-export type ProjectUncheckedUpdateManyWithoutOwnerNestedInput = {
+export type ProjectUpdateManyWithoutOwnerNestedInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput> | Prisma.ProjectCreateWithoutOwnerInput[] | Prisma.ProjectUncheckedCreateWithoutOwnerInput[]
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwnerInput | Prisma.ProjectCreateOrConnectWithoutOwnerInput[]
   upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput | Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput[]
@@ -530,6 +516,20 @@ export type ProjectUncheckedUpdateManyWithoutClientNestedInput = {
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
   update?: Prisma.ProjectUpdateWithWhereUniqueWithoutClientInput | Prisma.ProjectUpdateWithWhereUniqueWithoutClientInput[]
   updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutClientInput | Prisma.ProjectUpdateManyWithWhereWithoutClientInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUncheckedUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput> | Prisma.ProjectCreateWithoutOwnerInput[] | Prisma.ProjectUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwnerInput | Prisma.ProjectCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput | Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.ProjectCreateManyOwnerInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutOwnerInput | Prisma.ProjectUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutOwnerInput | Prisma.ProjectUpdateManyWithWhereWithoutOwnerInput[]
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
@@ -649,48 +649,6 @@ export type ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput = {
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
-export type ProjectCreateWithoutOwnerInput = {
-  id?: string
-  name: string
-  description: string
-  status: $Enums.ProjectStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
-  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
-  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
-  invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
-  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
-}
-
-export type ProjectUncheckedCreateWithoutOwnerInput = {
-  id?: string
-  name: string
-  description: string
-  status: $Enums.ProjectStatus
-  clientId: string
-  workspaceId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
-  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
-  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
-}
-
-export type ProjectCreateOrConnectWithoutOwnerInput = {
-  where: Prisma.ProjectWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput>
-}
-
-export type ProjectCreateManyOwnerInputEnvelope = {
-  data: Prisma.ProjectCreateManyOwnerInput | Prisma.ProjectCreateManyOwnerInput[]
-  skipDuplicates?: boolean
-}
-
 export type ProjectCreateWithoutClientInput = {
   id?: string
   name: string
@@ -698,13 +656,13 @@ export type ProjectCreateWithoutClientInput = {
   status: $Enums.ProjectStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
-  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
-  invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutClientInput = {
@@ -716,11 +674,11 @@ export type ProjectUncheckedCreateWithoutClientInput = {
   workspaceId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutClientInput = {
@@ -733,35 +691,46 @@ export type ProjectCreateManyClientInputEnvelope = {
   skipDuplicates?: boolean
 }
 
-export type ProjectUpsertWithWhereUniqueWithoutOwnerInput = {
+export type ProjectCreateWithoutOwnerInput = {
+  id?: string
+  name: string
+  description: string
+  status: $Enums.ProjectStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutOwnerInput = {
+  id?: string
+  name: string
+  description: string
+  status: $Enums.ProjectStatus
+  clientId: string
+  workspaceId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutOwnerInput = {
   where: Prisma.ProjectWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProjectUpdateWithoutOwnerInput, Prisma.ProjectUncheckedUpdateWithoutOwnerInput>
   create: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput>
 }
 
-export type ProjectUpdateWithWhereUniqueWithoutOwnerInput = {
-  where: Prisma.ProjectWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProjectUpdateWithoutOwnerInput, Prisma.ProjectUncheckedUpdateWithoutOwnerInput>
-}
-
-export type ProjectUpdateManyWithWhereWithoutOwnerInput = {
-  where: Prisma.ProjectScalarWhereInput
-  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutOwnerInput>
-}
-
-export type ProjectScalarWhereInput = {
-  AND?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-  OR?: Prisma.ProjectScalarWhereInput[]
-  NOT?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-  id?: Prisma.StringFilter<"Project"> | string
-  name?: Prisma.StringFilter<"Project"> | string
-  description?: Prisma.StringFilter<"Project"> | string
-  status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
-  ownerId?: Prisma.StringFilter<"Project"> | string
-  clientId?: Prisma.StringFilter<"Project"> | string
-  workspaceId?: Prisma.StringNullableFilter<"Project"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+export type ProjectCreateManyOwnerInputEnvelope = {
+  data: Prisma.ProjectCreateManyOwnerInput | Prisma.ProjectCreateManyOwnerInput[]
+  skipDuplicates?: boolean
 }
 
 export type ProjectUpsertWithWhereUniqueWithoutClientInput = {
@@ -780,6 +749,37 @@ export type ProjectUpdateManyWithWhereWithoutClientInput = {
   data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutClientInput>
 }
 
+export type ProjectScalarWhereInput = {
+  AND?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+  OR?: Prisma.ProjectScalarWhereInput[]
+  NOT?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+  id?: Prisma.StringFilter<"Project"> | string
+  name?: Prisma.StringFilter<"Project"> | string
+  description?: Prisma.StringFilter<"Project"> | string
+  status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
+  ownerId?: Prisma.StringFilter<"Project"> | string
+  clientId?: Prisma.StringFilter<"Project"> | string
+  workspaceId?: Prisma.StringNullableFilter<"Project"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+}
+
+export type ProjectUpsertWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutOwnerInput, Prisma.ProjectUncheckedUpdateWithoutOwnerInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput>
+}
+
+export type ProjectUpdateWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutOwnerInput, Prisma.ProjectUncheckedUpdateWithoutOwnerInput>
+}
+
+export type ProjectUpdateManyWithWhereWithoutOwnerInput = {
+  where: Prisma.ProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutOwnerInput>
+}
+
 export type ProjectCreateWithoutFilesInput = {
   id?: string
   name: string
@@ -787,12 +787,12 @@ export type ProjectCreateWithoutFilesInput = {
   status: $Enums.ProjectStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
-  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
-  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
-  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
 }
 
@@ -806,9 +806,9 @@ export type ProjectUncheckedCreateWithoutFilesInput = {
   workspaceId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -835,12 +835,12 @@ export type ProjectUpdateWithoutFilesInput = {
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
-  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
-  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
-  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
 }
 
@@ -854,9 +854,9 @@ export type ProjectUncheckedUpdateWithoutFilesInput = {
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
 }
 
@@ -867,13 +867,13 @@ export type ProjectCreateWithoutMilestonesInput = {
   status: $Enums.ProjectStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
-  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
-  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
-  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutMilestonesInput = {
@@ -886,10 +886,10 @@ export type ProjectUncheckedCreateWithoutMilestonesInput = {
   workspaceId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutMilestonesInput = {
@@ -915,13 +915,13 @@ export type ProjectUpdateWithoutMilestonesInput = {
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
-  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
-  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
-  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
   files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutMilestonesInput = {
@@ -934,10 +934,10 @@ export type ProjectUncheckedUpdateWithoutMilestonesInput = {
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutMessagesInput = {
@@ -947,13 +947,13 @@ export type ProjectCreateWithoutMessagesInput = {
   status: $Enums.ProjectStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
-  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
-  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
-  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutMessagesInput = {
@@ -966,10 +966,10 @@ export type ProjectUncheckedCreateWithoutMessagesInput = {
   workspaceId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutMessagesInput = {
@@ -995,13 +995,13 @@ export type ProjectUpdateWithoutMessagesInput = {
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
-  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
-  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
-  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
   files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutMessagesInput = {
@@ -1014,10 +1014,10 @@ export type ProjectUncheckedUpdateWithoutMessagesInput = {
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutProposalsInput = {
@@ -1027,12 +1027,12 @@ export type ProjectCreateWithoutProposalsInput = {
   status: $Enums.ProjectStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
-  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
-  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
-  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
 }
 
@@ -1046,9 +1046,9 @@ export type ProjectUncheckedCreateWithoutProposalsInput = {
   workspaceId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
 }
 
@@ -1075,12 +1075,12 @@ export type ProjectUpdateWithoutProposalsInput = {
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
-  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
-  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
-  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
   files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
 }
 
@@ -1094,9 +1094,9 @@ export type ProjectUncheckedUpdateWithoutProposalsInput = {
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
 }
 
@@ -1107,13 +1107,13 @@ export type ProjectCreateWithoutInvoicesInput = {
   status: $Enums.ProjectStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
-  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
-  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
-  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
   messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutInvoicesInput = {
@@ -1126,10 +1126,10 @@ export type ProjectUncheckedCreateWithoutInvoicesInput = {
   workspaceId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutInvoicesInput = {
@@ -1155,13 +1155,13 @@ export type ProjectUpdateWithoutInvoicesInput = {
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
-  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
-  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
-  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
   messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
   files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutInvoicesInput = {
@@ -1174,10 +1174,10 @@ export type ProjectUncheckedUpdateWithoutInvoicesInput = {
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutWorkspaceInput = {
@@ -1187,13 +1187,13 @@ export type ProjectCreateWithoutWorkspaceInput = {
   status: $Enums.ProjectStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
-  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
-  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutWorkspaceInput = {
@@ -1205,11 +1205,11 @@ export type ProjectUncheckedCreateWithoutWorkspaceInput = {
   clientId: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
-  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
-  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutWorkspaceInput = {
@@ -1238,17 +1238,6 @@ export type ProjectUpdateManyWithWhereWithoutWorkspaceInput = {
   data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
-export type ProjectCreateManyOwnerInput = {
-  id?: string
-  name: string
-  description: string
-  status: $Enums.ProjectStatus
-  clientId: string
-  workspaceId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
 export type ProjectCreateManyClientInput = {
   id?: string
   name: string
@@ -1260,47 +1249,15 @@ export type ProjectCreateManyClientInput = {
   updatedAt?: Date | string
 }
 
-export type ProjectUpdateWithoutOwnerInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
-  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
-  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
-  invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
-  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
-}
-
-export type ProjectUncheckedUpdateWithoutOwnerInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
-  clientId?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
-  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
-  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
-}
-
-export type ProjectUncheckedUpdateManyWithoutOwnerInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
-  clientId?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type ProjectCreateManyOwnerInput = {
+  id?: string
+  name: string
+  description: string
+  status: $Enums.ProjectStatus
+  clientId: string
+  workspaceId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProjectUpdateWithoutClientInput = {
@@ -1310,13 +1267,13 @@ export type ProjectUpdateWithoutClientInput = {
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
-  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
-  invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutClientInput = {
@@ -1328,11 +1285,11 @@ export type ProjectUncheckedUpdateWithoutClientInput = {
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutClientInput = {
@@ -1341,6 +1298,49 @@ export type ProjectUncheckedUpdateManyWithoutClientInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProjectUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateManyWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  clientId?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1364,13 +1364,13 @@ export type ProjectUpdateWithoutWorkspaceInput = {
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
-  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
-  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
@@ -1382,11 +1382,11 @@ export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
-  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
-  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -1406,19 +1406,19 @@ export type ProjectUncheckedUpdateManyWithoutWorkspaceInput = {
  */
 
 export type ProjectCountOutputType = {
-  milestones: number
-  messages: number
   invoices: number
-  proposals: number
+  messages: number
+  milestones: number
   files: number
+  proposals: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  milestones?: boolean | ProjectCountOutputTypeCountMilestonesArgs
-  messages?: boolean | ProjectCountOutputTypeCountMessagesArgs
   invoices?: boolean | ProjectCountOutputTypeCountInvoicesArgs
-  proposals?: boolean | ProjectCountOutputTypeCountProposalsArgs
+  messages?: boolean | ProjectCountOutputTypeCountMessagesArgs
+  milestones?: boolean | ProjectCountOutputTypeCountMilestonesArgs
   files?: boolean | ProjectCountOutputTypeCountFilesArgs
+  proposals?: boolean | ProjectCountOutputTypeCountProposalsArgs
 }
 
 /**
@@ -1434,8 +1434,8 @@ export type ProjectCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
 /**
  * ProjectCountOutputType without action
  */
-export type ProjectCountOutputTypeCountMilestonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MilestoneWhereInput
+export type ProjectCountOutputTypeCountInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InvoiceWhereInput
 }
 
 /**
@@ -1448,15 +1448,8 @@ export type ProjectCountOutputTypeCountMessagesArgs<ExtArgs extends runtime.Type
 /**
  * ProjectCountOutputType without action
  */
-export type ProjectCountOutputTypeCountInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.InvoiceWhereInput
-}
-
-/**
- * ProjectCountOutputType without action
- */
-export type ProjectCountOutputTypeCountProposalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProposalWhereInput
+export type ProjectCountOutputTypeCountMilestonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MilestoneWhereInput
 }
 
 /**
@@ -1464,6 +1457,13 @@ export type ProjectCountOutputTypeCountProposalsArgs<ExtArgs extends runtime.Typ
  */
 export type ProjectCountOutputTypeCountFilesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProjectFileWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountProposalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProposalWhereInput
 }
 
 
@@ -1477,14 +1477,14 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
-  milestones?: boolean | Prisma.Project$milestonesArgs<ExtArgs>
-  messages?: boolean | Prisma.Project$messagesArgs<ExtArgs>
   invoices?: boolean | Prisma.Project$invoicesArgs<ExtArgs>
-  proposals?: boolean | Prisma.Project$proposalsArgs<ExtArgs>
+  messages?: boolean | Prisma.Project$messagesArgs<ExtArgs>
+  milestones?: boolean | Prisma.Project$milestonesArgs<ExtArgs>
+  client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
   files?: boolean | Prisma.Project$filesArgs<ExtArgs>
+  proposals?: boolean | Prisma.Project$proposalsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1498,8 +1498,8 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1513,8 +1513,8 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1532,38 +1532,38 @@ export type ProjectSelectScalar = {
 
 export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "status" | "ownerId" | "clientId" | "workspaceId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
-  milestones?: boolean | Prisma.Project$milestonesArgs<ExtArgs>
-  messages?: boolean | Prisma.Project$messagesArgs<ExtArgs>
   invoices?: boolean | Prisma.Project$invoicesArgs<ExtArgs>
-  proposals?: boolean | Prisma.Project$proposalsArgs<ExtArgs>
+  messages?: boolean | Prisma.Project$messagesArgs<ExtArgs>
+  milestones?: boolean | Prisma.Project$milestonesArgs<ExtArgs>
+  client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
   files?: boolean | Prisma.Project$filesArgs<ExtArgs>
+  proposals?: boolean | Prisma.Project$proposalsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
 }
 export type ProjectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
 }
 
 export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Project"
   objects: {
-    owner: Prisma.$UserPayload<ExtArgs>
-    client: Prisma.$UserPayload<ExtArgs>
-    workspace: Prisma.$WorkspacePayload<ExtArgs> | null
-    milestones: Prisma.$MilestonePayload<ExtArgs>[]
-    messages: Prisma.$MessagePayload<ExtArgs>[]
     invoices: Prisma.$InvoicePayload<ExtArgs>[]
-    proposals: Prisma.$ProposalPayload<ExtArgs>[]
+    messages: Prisma.$MessagePayload<ExtArgs>[]
+    milestones: Prisma.$MilestonePayload<ExtArgs>[]
+    client: Prisma.$UserPayload<ExtArgs>
+    owner: Prisma.$UserPayload<ExtArgs>
+    workspace: Prisma.$WorkspacePayload<ExtArgs> | null
     files: Prisma.$ProjectFilePayload<ExtArgs>[]
+    proposals: Prisma.$ProposalPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1969,14 +1969,14 @@ readonly fields: ProjectFieldRefs;
  */
 export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  client<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  workspace<T extends Prisma.Project$workspaceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$workspaceArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  milestones<T extends Prisma.Project$milestonesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$milestonesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MilestonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  messages<T extends Prisma.Project$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoices<T extends Prisma.Project$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  proposals<T extends Prisma.Project$proposalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$proposalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  messages<T extends Prisma.Project$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  milestones<T extends Prisma.Project$milestonesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$milestonesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MilestonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  client<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  workspace<T extends Prisma.Project$workspaceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$workspaceArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   files<T extends Prisma.Project$filesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$filesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  proposals<T extends Prisma.Project$proposalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$proposalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2416,46 +2416,27 @@ export type ProjectDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * Project.workspace
+ * Project.invoices
  */
-export type Project$workspaceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Project$invoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Workspace
+   * Select specific fields to fetch from the Invoice
    */
-  select?: Prisma.WorkspaceSelect<ExtArgs> | null
+  select?: Prisma.InvoiceSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Workspace
+   * Omit specific fields from the Invoice
    */
-  omit?: Prisma.WorkspaceOmit<ExtArgs> | null
+  omit?: Prisma.InvoiceOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.WorkspaceInclude<ExtArgs> | null
-  where?: Prisma.WorkspaceWhereInput
-}
-
-/**
- * Project.milestones
- */
-export type Project$milestonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Milestone
-   */
-  select?: Prisma.MilestoneSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Milestone
-   */
-  omit?: Prisma.MilestoneOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.MilestoneInclude<ExtArgs> | null
-  where?: Prisma.MilestoneWhereInput
-  orderBy?: Prisma.MilestoneOrderByWithRelationInput | Prisma.MilestoneOrderByWithRelationInput[]
-  cursor?: Prisma.MilestoneWhereUniqueInput
+  include?: Prisma.InvoiceInclude<ExtArgs> | null
+  where?: Prisma.InvoiceWhereInput
+  orderBy?: Prisma.InvoiceOrderByWithRelationInput | Prisma.InvoiceOrderByWithRelationInput[]
+  cursor?: Prisma.InvoiceWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.MilestoneScalarFieldEnum | Prisma.MilestoneScalarFieldEnum[]
+  distinct?: Prisma.InvoiceScalarFieldEnum | Prisma.InvoiceScalarFieldEnum[]
 }
 
 /**
@@ -2483,51 +2464,46 @@ export type Project$messagesArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
- * Project.invoices
+ * Project.milestones
  */
-export type Project$invoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Project$milestonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Invoice
+   * Select specific fields to fetch from the Milestone
    */
-  select?: Prisma.InvoiceSelect<ExtArgs> | null
+  select?: Prisma.MilestoneSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Invoice
+   * Omit specific fields from the Milestone
    */
-  omit?: Prisma.InvoiceOmit<ExtArgs> | null
+  omit?: Prisma.MilestoneOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.InvoiceInclude<ExtArgs> | null
-  where?: Prisma.InvoiceWhereInput
-  orderBy?: Prisma.InvoiceOrderByWithRelationInput | Prisma.InvoiceOrderByWithRelationInput[]
-  cursor?: Prisma.InvoiceWhereUniqueInput
+  include?: Prisma.MilestoneInclude<ExtArgs> | null
+  where?: Prisma.MilestoneWhereInput
+  orderBy?: Prisma.MilestoneOrderByWithRelationInput | Prisma.MilestoneOrderByWithRelationInput[]
+  cursor?: Prisma.MilestoneWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.InvoiceScalarFieldEnum | Prisma.InvoiceScalarFieldEnum[]
+  distinct?: Prisma.MilestoneScalarFieldEnum | Prisma.MilestoneScalarFieldEnum[]
 }
 
 /**
- * Project.proposals
+ * Project.workspace
  */
-export type Project$proposalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Project$workspaceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Proposal
+   * Select specific fields to fetch from the Workspace
    */
-  select?: Prisma.ProposalSelect<ExtArgs> | null
+  select?: Prisma.WorkspaceSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Proposal
+   * Omit specific fields from the Workspace
    */
-  omit?: Prisma.ProposalOmit<ExtArgs> | null
+  omit?: Prisma.WorkspaceOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProposalInclude<ExtArgs> | null
-  where?: Prisma.ProposalWhereInput
-  orderBy?: Prisma.ProposalOrderByWithRelationInput | Prisma.ProposalOrderByWithRelationInput[]
-  cursor?: Prisma.ProposalWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProposalScalarFieldEnum | Prisma.ProposalScalarFieldEnum[]
+  include?: Prisma.WorkspaceInclude<ExtArgs> | null
+  where?: Prisma.WorkspaceWhereInput
 }
 
 /**
@@ -2552,6 +2528,30 @@ export type Project$filesArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ProjectFileScalarFieldEnum | Prisma.ProjectFileScalarFieldEnum[]
+}
+
+/**
+ * Project.proposals
+ */
+export type Project$proposalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Proposal
+   */
+  select?: Prisma.ProposalSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Proposal
+   */
+  omit?: Prisma.ProposalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProposalInclude<ExtArgs> | null
+  where?: Prisma.ProposalWhereInput
+  orderBy?: Prisma.ProposalOrderByWithRelationInput | Prisma.ProposalOrderByWithRelationInput[]
+  cursor?: Prisma.ProposalWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProposalScalarFieldEnum | Prisma.ProposalScalarFieldEnum[]
 }
 
 /**

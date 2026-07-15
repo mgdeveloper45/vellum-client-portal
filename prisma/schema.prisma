@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/lib/generated/prisma"
@@ -10,6 +5,285 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id                  String                @id @default(cuid())
+  email               String                @unique
+  firstName           String
+  lastName            String
+  password            String?
+  role                UserRole
+  notes               String?
+  workspaceId         String?
+  isBlacklisted       Boolean               @default(false)
+  isActive            Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  auditLogs           AuditLog[]
+  messages            Message[]
+  notifications       Notification[]
+  passwordResetTokens PasswordResetToken[]
+  clientProjects      Project[]             @relation("ClientProjects")
+  ownedProjects       Project[]             @relation("OwnedProjects")
+  workspace           Workspace?            @relation(fields: [workspaceId], references: [id])
+  sentInvitations     WorkspaceInvitation[]
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String
+  status      ProjectStatus
+  ownerId     String
+  clientId    String
+  workspaceId String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  invoices    Invoice[]
+  messages    Message[]
+  milestones  Milestone[]
+  client      User          @relation("ClientProjects", fields: [clientId], references: [id])
+  owner       User          @relation("OwnedProjects", fields: [ownerId], references: [id])
+  workspace   Workspace?    @relation(fields: [workspaceId], references: [id])
+  files       ProjectFile[]
+  proposals   Proposal[]
+
+  @@index([workspaceId])
+  @@index([ownerId])
+  @@index([clientId])
+  @@index([status])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String
+  keyHash     String    @unique
+  keyPrefix   String
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  workspaceId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  userId    String
+  createdAt DateTime @default(now())
+  href      String?
+  type      String?
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String?
+  userId    String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
+}
+
+model ProjectFile {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  fileType  String
+  projectId String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([createdAt])
+}
+
+model Milestone {
+  id        String          @id @default(cuid())
+  title     String
+  status    MilestoneStatus
+  projectId String
+  dueDate   DateTime?
+  createdAt DateTime        @default(now())
+  project   Project         @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  senderId  String
+  projectId String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
+
+  @@index([projectId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Proposal {
+  id        String   @id @default(cuid())
+  approved  Boolean  @default(false)
+  projectId String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([approved])
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  amount    Float
+  paid      Boolean  @default(false)
+  projectId String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([paid])
+  @@index([createdAt])
+}
+
+model Workspace {
+  id                  String                @id @default(cuid())
+  name                String
+  slug                String?               @unique
+  companyName         String?
+  logoImageUrl        String?
+  accentColor         String?               @default("#8B5CF6")
+  customDomain        String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  apiKeys             ApiKey[]
+  bookings            Booking[]
+  businessHours       BusinessHour[]
+  executiveBriefCache ExecutiveBriefCache?
+  projects            Project[]
+  services            Service[]
+  subscription        Subscription?
+  users               User[]
+  invitations         WorkspaceInvitation[]
+}
+
+model WorkspaceInvitation {
+  id          String    @id @default(cuid())
+  email       String
+  role        UserRole
+  token       String    @unique
+  workspaceId String
+  invitedById String
+  acceptedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  invitedBy   User      @relation(fields: [invitedById], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+model Subscription {
+  id                   String           @id @default(cuid())
+  workspaceId          String           @unique
+  stripeCustomerId     String?          @unique
+  stripeSubscriptionId String?          @unique
+  plan                 SubscriptionPlan @default(STARTER)
+  active               Boolean          @default(false)
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  workspace            Workspace        @relation(fields: [workspaceId], references: [id])
+}
+
+model Service {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  duration    Int
+  price       Int
+  active      Boolean   @default(true)
+  workspaceId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  bookings    Booking[]
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id                    String        @id @default(cuid())
+  customerName          String
+  customerEmail         String
+  customerPhone         String?
+  notes                 String?
+  date                  DateTime
+  startTime             String
+  endTime               String
+  status                BookingStatus @default(CONFIRMED)
+  serviceId             String
+  workspaceId           String
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  googleCalendarEventId String?
+  service               Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  workspace             Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([serviceId])
+  @@index([date])
+  @@index([status])
+  @@index([workspaceId, date])
+}
+
+model BusinessHour {
+  id          String    @id @default(cuid())
+  dayOfWeek   DayOfWeek
+  openTime    String
+  closeTime   String
+  closed      Boolean   @default(false)
+  workspaceId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, dayOfWeek])
+}
+
+model ExecutiveBriefCache {
+  id          String    @id @default(cuid())
+  workspaceId String    @unique
+  narrative   String
+  provider    String
+  mode        String
+  durationMs  Int
+  generatedAt DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 }
 
 enum UserRole {
@@ -53,326 +327,4 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
-}
-
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  firstName String
-  lastName  String
-  password  String?
-  role      UserRole
-
-  notes       String?
-  workspaceId String?
-
-  isBlacklisted Boolean @default(false)
-  isActive      Boolean @default(true)
-
-  ownedProjects  Project[] @relation("OwnedProjects")
-  clientProjects Project[] @relation("ClientProjects")
-
-  workspace       Workspace?            @relation(fields: [workspaceId], references: [id])
-  sentInvitations WorkspaceInvitation[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  messages            Message[]
-  auditLogs           AuditLog[]
-  notifications       Notification[]
-  passwordResetTokens PasswordResetToken[]
-}
-
-model Project {
-  id          String @id @default(cuid())
-  name        String
-  description String
-
-  status ProjectStatus
-
-  ownerId String
-  owner   User   @relation("OwnedProjects", fields: [ownerId], references: [id])
-
-  clientId    String
-  client      User    @relation("ClientProjects", fields: [clientId], references: [id])
-  workspaceId String?
-
-  workspace Workspace? @relation(fields: [workspaceId], references: [id])
-
-  milestones Milestone[]
-  messages   Message[]
-  invoices   Invoice[]
-  proposals  Proposal[]
-  files      ProjectFile[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ApiKey {
-  id         String    @id @default(cuid())
-  name       String
-  keyHash    String    @unique
-  keyPrefix  String
-  lastUsedAt DateTime?
-  revokedAt  DateTime?
-
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Notification {
-  id String @id @default(cuid())
-
-  title   String
-  message String
-
-  type String?
-  href String?
-
-  read Boolean @default(false)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-
-model AuditLog {
-  id String @id @default(cuid())
-
-  action String
-  entity String
-
-  entityId String?
-
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id])
-
-  metadata Json?
-
-  createdAt DateTime @default(now())
-}
-
-model ProjectFile {
-  id String @id @default(cuid())
-
-  name     String
-  url      String
-  fileType String
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-
-model Milestone {
-  id String @id @default(cuid())
-
-  title String
-
-  status MilestoneStatus
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id])
-
-  dueDate DateTime?
-
-  createdAt DateTime @default(now())
-}
-
-model Message {
-  id String @id @default(cuid())
-
-  content String
-
-  senderId String
-  sender   User   @relation(fields: [senderId], references: [id])
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-
-model PasswordResetToken {
-  id String @id @default(cuid())
-
-  token String @unique
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  expiresAt DateTime
-
-  createdAt DateTime @default(now())
-}
-
-model Proposal {
-  id String @id @default(cuid())
-
-  approved Boolean @default(false)
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-
-model Invoice {
-  id String @id @default(cuid())
-
-  amount Float
-
-  paid Boolean @default(false)
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-
-model Workspace {
-  id   String  @id @default(cuid())
-  name String
-  slug String? @unique
-
-  users         User[]
-  projects      Project[]
-  services      Service[]
-  apiKeys       ApiKey[]
-  businessHours BusinessHour[]
-  invitations   WorkspaceInvitation[]
-  bookings      Booking[]
-
-  subscription        Subscription?
-  executiveBriefCache ExecutiveBriefCache?
-
-  companyName  String?
-  logoImageUrl String?
-  accentColor  String? @default("#8B5CF6")
-  customDomain String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model WorkspaceInvitation {
-  id String @id @default(cuid())
-
-  email String
-  role  UserRole
-  token String   @unique
-
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-
-  invitedById String
-  invitedBy   User   @relation(fields: [invitedById], references: [id])
-
-  acceptedAt DateTime?
-  expiresAt  DateTime
-
-  createdAt DateTime @default(now())
-}
-
-model Subscription {
-  id String @id @default(cuid())
-
-  workspaceId String    @unique
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-
-  stripeCustomerId     String? @unique
-  stripeSubscriptionId String? @unique
-
-  plan SubscriptionPlan @default(STARTER)
-
-  active Boolean @default(false)
-
-  currentPeriodEnd DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Service {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-
-  duration Int
-  price    Int
-  active   Boolean   @default(true)
-  bookings Booking[]
-
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Booking {
-  id String @id @default(cuid())
-
-  customerName  String
-  customerEmail String
-  customerPhone String?
-  notes         String?
-
-  date      DateTime
-  startTime String
-  endTime   String
-
-  status BookingStatus @default(CONFIRMED)
-
-  googleCalendarEventId String?
-
-  serviceId String
-  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model BusinessHour {
-  id String @id @default(cuid())
-
-  dayOfWeek DayOfWeek
-
-  openTime  String
-  closeTime String
-  closed    Boolean @default(false)
-
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([workspaceId, dayOfWeek])
-}
-
-model ExecutiveBriefCache {
-  id          String @id @default(cuid())
-  workspaceId String
-  narrative   String
-
-  provider   String
-  mode       String
-  durationMs Int
-
-  generatedAt DateTime @default(now())
-
-  workspace Workspace @relation(fields: [workspaceId], references: [id])
-
-  @@unique([workspaceId])
 }
