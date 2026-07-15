@@ -1,13 +1,19 @@
 "use server";
 
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import { createAuditLog } from "@/lib/audit";
-import { prisma } from "@/lib/prisma";
 import { sendProjectMessageEmail } from "@/lib/email";
+import { prisma } from "@/lib/prisma";
+import { createMessageSchema } from "@/lib/validation/message";
+import { redirect } from "next/navigation";
+
+function createMessagePreview(content: string) {
+  return content.length > 100 ? `${content.slice(0, 100)}...` : content;
+}
 
 /**
- * Creates a project message from the signed-in user.
+ * Creates a project message from an authorized
+ * project participant.
  */
 export async function createMessageAction(formData: FormData) {
   const session = await auth();
@@ -16,64 +22,96 @@ export async function createMessageAction(formData: FormData) {
     return;
   }
 
-  const projectId = String(formData.get("projectId"));
-  const content = String(formData.get("content")).trim();
+  const input = createMessageSchema.parse({
+    projectId: formData.get("projectId"),
+    content: formData.get("content"),
+  });
 
-  if (!content) {
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      id: true,
+      workspaceId: true,
+      firstName: true,
+      lastName: true,
+    },
+  });
+
+  if (!currentUser) {
     return;
   }
 
-  const createdMessage = await prisma.message.create({
-    data: {
-      projectId,
-      senderId: session.user.id,
-      content,
-    },
-  });
-
-  await createAuditLog({
-    action: "MESSAGE_SENT",
-    entity: "MESSAGE",
-    entityId: createdMessage.id,
-    userId: session.user.id,
-    metadata: {
-      projectId,
-      preview:
-        createdMessage.content.length > 100
-          ? `${createdMessage.content.slice(0, 100)}...`
-          : createdMessage.content,
-    },
-  });
-
-  const project = await prisma.project.findUnique({
+  const project = await prisma.project.findFirst({
     where: {
-      id: projectId,
+      id: input.projectId,
+
+      OR: [
+        {
+          clientId: currentUser.id,
+        },
+
+        ...(currentUser.workspaceId
+          ? [
+              {
+                workspaceId: currentUser.workspaceId,
+              },
+            ]
+          : []),
+      ],
     },
+
     include: {
       client: true,
       owner: true,
     },
   });
 
-  if (project) {
-    const recipientId =
-      session.user.id === project.clientId ? project.ownerId : project.clientId;
+  if (!project) {
+    return;
+  }
 
+  const createdMessage = await prisma.message.create({
+    data: {
+      projectId: project.id,
+      senderId: currentUser.id,
+      content: input.content,
+    },
+  });
+
+  const preview = createMessagePreview(createdMessage.content);
+
+  await createAuditLog({
+    action: "MESSAGE_SENT",
+    entity: "MESSAGE",
+    entityId: createdMessage.id,
+    userId: currentUser.id,
+    metadata: {
+      projectId: project.id,
+      preview,
+    },
+  });
+
+  const senderIsClient = currentUser.id === project.clientId;
+
+  const recipient = senderIsClient ? project.owner : project.client;
+
+  if (recipient.id !== currentUser.id) {
     await prisma.notification.create({
       data: {
-        userId: recipientId,
+        userId: recipient.id,
         title: "New project message",
-        message:
-          createdMessage.content.length > 100
-            ? `${createdMessage.content.slice(0, 100)}...`
-            : createdMessage.content,
+        message: preview,
+        type: "MESSAGE",
+        href: `/projects/${project.id}`,
       },
     });
 
-    const recipient =
-      session.user.id === project.clientId ? project.owner : project.client;
-
-    const senderName = session.user.name || "Vellum User";
+    const senderName =
+      session.user.name?.trim() ||
+      `${currentUser.firstName} ${currentUser.lastName}`.trim() ||
+      "Vellum User";
 
     await sendProjectMessageEmail({
       email: recipient.email,
@@ -84,5 +122,5 @@ export async function createMessageAction(formData: FormData) {
     });
   }
 
-  redirect(`/projects/${projectId}`);
+  redirect(`/projects/${project.id}`);
 }
