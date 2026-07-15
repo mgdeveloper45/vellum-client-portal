@@ -1,53 +1,61 @@
 "use server";
 
 import { auth } from "@/auth";
-import { canManageProjects } from "@/lib/permissions";
 import { createAuditLog } from "@/lib/audit";
+import { canManageProjects } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import {
+  createProjectSchema,
+  deleteProjectSchema,
+  updateProjectSchema,
+} from "@/lib/validation/project";
 import { redirect } from "next/navigation";
 
-/**
- * Creates a project and redirects back to the projects list.
- */
-export async function createProjectAction(formData: FormData) {
-  const session = await auth();
-
-  if (!canManageProjects(session?.user?.role)) {
-    return;
-  }
-
-  const name = String(formData.get("name"));
-  const description = String(formData.get("description"));
-  const clientId = String(formData.get("clientId"));
-  const ownerId = String(formData.get("ownerId"));
-
-  const status = String(formData.get("status")) as
-    | "PLANNING"
-    | "ACTIVE"
-    | "REVIEW"
-    | "COMPLETED";
-
-  const adminUser = await prisma.user.findUnique({
+async function getWorkspaceId(userId: string) {
+  const user = await prisma.user.findUnique({
     where: {
-      id: session.user.id,
+      id: userId,
     },
     select: {
       workspaceId: true,
     },
   });
 
-  if (!adminUser?.workspaceId) {
+  return user?.workspaceId;
+}
+
+/**
+ * Creates a project.
+ */
+export async function createProjectAction(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user || !canManageProjects(session.user.role)) {
+    return;
+  }
+
+  const input = createProjectSchema.parse({
+    name: formData.get("name"),
+    description: formData.get("description"),
+    clientId: formData.get("clientId"),
+    ownerId: formData.get("ownerId"),
+    status: formData.get("status"),
+  });
+
+  const workspaceId = await getWorkspaceId(session.user.id);
+
+  if (!workspaceId) {
     return;
   }
 
   const project = await prisma.project.create({
     data: {
-      name,
-      description,
-      status,
-      ownerId,
-      clientId,
-      workspaceId: adminUser.workspaceId,
+      name: input.name,
+      description: input.description,
+      status: input.status,
+      ownerId: input.ownerId,
+      clientId: input.clientId,
+      workspaceId,
     },
   });
 
@@ -67,44 +75,54 @@ export async function createProjectAction(formData: FormData) {
 }
 
 /**
- * Updates a project and redirects back to the projects list.
+ * Updates a project.
  */
 export async function updateProjectAction(formData: FormData) {
   const session = await auth();
 
-  if (!canManageProjects(session?.user?.role)) {
+  if (!session?.user || !canManageProjects(session.user.role)) {
     return;
   }
 
-  const projectId = String(formData.get("projectId"));
-  const name = String(formData.get("name"));
-  const description = String(formData.get("description"));
+  const input = updateProjectSchema.parse({
+    projectId: formData.get("projectId"),
+    name: formData.get("name"),
+    description: formData.get("description"),
+    status: formData.get("status"),
+    clientId: formData.get("clientId"),
+    ownerId: formData.get("ownerId"),
+  });
 
-  const status = String(formData.get("status")) as
-    | "PLANNING"
-    | "ACTIVE"
-    | "REVIEW"
-    | "COMPLETED";
+  const workspaceId = await getWorkspaceId(session.user.id);
 
-  const project = await prisma.project.update({
+  if (!workspaceId) {
+    return;
+  }
+
+  const result = await prisma.project.updateMany({
     where: {
-      id: projectId,
+      id: input.projectId,
+      workspaceId,
     },
     data: {
-      name,
-      description,
-      status,
+      name: input.name,
+      description: input.description,
+      status: input.status,
     },
   });
+
+  if (result.count === 0) {
+    return;
+  }
 
   await createAuditLog({
     action: "PROJECT_UPDATED",
     entity: "PROJECT",
-    entityId: project.id,
+    entityId: input.projectId,
     userId: session.user.id,
     metadata: {
-      name: project.name,
-      status: project.status,
+      name: input.name,
+      status: input.status,
     },
   });
 
@@ -112,27 +130,36 @@ export async function updateProjectAction(formData: FormData) {
 }
 
 /**
- * Deletes a project and redirects back to the projects list.
+ * Deletes a project.
  */
 export async function deleteProjectAction(formData: FormData) {
   const session = await auth();
 
-  if (!canManageProjects(session?.user?.role)) {
+  if (!session?.user || !canManageProjects(session.user.role)) {
     return;
   }
 
-  const projectId = String(formData.get("projectId"));
+  const input = deleteProjectSchema.parse({
+    projectId: formData.get("projectId"),
+  });
+
+  const workspaceId = await getWorkspaceId(session.user.id);
+
+  if (!workspaceId) {
+    return;
+  }
 
   await createAuditLog({
     action: "PROJECT_DELETED",
     entity: "PROJECT",
-    entityId: projectId,
+    entityId: input.projectId,
     userId: session.user.id,
   });
 
-  await prisma.project.delete({
+  await prisma.project.deleteMany({
     where: {
-      id: projectId,
+      id: input.projectId,
+      workspaceId,
     },
   });
 
