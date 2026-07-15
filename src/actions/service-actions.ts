@@ -3,7 +3,24 @@
 import { auth } from "@/auth";
 import { canManageWorkspace } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import {
+  createServiceSchema,
+  toggleServiceActiveSchema,
+} from "@/lib/validation/service";
 import { redirect } from "next/navigation";
+
+async function getWorkspaceId(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      workspaceId: true,
+    },
+  });
+
+  return user?.workspaceId;
+}
 
 export async function createServiceAction(formData: FormData) {
   const session = await auth();
@@ -12,40 +29,26 @@ export async function createServiceAction(formData: FormData) {
     return;
   }
 
-  const name = String(formData.get("name") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const duration = Number(formData.get("duration"));
-  const priceDollars = Number(formData.get("price"));
-
-  if (
-    !name ||
-    !duration ||
-    Number.isNaN(duration) ||
-    Number.isNaN(priceDollars)
-  ) {
-    return;
-  }
-
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
+  const input = createServiceSchema.parse({
+    name: formData.get("name"),
+    description: formData.get("description"),
+    duration: formData.get("duration"),
+    priceDollars: formData.get("price"),
   });
 
-  if (!currentUser?.workspaceId) {
+  const workspaceId = await getWorkspaceId(session.user.id);
+
+  if (!workspaceId) {
     return;
   }
 
   await prisma.service.create({
     data: {
-      name,
-      description: description || null,
-      duration,
-      price: Math.round(priceDollars * 100),
-      workspaceId: currentUser.workspaceId,
+      name: input.name,
+      description: input.description ?? null,
+      duration: input.duration,
+      price: Math.round(input.priceDollars * 100),
+      workspaceId,
     },
   });
 
@@ -59,31 +62,30 @@ export async function toggleServiceActiveAction(formData: FormData) {
     return;
   }
 
-  const serviceId = String(formData.get("serviceId") ?? "");
-  const active = String(formData.get("active") ?? "") === "true";
-
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
+  const input = toggleServiceActiveSchema.parse({
+    serviceId: formData.get("serviceId"),
+    active: formData.get("active") === "true",
   });
 
-  if (!currentUser?.workspaceId || !serviceId) {
+  const workspaceId = await getWorkspaceId(session.user.id);
+
+  if (!workspaceId) {
     return;
   }
 
-  await prisma.service.update({
+  const result = await prisma.service.updateMany({
     where: {
-      id: serviceId,
-      workspaceId: currentUser.workspaceId,
+      id: input.serviceId,
+      workspaceId,
     },
     data: {
-      active: !active,
+      active: !input.active,
     },
   });
+
+  if (result.count === 0) {
+    return;
+  }
 
   redirect("/services");
 }
