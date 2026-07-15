@@ -17,61 +17,104 @@ import {
   sendBookingConfirmation,
   sendBookingRescheduled,
 } from "@/lib/services/booking/email-service";
+import {
+  createBookingSchema,
+  rescheduleBookingSchema,
+  updateBookingStatusSchema,
+} from "@/lib/validation/booking";
 
-function addMinutesToTime(time: string, minutes: number) {
-  const [hours, mins] = time.split(":").map(Number);
-
-  const date = new Date();
-  date.setHours(hours, mins + minutes, 0, 0);
-
-  return date.toTimeString().slice(0, 5);
-}
-
-export async function createBookingAction(formData: FormData) {
-  const serviceId = String(formData.get("serviceId") ?? "").trim();
-  const workspaceId = String(formData.get("workspaceId") ?? "").trim();
-  const customerName = String(formData.get("customerName") ?? "").trim();
-  const customerEmail = String(formData.get("customerEmail") ?? "").trim();
-  const customerPhone = String(formData.get("customerPhone") ?? "").trim();
-  const notes = String(formData.get("notes") ?? "").trim();
-  const date = String(formData.get("date") ?? "").trim();
-  const startTime = String(formData.get("startTime") ?? "").trim();
-
-  if (
-    !serviceId ||
-    !workspaceId ||
-    !customerName ||
-    !customerEmail ||
-    !date ||
-    !startTime
-  ) {
-    return;
-  }
-
-  const service = await prisma.service.findUnique({
+async function getWorkspaceId(userId: string) {
+  const user = await prisma.user.findUnique({
     where: {
-      id: serviceId,
-      workspaceId,
+      id: userId,
+    },
+    select: {
+      workspaceId: true,
     },
   });
 
-  if (!service || !service.active) {
+  return user?.workspaceId;
+}
+
+function buildBookingDateTime(date: string, time: string) {
+  return new Date(`${date}T${time}:00`);
+}
+
+export async function createBookingAction(formData: FormData) {
+  const input = createBookingSchema.parse({
+    serviceId: formData.get("serviceId"),
+    workspaceId: formData.get("workspaceId"),
+    customerName: formData.get("customerName"),
+    customerEmail: formData.get("customerEmail"),
+    customerPhone: formData.get("customerPhone"),
+    notes: formData.get("notes"),
+    date: formData.get("date"),
+    startTime: formData.get("startTime"),
+  });
+
+  const service = await prisma.service.findFirst({
+    where: {
+      id: input.serviceId,
+      workspaceId: input.workspaceId,
+      active: true,
+    },
+  });
+
+  if (!service) {
     return;
   }
 
-  const endTime = minutesToTime(timeToMinutes(startTime) + service.duration);
+  const bookingDate = buildBookingDateTime(input.date, "00:00");
+
+  const bookingStartDateTime = buildBookingDateTime(
+    input.date,
+    input.startTime,
+  );
+
+  const endTime = minutesToTime(
+    timeToMinutes(input.startTime) + service.duration,
+  );
+
+  const bookingEndDateTime = buildBookingDateTime(input.date, endTime);
+
+  const conflictingBooking = await prisma.booking.findFirst({
+    where: {
+      workspaceId: input.workspaceId,
+      date: bookingDate,
+      status: {
+        not: "CANCELLED",
+      },
+      OR: [
+        {
+          startTime: {
+            lt: endTime,
+          },
+          endTime: {
+            gt: input.startTime,
+          },
+        },
+      ],
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (conflictingBooking) {
+    return;
+  }
 
   const booking = await prisma.booking.create({
     data: {
-      customerName,
-      customerEmail,
-      customerPhone: customerPhone || null,
-      notes: notes || null,
-      date: new Date(`${date}T00:00:00`),
-      startTime,
+      customerName: input.customerName,
+      customerEmail: input.customerEmail,
+      customerPhone: input.customerPhone ?? null,
+      notes: input.notes ?? null,
+      date: bookingDate,
+      startTime: input.startTime,
       endTime,
-      serviceId,
-      workspaceId,
+      serviceId: input.serviceId,
+      workspaceId: input.workspaceId,
     },
     include: {
       service: true,
@@ -88,9 +131,6 @@ export async function createBookingAction(formData: FormData) {
     bookingDate: booking.date.toLocaleDateString(),
     bookingTime: `${booking.startTime}–${booking.endTime}`,
   });
-
-  const bookingStartDateTime = new Date(`${date}T${startTime}:00`);
-  const bookingEndDateTime = new Date(`${date}T${endTime}:00`);
 
   const calendarEvent = await createBookingCalendarEvent({
     summary: `${booking.service.name} with ${booking.customerName}`,
@@ -113,8 +153,10 @@ export async function createBookingAction(formData: FormData) {
 
   const workspaceAdmin = await prisma.user.findFirst({
     where: {
-      workspaceId,
-      role: "ADMIN",
+      workspaceId: input.workspaceId,
+      role: {
+        in: ["OWNER", "ADMIN"],
+      },
     },
     select: {
       id: true,
@@ -143,33 +185,21 @@ export async function updateBookingStatusAction(formData: FormData) {
     return;
   }
 
-  const bookingId = String(formData.get("bookingId") ?? "").trim();
-  const status = String(formData.get("status") ?? "").trim();
-
-  if (
-    !bookingId ||
-    !["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"].includes(status)
-  ) {
-    return;
-  }
-
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
+  const input = updateBookingStatusSchema.parse({
+    bookingId: formData.get("bookingId"),
+    status: formData.get("status"),
   });
 
-  if (!currentUser?.workspaceId) {
+  const workspaceId = await getWorkspaceId(session.user.id);
+
+  if (!workspaceId) {
     return;
   }
 
   const existingBooking = await prisma.booking.findFirst({
     where: {
-      id: bookingId,
-      workspaceId: currentUser.workspaceId,
+      id: input.bookingId,
+      workspaceId,
     },
     select: {
       id: true,
@@ -181,7 +211,7 @@ export async function updateBookingStatusAction(formData: FormData) {
     return;
   }
 
-  if (status === "CANCELLED" && existingBooking.googleCalendarEventId) {
+  if (input.status === "CANCELLED" && existingBooking.googleCalendarEventId) {
     await deleteBookingCalendarEvent(existingBooking.googleCalendarEventId);
   }
 
@@ -190,13 +220,15 @@ export async function updateBookingStatusAction(formData: FormData) {
       id: existingBooking.id,
     },
     data: {
-      status: status as "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED",
+      status: input.status,
       googleCalendarEventId:
-        status === "CANCELLED" ? null : existingBooking.googleCalendarEventId,
+        input.status === "CANCELLED"
+          ? null
+          : existingBooking.googleCalendarEventId,
     },
   });
 
-  if (status === "CANCELLED") {
+  if (input.status === "CANCELLED") {
     await prisma.notification.create({
       data: {
         userId: session.user.id,
@@ -219,31 +251,22 @@ export async function rescheduleBookingAction(formData: FormData) {
     return;
   }
 
-  const bookingId = String(formData.get("bookingId") ?? "").trim();
-  const date = String(formData.get("date") ?? "").trim();
-  const startTime = String(formData.get("startTime") ?? "").trim();
-
-  if (!bookingId || !date || !startTime) {
-    return;
-  }
-
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
+  const input = rescheduleBookingSchema.parse({
+    bookingId: formData.get("bookingId"),
+    date: formData.get("date"),
+    startTime: formData.get("startTime"),
   });
 
-  if (!currentUser?.workspaceId) {
+  const workspaceId = await getWorkspaceId(session.user.id);
+
+  if (!workspaceId) {
     return;
   }
 
   const booking = await prisma.booking.findFirst({
     where: {
-      id: bookingId,
-      workspaceId: currentUser.workspaceId,
+      id: input.bookingId,
+      workspaceId,
     },
     include: {
       service: true,
@@ -255,15 +278,49 @@ export async function rescheduleBookingAction(formData: FormData) {
     return;
   }
 
-  const endTime = addMinutesToTime(startTime, booking.service.duration);
+  const endTime = minutesToTime(
+    timeToMinutes(input.startTime) + booking.service.duration,
+  );
+
+  const bookingDate = buildBookingDateTime(input.date, "00:00");
+
+  const conflictingBooking = await prisma.booking.findFirst({
+    where: {
+      id: {
+        not: booking.id,
+      },
+      workspaceId,
+      date: bookingDate,
+      status: {
+        not: "CANCELLED",
+      },
+      OR: [
+        {
+          startTime: {
+            lt: endTime,
+          },
+          endTime: {
+            gt: input.startTime,
+          },
+        },
+      ],
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (conflictingBooking) {
+    return;
+  }
 
   const updatedBooking = await prisma.booking.update({
     where: {
       id: booking.id,
     },
     data: {
-      date: new Date(`${date}T00:00:00`),
-      startTime,
+      date: bookingDate,
+      startTime: input.startTime,
       endTime,
       status: "CONFIRMED",
     },
@@ -273,8 +330,9 @@ export async function rescheduleBookingAction(formData: FormData) {
     },
   });
 
-  const startDateTime = new Date(`${date}T${startTime}:00`);
-  const endDateTime = new Date(`${date}T${endTime}:00`);
+  const startDateTime = buildBookingDateTime(input.date, input.startTime);
+
+  const endDateTime = buildBookingDateTime(input.date, endTime);
 
   await updateBookingCalendarEvent({
     eventId: updatedBooking.googleCalendarEventId,
