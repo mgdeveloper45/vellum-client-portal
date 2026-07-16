@@ -1,47 +1,82 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
+import { runWithRequestContext } from "@/lib/request-context";
+import { createRequestId } from "@/lib/request-id";
 
 export async function GET() {
-  const requestId = (await headers()).get("x-request-id") ?? "unknown";
+  const requestHeaders = await headers();
 
-  try {
-    const started = performance.now();
+  const requestId = requestHeaders.get("x-request-id") ?? createRequestId();
 
-    await prisma.$queryRaw`SELECT 1`;
+  return runWithRequestContext(
+    {
+      requestId,
+    },
+    async () => {
+      const startedAt = performance.now();
 
-    const durationMs = Math.round(performance.now() - started);
+      try {
+        await prisma.$queryRaw`SELECT 1`;
 
-    return NextResponse.json(
-      {
-        status: "ready",
-        requestId,
-        checks: {
-          database: "ok",
-        },
+        const durationMs = Math.round(performance.now() - startedAt);
 
-        durationMs,
+        logger.info("Readiness check passed", {
+          component: "health",
+          check: "database",
+          durationMs,
+          status: "ready",
+        });
 
-        timestamp: new Date().toISOString(),
-      },
-      {
-        status: 200,
-      },
-    );
-  } catch {
-    return NextResponse.json(
-      {
-        status: "not_ready",
-        requestId,
-        checks: {
-          database: "failed",
-        },
+        return NextResponse.json(
+          {
+            status: "ready",
+            requestId,
+            checks: {
+              database: "ok",
+            },
+            durationMs,
+            timestamp: new Date().toISOString(),
+          },
+          {
+            status: 200,
+            headers: {
+              "cache-control": "no-store, max-age=0",
+            },
+          },
+        );
+      } catch (error) {
+        const durationMs = Math.round(performance.now() - startedAt);
 
-        timestamp: new Date().toISOString(),
-      },
-      {
-        status: 503,
-      },
-    );
-  }
+        logger.error("Readiness check failed", {
+          component: "health",
+          check: "database",
+          durationMs,
+          status: "not_ready",
+          errorName: error instanceof Error ? error.name : "UnknownError",
+          errorMessage:
+            error instanceof Error ? error.message : "Unknown readiness error",
+        });
+
+        return NextResponse.json(
+          {
+            status: "not_ready",
+            requestId,
+            checks: {
+              database: "failed",
+            },
+            durationMs,
+            timestamp: new Date().toISOString(),
+          },
+          {
+            status: 503,
+            headers: {
+              "cache-control": "no-store, max-age=0",
+            },
+          },
+        );
+      }
+    },
+  );
 }
