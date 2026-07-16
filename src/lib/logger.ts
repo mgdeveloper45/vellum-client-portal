@@ -1,6 +1,6 @@
-type LogLevel = "info" | "warn" | "error";
+type LogLevel = "debug" | "info" | "warn" | "error";
 
-type LogContext = Record<string, unknown>;
+export type LogContext = Record<string, unknown>;
 
 function log(level: LogLevel, message: string, context: LogContext = {}) {
   const entry = {
@@ -10,20 +10,30 @@ function log(level: LogLevel, message: string, context: LogContext = {}) {
     ...context,
   };
 
-  if (level === "error") {
-    console.error(entry);
-    return;
-  }
+  switch (level) {
+    case "debug":
+      console.debug(entry);
+      break;
 
-  if (level === "warn") {
-    console.warn(entry);
-    return;
-  }
+    case "info":
+      console.info(entry);
+      break;
 
-  console.log(entry);
+    case "warn":
+      console.warn(entry);
+      break;
+
+    case "error":
+      console.error(entry);
+      break;
+  }
 }
 
 export const logger = {
+  debug(message: string, context?: LogContext) {
+    log("debug", message, context);
+  },
+
   info(message: string, context?: LogContext) {
     log("info", message, context);
   },
