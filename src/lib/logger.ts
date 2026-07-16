@@ -1,14 +1,17 @@
+import { getRequestId } from "@/lib/request-context";
+
 type LogLevel = "debug" | "info" | "warn" | "error";
 
 export type LogContext = Record<string, unknown>;
 
 function log(level: LogLevel, message: string, context: LogContext = {}) {
   const entry = {
-    timestamp: new Date().toISOString(),
-    level,
-    message,
-    ...context,
-  };
+  timestamp: new Date().toISOString(),
+  requestId: getRequestId(),
+  level,
+  message,
+  ...context,
+};
 
   switch (level) {
     case "debug":
