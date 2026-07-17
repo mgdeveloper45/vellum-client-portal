@@ -1,15 +1,8 @@
-import { BookingRule, BookingRuleContext } from "./booking-rules";
+import { SchedulingContext } from "./scheduling-context";
+import { BookingRuleContext } from "./booking-rules";
 import { calculateDeposit, DepositCalculationResult } from "./deposit-engine";
 
-export interface SchedulingRequest {
-  serviceId: string;
-  servicePrice: number;
-  bookingDate: Date;
-  isNewClient: boolean;
-  isVip: boolean;
-  existingBookingsToday: number;
-  bookingRules: BookingRule[];
-}
+export type SchedulingRequest = SchedulingContext;
 
 export interface SchedulingResult {
   deposit: DepositCalculationResult;
