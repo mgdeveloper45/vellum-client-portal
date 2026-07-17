@@ -22,6 +22,11 @@ import {
   rescheduleBookingSchema,
   updateBookingStatusSchema,
 } from "@/lib/validation/booking";
+import { calculateDeposit } from "@/lib/services/scheduling/deposit-engine";
+import {
+  BookingRule,
+  BookingRuleContext,
+} from "@/lib/services/scheduling/booking-rules";
 
 async function getWorkspaceId(userId: string) {
   const user = await prisma.user.findUnique({
@@ -75,6 +80,18 @@ export async function createBookingAction(formData: FormData) {
     timeToMinutes(input.startTime) + service.duration,
   );
 
+  const bookingContext: BookingRuleContext = {
+    serviceId: input.serviceId,
+    isNewClient: true,
+    isVip: false,
+    dayOfWeek: new Date(input.date).getDay(),
+    existingBookingsToday: 0,
+  };
+
+  const bookingRules: BookingRule[] = [];
+
+  const deposit = calculateDeposit(bookingRules, bookingContext, service.price);
+
   const bookingEndDateTime = buildBookingDateTime(input.date, endTime);
 
   const conflictingBooking = await prisma.booking.findFirst({
@@ -103,6 +120,8 @@ export async function createBookingAction(formData: FormData) {
   if (conflictingBooking) {
     return;
   }
+
+  console.log("Deposit calculation", deposit);
 
   const booking = await prisma.booking.create({
     data: {
