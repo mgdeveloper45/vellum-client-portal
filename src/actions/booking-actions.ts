@@ -22,10 +22,7 @@ import {
   rescheduleBookingSchema,
   updateBookingStatusSchema,
 } from "@/lib/validation/booking";
-import { calculateDeposit } from "@/lib/services/scheduling/deposit-engine";
-import {
-  BookingRuleContext,
-} from "@/lib/services/scheduling/booking-rules";
+import { processScheduling } from "@/lib/services/scheduling/scheduling-orchestrator";
 import { bookingRuleRepository } from "@/lib/repositories/booking-rule-repository";
 
 async function getWorkspaceId(userId: string) {
@@ -80,20 +77,36 @@ export async function createBookingAction(formData: FormData) {
     timeToMinutes(input.startTime) + service.duration,
   );
 
-  const bookingContext: BookingRuleContext = {
+  const bookingRules = await bookingRuleRepository.getWorkspaceRules(
+    input.workspaceId,
+  );
+
+  const schedulingDecision = processScheduling({
+    workspaceId: input.workspaceId,
     serviceId: input.serviceId,
+    servicePrice: service.price,
+    bookingDate: bookingStartDateTime,
     isNewClient: true,
     isVip: false,
-    dayOfWeek: new Date(input.date).getDay(),
     existingBookingsToday: 0,
-  };
+    bookingRules,
+  });
 
- const bookingRules = (
-  await bookingRuleRepository.getWorkspaceRules(input.workspaceId)
-);
+  if (!schedulingDecision.allowed) {
+    console.warn("Booking rejected by scheduling engine", {
+      workspaceId: input.workspaceId,
+      serviceId: input.serviceId,
+      reasons: schedulingDecision.reasons,
+    });
 
-  const deposit = calculateDeposit(bookingRules, bookingContext, service.price);
+    return;
+  }
 
+  if (!schedulingDecision.deposit) {
+    throw new Error("Scheduling deposit calculation did not complete");
+  }
+
+  const deposit = schedulingDecision.deposit;
   const bookingEndDateTime = buildBookingDateTime(input.date, endTime);
 
   const conflictingBooking = await prisma.booking.findFirst({

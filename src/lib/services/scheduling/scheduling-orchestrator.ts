@@ -1,31 +1,32 @@
-import { SchedulingContext } from "./scheduling-context";
-import { BookingRuleContext } from "./booking-rules";
-import { calculateDeposit, DepositCalculationResult } from "./deposit-engine";
+import type { BookingRuleContext } from "./booking-rules";
+import { calculateDeposit } from "./deposit-engine";
+import {
+  createSchedulingDecision,
+  type SchedulingDecision,
+} from "./scheduling-decision";
+import type { SchedulingContext } from "./scheduling-context";
 
 export type SchedulingRequest = SchedulingContext;
 
-export interface SchedulingResult {
-  deposit: DepositCalculationResult;
-}
-
 export function processScheduling(
   request: SchedulingRequest,
-): SchedulingResult {
-  const context: BookingRuleContext = {
+): SchedulingDecision {
+  const decision = createSchedulingDecision();
+
+  const bookingRuleContext: BookingRuleContext = {
     serviceId: request.serviceId,
+    staffId: request.staffId,
     dayOfWeek: request.bookingDate.getDay(),
     isNewClient: request.isNewClient,
     isVip: request.isVip,
     existingBookingsToday: request.existingBookingsToday,
   };
 
-  const deposit = calculateDeposit(
+  decision.deposit = calculateDeposit(
     request.bookingRules,
-    context,
+    bookingRuleContext,
     request.servicePrice,
   );
 
-  return {
-    deposit,
-  };
+  return decision;
 }
