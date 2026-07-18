@@ -5,6 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { canManageWorkspace } from "@/lib/permissions";
 import {
+  defaultSchedulingConfiguration,
+} from "@/lib/services/scheduling/scheduling-configuration";
+import {
   createBookingCalendarEvent,
   deleteBookingCalendarEvent,
   updateBookingCalendarEvent,
@@ -22,7 +25,7 @@ import {
   rescheduleBookingSchema,
   updateBookingStatusSchema,
 } from "@/lib/validation/booking";
-import { processScheduling } from "@/lib/services/scheduling/scheduling-orchestrator";
+import { schedulingEngine } from "@/lib/services/scheduling/scheduling-engine";
 import { bookingRuleRepository } from "@/lib/repositories/booking-rule-repository";
 
 async function getWorkspaceId(userId: string) {
@@ -81,10 +84,12 @@ export async function createBookingAction(formData: FormData) {
     input.workspaceId,
   );
 
-  const schedulingDecision = await processScheduling({
+  const schedulingDecision =
+  await schedulingEngine.process({
     workspaceId: input.workspaceId,
     serviceId: input.serviceId,
     servicePrice: service.price,
+    configuration: defaultSchedulingConfiguration,
     bookingDate: bookingStartDateTime,
     bookingStartTime: input.startTime,
     bookingEndTime: endTime,

@@ -4,15 +4,18 @@ import {
 } from "./availability-engine";
 import type { BookingRuleContext } from "./booking-rules";
 import { calculateDeposit } from "./deposit-engine";
+import type { PolicyPipeline } from "./policies/policy-pipeline";
+import type { SchedulingContext } from "./scheduling-context";
 import {
   createSchedulingDecision,
   type SchedulingDecision,
 } from "./scheduling-decision";
-import type { SchedulingContext } from "./scheduling-context";
-import { AdvanceNoticePolicy } from "./policies/advance-notice-policy";
-import { PolicyPipeline } from "./policies/policy-pipeline";
 
 export type SchedulingRequest = SchedulingContext;
+
+export interface SchedulingDependencies {
+  policyPipeline: PolicyPipeline;
+}
 
 function applyAvailabilityResult(
   decision: SchedulingDecision,
@@ -31,12 +34,11 @@ function applyAvailabilityResult(
 
 export async function processScheduling(
   request: SchedulingRequest,
+  dependencies: SchedulingDependencies,
 ): Promise<SchedulingDecision> {
   const decision = createSchedulingDecision();
 
-  const policyPipeline = new PolicyPipeline([new AdvanceNoticePolicy()]);
-
-  await policyPipeline.evaluate(request, decision);
+  await dependencies.policyPipeline.evaluate(request, decision);
 
   if (!decision.allowed) {
     return decision;

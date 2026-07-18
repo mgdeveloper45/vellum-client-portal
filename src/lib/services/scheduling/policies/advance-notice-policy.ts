@@ -4,12 +4,22 @@ import type { SchedulingPolicy } from "./policy";
 
 export class AdvanceNoticePolicy implements SchedulingPolicy {
   evaluate(context: SchedulingContext, decision: SchedulingDecision): void {
-    const now = new Date();
+    const minimumMinutes = context.configuration.minimumAdvanceNoticeMinutes;
 
-    if (context.bookingDate <= now) {
+    if (minimumMinutes === 0) {
+      return;
+    }
+
+    const earliestBooking = new Date();
+
+    earliestBooking.setMinutes(earliestBooking.getMinutes() + minimumMinutes);
+
+    if (context.bookingDate < earliestBooking) {
       decision.allowed = false;
 
-      decision.reasons.push("Bookings must be scheduled in the future.");
+      decision.reasons.push(
+        `Bookings require at least ${minimumMinutes} minutes notice.`,
+      );
     }
   }
 }
