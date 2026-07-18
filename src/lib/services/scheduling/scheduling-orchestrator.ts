@@ -9,6 +9,8 @@ import {
   type SchedulingDecision,
 } from "./scheduling-decision";
 import type { SchedulingContext } from "./scheduling-context";
+import { AdvanceNoticePolicy } from "./policies/advance-notice-policy";
+import { PolicyPipeline } from "./policies/policy-pipeline";
 
 export type SchedulingRequest = SchedulingContext;
 
@@ -31,6 +33,14 @@ export async function processScheduling(
   request: SchedulingRequest,
 ): Promise<SchedulingDecision> {
   const decision = createSchedulingDecision();
+
+  const policyPipeline = new PolicyPipeline([new AdvanceNoticePolicy()]);
+
+  await policyPipeline.evaluate(request, decision);
+
+  if (!decision.allowed) {
+    return decision;
+  }
 
   const availability = await checkAvailability({
     workspaceId: request.workspaceId,
