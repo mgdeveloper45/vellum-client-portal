@@ -13,14 +13,16 @@ export interface BookingRule {
   name: string;
   type: BookingRuleType;
   enabled: boolean;
+  priority: number;
 
   value?: number | string | boolean;
 
   appliesToServiceId?: string;
-
   appliesToStaffId?: string;
-
   appliesToDayOfWeek?: number;
+
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export interface BookingRuleContext {
