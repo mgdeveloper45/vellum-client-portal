@@ -10,11 +10,13 @@ import {
   createSchedulingDecision,
   type SchedulingDecision,
 } from "./scheduling-decision";
+import type { SchedulingResourceProvider } from "./resources/resource-provider";
 
 export type SchedulingRequest = SchedulingContext;
 
 export interface SchedulingDependencies {
   policyPipeline: PolicyPipeline;
+  resourceProvider: SchedulingResourceProvider;
 }
 
 function applyAvailabilityResult(
