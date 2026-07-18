@@ -5,5 +5,5 @@ export interface SchedulingPolicy {
   evaluate(
     context: SchedulingContext,
     decision: SchedulingDecision,
-  ): Promise<void> | void;
+  ): Promise<void>;
 }

@@ -5,7 +5,7 @@ import type { SchedulingPolicy } from "./policy";
 
 
 export class BookingWindowPolicy implements SchedulingPolicy {
-  evaluate(context: SchedulingContext, decision: SchedulingDecision): void {
+  async evaluate(context: SchedulingContext, decision: SchedulingDecision): Promise<void> {
     const now = new Date();
 
     const latestBooking = new Date(now);

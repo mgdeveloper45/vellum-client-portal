@@ -3,7 +3,7 @@ import type { SchedulingContext } from "../scheduling-context";
 import type { SchedulingPolicy } from "./policy";
 
 export class AdvanceNoticePolicy implements SchedulingPolicy {
-  evaluate(context: SchedulingContext, decision: SchedulingDecision): void {
+  async evaluate(context: SchedulingContext, decision: SchedulingDecision): Promise<void> {
     const minimumMinutes = context.configuration.minimumAdvanceNoticeMinutes;
 
     if (minimumMinutes === 0) {
