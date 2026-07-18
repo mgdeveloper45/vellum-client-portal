@@ -186,6 +186,7 @@ model Workspace {
   updatedAt           DateTime              @updatedAt
   apiKeys             ApiKey[]
   bookings            Booking[]
+  bookingRules        BookingRule[]
   businessHours       BusinessHour[]
   executiveBriefCache ExecutiveBriefCache?
   projects            Project[]
@@ -223,17 +224,18 @@ model Subscription {
 }
 
 model Service {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  duration    Int
-  price       Int
-  active      Boolean   @default(true)
-  workspaceId String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  bookings    Booking[]
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  duration     Int
+  price        Int
+  active       Boolean       @default(true)
+  workspaceId  String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  bookings     Booking[]
+  bookingRules BookingRule[]
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
 model Booking {
@@ -284,6 +286,40 @@ model ExecutiveBriefCache {
   durationMs  Int
   generatedAt DateTime  @default(now())
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+model BookingRule {
+  id String @id @default(cuid())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name String
+  type String
+
+  enabled Boolean @default(true)
+
+  priority Int @default(100)
+
+  value String?
+
+  appliesToServiceId String?
+  service            Service? @relation(fields: [appliesToServiceId], references: [id], onDelete: SetNull)
+
+  appliesToStaffId String?
+
+  dayOfWeek Int?
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@index([workspaceId, enabled])
+  @@index([workspaceId, type])
+  @@index([workspaceId, priority])
 }
 
 enum UserRole {

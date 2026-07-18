@@ -24,9 +24,9 @@ import {
 } from "@/lib/validation/booking";
 import { calculateDeposit } from "@/lib/services/scheduling/deposit-engine";
 import {
-  BookingRule,
   BookingRuleContext,
 } from "@/lib/services/scheduling/booking-rules";
+import { bookingRuleRepository } from "@/lib/repositories/booking-rule-repository";
 
 async function getWorkspaceId(userId: string) {
   const user = await prisma.user.findUnique({
@@ -88,7 +88,10 @@ export async function createBookingAction(formData: FormData) {
     existingBookingsToday: 0,
   };
 
-  const bookingRules: BookingRule[] = [];
+  const bookingRules =
+  await bookingRuleRepository.getWorkspaceRules(
+    input.workspaceId,
+  );
 
   const deposit = calculateDeposit(bookingRules, bookingContext, service.price);
 
