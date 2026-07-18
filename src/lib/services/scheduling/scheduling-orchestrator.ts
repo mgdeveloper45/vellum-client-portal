@@ -1,3 +1,7 @@
+import {
+  checkAvailability,
+  type AvailabilityResult,
+} from "./availability-engine";
 import type { BookingRuleContext } from "./booking-rules";
 import { calculateDeposit } from "./deposit-engine";
 import {
@@ -8,10 +12,39 @@ import type { SchedulingContext } from "./scheduling-context";
 
 export type SchedulingRequest = SchedulingContext;
 
-export function processScheduling(
+function applyAvailabilityResult(
+  decision: SchedulingDecision,
+  availability: AvailabilityResult,
+): void {
+  decision.availability = availability;
+
+  if (!availability.available) {
+    decision.allowed = false;
+
+    if (availability.reason) {
+      decision.reasons.push(availability.reason);
+    }
+  }
+}
+
+export async function processScheduling(
   request: SchedulingRequest,
-): SchedulingDecision {
+): Promise<SchedulingDecision> {
   const decision = createSchedulingDecision();
+
+  const availability = await checkAvailability({
+    workspaceId: request.workspaceId,
+    bookingDate: request.bookingDate,
+    startTime: request.bookingStartTime,
+    endTime: request.bookingEndTime,
+    excludeBookingId: request.excludeBookingId,
+  });
+
+  applyAvailabilityResult(decision, availability);
+
+  if (!decision.allowed) {
+    return decision;
+  }
 
   const bookingRuleContext: BookingRuleContext = {
     serviceId: request.serviceId,

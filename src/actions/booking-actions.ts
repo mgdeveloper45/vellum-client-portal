@@ -81,11 +81,13 @@ export async function createBookingAction(formData: FormData) {
     input.workspaceId,
   );
 
-  const schedulingDecision = processScheduling({
+  const schedulingDecision = await processScheduling({
     workspaceId: input.workspaceId,
     serviceId: input.serviceId,
     servicePrice: service.price,
     bookingDate: bookingStartDateTime,
+    bookingStartTime: input.startTime,
+    bookingEndTime: endTime,
     isNewClient: true,
     isVip: false,
     existingBookingsToday: 0,
@@ -108,33 +110,6 @@ export async function createBookingAction(formData: FormData) {
 
   const deposit = schedulingDecision.deposit;
   const bookingEndDateTime = buildBookingDateTime(input.date, endTime);
-
-  const conflictingBooking = await prisma.booking.findFirst({
-    where: {
-      workspaceId: input.workspaceId,
-      date: bookingDate,
-      status: {
-        not: "CANCELLED",
-      },
-      OR: [
-        {
-          startTime: {
-            lt: endTime,
-          },
-          endTime: {
-            gt: input.startTime,
-          },
-        },
-      ],
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (conflictingBooking) {
-    return;
-  }
 
   console.log("Deposit calculation", deposit);
 
