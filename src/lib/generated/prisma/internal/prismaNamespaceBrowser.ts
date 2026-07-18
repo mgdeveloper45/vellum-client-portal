@@ -68,7 +68,8 @@ export const ModelName = {
   Service: 'Service',
   Booking: 'Booking',
   BusinessHour: 'BusinessHour',
-  ExecutiveBriefCache: 'ExecutiveBriefCache'
+  ExecutiveBriefCache: 'ExecutiveBriefCache',
+  BookingRule: 'BookingRule'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -334,6 +335,26 @@ export const ExecutiveBriefCacheScalarFieldEnum = {
 } as const
 
 export type ExecutiveBriefCacheScalarFieldEnum = (typeof ExecutiveBriefCacheScalarFieldEnum)[keyof typeof ExecutiveBriefCacheScalarFieldEnum]
+
+
+export const BookingRuleScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  type: 'type',
+  enabled: 'enabled',
+  priority: 'priority',
+  value: 'value',
+  appliesToServiceId: 'appliesToServiceId',
+  appliesToStaffId: 'appliesToStaffId',
+  dayOfWeek: 'dayOfWeek',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BookingRuleScalarFieldEnum = (typeof BookingRuleScalarFieldEnum)[keyof typeof BookingRuleScalarFieldEnum]
 
 
 export const SortOrder = {

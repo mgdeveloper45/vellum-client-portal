@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { canManageWorkspace } from "@/lib/permissions";
+import type { BookingRuleType } from "@/lib/services/scheduling/booking-rules";
 import {
   createBookingCalendarEvent,
   deleteBookingCalendarEvent,
@@ -88,10 +89,21 @@ export async function createBookingAction(formData: FormData) {
     existingBookingsToday: 0,
   };
 
-  const bookingRules =
-  await bookingRuleRepository.getWorkspaceRules(
-    input.workspaceId,
-  );
+ const bookingRules = (
+  await bookingRuleRepository.getWorkspaceRules(input.workspaceId)
+).map((rule) => ({
+  id: rule.id,
+  name: rule.name,
+  type: rule.type as BookingRuleType,
+  enabled: rule.enabled,
+  priority: rule.priority,
+  value: rule.value ?? undefined,
+  appliesToServiceId: rule.appliesToServiceId ?? undefined,
+  appliesToStaffId: rule.appliesToStaffId ?? undefined,
+  dayOfWeek: rule.dayOfWeek ?? undefined,
+  startDate: rule.startDate ?? undefined,
+  endDate: rule.endDate ?? undefined,
+}));
 
   const deposit = calculateDeposit(bookingRules, bookingContext, service.price);
 

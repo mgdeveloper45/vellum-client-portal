@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { BookingRule } from "@/generated/prisma";
 
 export class BookingRuleRepository {
-  async getWorkspaceRules(workspaceId: string): Promise<BookingRule[]> {
+  async getWorkspaceRules(workspaceId: string) {
     return prisma.bookingRule.findMany({
       where: {
         workspaceId,

@@ -401,7 +401,8 @@ export const ModelName = {
   Service: 'Service',
   Booking: 'Booking',
   BusinessHour: 'BusinessHour',
-  ExecutiveBriefCache: 'ExecutiveBriefCache'
+  ExecutiveBriefCache: 'ExecutiveBriefCache',
+  BookingRule: 'BookingRule'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "service" | "booking" | "businessHour" | "executiveBriefCache"
+    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "service" | "booking" | "businessHour" | "executiveBriefCache" | "bookingRule"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1753,6 +1754,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BookingRule: {
+      payload: Prisma.$BookingRulePayload<ExtArgs>
+      fields: Prisma.BookingRuleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BookingRuleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BookingRuleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload>
+        }
+        findFirst: {
+          args: Prisma.BookingRuleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BookingRuleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload>
+        }
+        findMany: {
+          args: Prisma.BookingRuleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload>[]
+        }
+        create: {
+          args: Prisma.BookingRuleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload>
+        }
+        createMany: {
+          args: Prisma.BookingRuleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BookingRuleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload>[]
+        }
+        delete: {
+          args: Prisma.BookingRuleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload>
+        }
+        update: {
+          args: Prisma.BookingRuleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload>
+        }
+        deleteMany: {
+          args: Prisma.BookingRuleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BookingRuleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BookingRuleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload>[]
+        }
+        upsert: {
+          args: Prisma.BookingRuleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingRulePayload>
+        }
+        aggregate: {
+          args: Prisma.BookingRuleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBookingRule>
+        }
+        groupBy: {
+          args: Prisma.BookingRuleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingRuleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BookingRuleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingRuleCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2039,6 +2114,26 @@ export const ExecutiveBriefCacheScalarFieldEnum = {
 } as const
 
 export type ExecutiveBriefCacheScalarFieldEnum = (typeof ExecutiveBriefCacheScalarFieldEnum)[keyof typeof ExecutiveBriefCacheScalarFieldEnum]
+
+
+export const BookingRuleScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  type: 'type',
+  enabled: 'enabled',
+  priority: 'priority',
+  value: 'value',
+  appliesToServiceId: 'appliesToServiceId',
+  appliesToStaffId: 'appliesToStaffId',
+  dayOfWeek: 'dayOfWeek',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BookingRuleScalarFieldEnum = (typeof BookingRuleScalarFieldEnum)[keyof typeof BookingRuleScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2376,6 +2471,7 @@ export type GlobalOmitConfig = {
   booking?: Prisma.BookingOmit
   businessHour?: Prisma.BusinessHourOmit
   executiveBriefCache?: Prisma.ExecutiveBriefCacheOmit
+  bookingRule?: Prisma.BookingRuleOmit
 }
 
 /* Types for Logging */
