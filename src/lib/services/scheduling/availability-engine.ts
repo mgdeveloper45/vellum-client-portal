@@ -1,4 +1,9 @@
-import { prisma } from "@/lib/prisma";
+import type {
+  BookingAvailabilityRecord,
+  BookingAvailabilityRepository,
+} from "@/lib/repositories/booking-availability-repository";
+
+import { convertTimeToMinutes } from "./time/time-utils";
 
 export interface AvailabilityRequest {
   workspaceId: string;
@@ -6,99 +11,131 @@ export interface AvailabilityRequest {
   startTime: string;
   endTime: string;
   excludeBookingId?: string;
+
+  preBookingBufferMinutes?: number;
+  postBookingBufferMinutes?: number;
 }
 
 export interface AvailabilityResult {
   available: boolean;
   reason?: string;
+  conflictingBookingId?: string;
 }
 
-function timeToMinutes(time: string): number | null {
-  const match = /^(\d{2}):(\d{2})$/.exec(time);
+export type AvailabilityChecker = (
+  request: AvailabilityRequest,
+) => Promise<AvailabilityResult>;
 
-  if (!match) {
-    return null;
-  }
+function isValidBuffer(value: number): boolean {
+  return Number.isInteger(value) && value >= 0;
+}
 
-  const hours = Number(match[1]);
-  const minutes = Number(match[2]);
+function bookingsConflict(
+  requestedStartMinutes: number,
+  requestedEndMinutes: number,
+  existingBooking: BookingAvailabilityRecord,
+  preBookingBufferMinutes: number,
+  postBookingBufferMinutes: number,
+): boolean {
+  const existingStartMinutes = convertTimeToMinutes(existingBooking.startTime);
+
+  const existingEndMinutes = convertTimeToMinutes(existingBooking.endTime);
 
   if (
-    Number.isNaN(hours) ||
-    Number.isNaN(minutes) ||
-    hours < 0 ||
-    hours > 23 ||
-    minutes < 0 ||
-    minutes > 59
+    existingStartMinutes === null ||
+    existingEndMinutes === null ||
+    existingEndMinutes <= existingStartMinutes
   ) {
-    return null;
+    /*
+     * Invalid persisted booking times are treated as conflicts.
+     *
+     * Silently ignoring corrupt booking data could allow a double booking.
+     */
+    return true;
   }
 
-  return hours * 60 + minutes;
+  const bufferedRequestedStart =
+    requestedStartMinutes - preBookingBufferMinutes;
+
+  const bufferedRequestedEnd = requestedEndMinutes + postBookingBufferMinutes;
+
+  const bufferedExistingStart = existingStartMinutes - preBookingBufferMinutes;
+
+  const bufferedExistingEnd = existingEndMinutes + postBookingBufferMinutes;
+
+  return (
+    bufferedExistingStart < bufferedRequestedEnd &&
+    bufferedExistingEnd > bufferedRequestedStart
+  );
 }
 
-function normalizeBookingDate(date: Date): Date {
-  const normalizedDate = new Date(date);
+export function createAvailabilityChecker(
+  repository: BookingAvailabilityRepository,
+): AvailabilityChecker {
+  return async function checkAvailabilityWithRepository(
+    request: AvailabilityRequest,
+  ): Promise<AvailabilityResult> {
+    const startMinutes = convertTimeToMinutes(request.startTime);
+    const endMinutes = convertTimeToMinutes(request.endTime);
 
-  normalizedDate.setHours(0, 0, 0, 0);
+    if (startMinutes === null || endMinutes === null) {
+      return {
+        available: false,
+        reason: "The requested booking time is invalid.",
+      };
+    }
 
-  return normalizedDate;
-}
+    if (endMinutes <= startMinutes) {
+      return {
+        available: false,
+        reason: "The booking end time must be after the start time.",
+      };
+    }
 
-export async function checkAvailability(
-  request: AvailabilityRequest,
-): Promise<AvailabilityResult> {
-  const startMinutes = timeToMinutes(request.startTime);
-  const endMinutes = timeToMinutes(request.endTime);
+    const preBookingBufferMinutes = request.preBookingBufferMinutes ?? 0;
 
-  if (startMinutes === null || endMinutes === null) {
-    return {
-      available: false,
-      reason: "The requested booking time is invalid.",
-    };
-  }
+    const postBookingBufferMinutes = request.postBookingBufferMinutes ?? 0;
 
-  if (endMinutes <= startMinutes) {
-    return {
-      available: false,
-      reason: "The booking end time must be after the start time.",
-    };
-  }
+    if (
+      !isValidBuffer(preBookingBufferMinutes) ||
+      !isValidBuffer(postBookingBufferMinutes)
+    ) {
+      return {
+        available: false,
+        reason: "The booking buffer configuration is invalid.",
+      };
+    }
 
-  const conflictingBooking = await prisma.booking.findFirst({
-    where: {
+    const existingBookings = await repository.findActiveBookingsForDate({
       workspaceId: request.workspaceId,
-      date: normalizeBookingDate(request.bookingDate),
-      status: {
-        not: "CANCELLED",
-      },
-      ...(request.excludeBookingId
-        ? {
-            id: {
-              not: request.excludeBookingId,
-            },
-          }
-        : {}),
-      startTime: {
-        lt: request.endTime,
-      },
-      endTime: {
-        gt: request.startTime,
-      },
-    },
-    select: {
-      id: true,
-    },
-  });
+      bookingDate: request.bookingDate,
+      excludeBookingId: request.excludeBookingId,
+    });
 
-  if (conflictingBooking) {
+    const conflictingBooking = existingBookings.find((booking) =>
+      bookingsConflict(
+        startMinutes,
+        endMinutes,
+        booking,
+        preBookingBufferMinutes,
+        postBookingBufferMinutes,
+      ),
+    );
+
+    if (conflictingBooking) {
+      return {
+        available: false,
+        reason:
+          preBookingBufferMinutes > 0 || postBookingBufferMinutes > 0
+            ? "The requested time conflicts with an existing booking or its required buffer time."
+            : "The requested time overlaps an existing booking.",
+        conflictingBookingId: conflictingBooking.id,
+      };
+    }
+
     return {
-      available: false,
-      reason: "The requested time overlaps an existing booking.",
+      available: true,
     };
-  }
-
-  return {
-    available: true,
   };
 }
+

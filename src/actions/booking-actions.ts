@@ -4,9 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { canManageWorkspace } from "@/lib/permissions";
-import {
-  defaultSchedulingConfiguration,
-} from "@/lib/services/scheduling/scheduling-configuration";
+import { defaultSchedulingConfiguration } from "@/lib/services/scheduling/scheduling-configuration";
 import {
   createBookingCalendarEvent,
   deleteBookingCalendarEvent,
@@ -84,8 +82,7 @@ export async function createBookingAction(formData: FormData) {
     input.workspaceId,
   );
 
-  const schedulingDecision =
-  await schedulingEngine.process({
+  const schedulingDecision = await schedulingEngine.process({
     workspaceId: input.workspaceId,
     serviceId: input.serviceId,
     servicePrice: service.price,
@@ -298,36 +295,38 @@ export async function rescheduleBookingAction(formData: FormData) {
 
   const bookingDate = buildBookingDateTime(input.date, "00:00");
 
-  const conflictingBooking = await prisma.booking.findFirst({
-    where: {
-      id: {
-        not: booking.id,
-      },
-      workspaceId,
-      date: bookingDate,
-      status: {
-        not: "CANCELLED",
-      },
-      OR: [
-        {
-          startTime: {
-            lt: endTime,
-          },
-          endTime: {
-            gt: input.startTime,
-          },
-        },
-      ],
-    },
-    select: {
-      id: true,
-    },
+  const bookingStartDateTime = buildBookingDateTime(
+    input.date,
+    input.startTime,
+  );
+
+  const bookingRules =
+    await bookingRuleRepository.getWorkspaceRules(workspaceId);
+
+  const schedulingDecision = await schedulingEngine.process({
+    workspaceId,
+    serviceId: booking.serviceId,
+    servicePrice: booking.service.price,
+    configuration: defaultSchedulingConfiguration,
+    bookingDate: bookingStartDateTime,
+    bookingStartTime: input.startTime,
+    bookingEndTime: endTime,
+    isNewClient: false,
+    isVip: false,
+    existingBookingsToday: 0,
+    bookingRules,
+    excludeBookingId: booking.id,
   });
 
-  if (conflictingBooking) {
+  if (!schedulingDecision.allowed) {
+    console.warn("Booking reschedule rejected by scheduling engine", {
+      bookingId: booking.id,
+      workspaceId,
+      reasons: schedulingDecision.reasons,
+    });
+
     return;
   }
-
   const updatedBooking = await prisma.booking.update({
     where: {
       id: booking.id,
@@ -344,7 +343,7 @@ export async function rescheduleBookingAction(formData: FormData) {
     },
   });
 
-  const startDateTime = buildBookingDateTime(input.date, input.startTime);
+  const startDateTime = bookingStartDateTime;
 
   const endDateTime = buildBookingDateTime(input.date, endTime);
 

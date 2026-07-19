@@ -1,6 +1,6 @@
-import {
-  checkAvailability,
-  type AvailabilityResult,
+import type { 
+  AvailabilityChecker, 
+  AvailabilityResult ,
 } from "./availability-engine";
 import type { BookingRuleContext } from "./booking-rules";
 import { calculateDeposit } from "./deposit-engine";
@@ -11,10 +11,12 @@ import {
   type SchedulingDecision,
 } from "./scheduling-decision";
 
+
 export type SchedulingRequest = SchedulingContext;
 
 export interface SchedulingDependencies {
   policyPipeline: PolicyPipeline;
+  checkAvailability: AvailabilityChecker;
 }
 
 function applyAvailabilityResult(
@@ -44,12 +46,14 @@ export async function processScheduling(
     return decision;
   }
 
-  const availability = await checkAvailability({
+  const availability = await dependencies.checkAvailability({
     workspaceId: request.workspaceId,
     bookingDate: request.bookingDate,
     startTime: request.bookingStartTime,
     endTime: request.bookingEndTime,
     excludeBookingId: request.excludeBookingId,
+    preBookingBufferMinutes: request.configuration.preBookingBufferMinutes,
+    postBookingBufferMinutes: request.configuration.postBookingBufferMinutes,
   });
 
   applyAvailabilityResult(decision, availability);

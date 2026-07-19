@@ -4,6 +4,8 @@ import type { SchedulingDecision } from "../scheduling-decision";
 import type { SchedulingPolicy } from "./policy";
 import { convertTimeToMinutes } from "../time/time-utils";
 
+
+
 function reject(decision: SchedulingDecision, reason: string): void {
   decision.allowed = false;
   decision.reasons.push(reason);
