@@ -70,7 +70,10 @@ function validateBusinessHours(configuration: BusinessDayConfiguration): {
 }
 
 export class BusinessHoursPolicy implements SchedulingPolicy {
- async evaluate(context: SchedulingContext, decision: SchedulingDecision): Promise<void> {
+  async evaluate(
+    context: SchedulingContext,
+    decision: SchedulingDecision,
+  ): Promise<void> {
     const dayOfWeek = context.bookingDate.getDay();
     const businessDay = BUSINESS_DAYS[dayOfWeek];
 
