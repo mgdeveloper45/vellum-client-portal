@@ -185,6 +185,7 @@ model Workspace {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   apiKeys             ApiKey[]
+  blackoutDates       BlackoutDate[]
   bookings            Booking[]
   bookingRules        BookingRule[]
   businessHours       BusinessHour[]
@@ -275,6 +276,24 @@ model BusinessHour {
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, dayOfWeek])
+}
+
+model BlackoutDate {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  startDate   DateTime
+  endDate     DateTime
+  enabled     Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([workspaceId, enabled])
+  @@index([workspaceId, startDate])
+  @@index([workspaceId, endDate])
+  @@index([workspaceId, enabled, startDate, endDate])
 }
 
 model ExecutiveBriefCache {

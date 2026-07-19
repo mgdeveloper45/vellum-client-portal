@@ -127,6 +127,11 @@ export type Booking = Prisma.BookingModel
  */
 export type BusinessHour = Prisma.BusinessHourModel
 /**
+ * Model BlackoutDate
+ * 
+ */
+export type BlackoutDate = Prisma.BlackoutDateModel
+/**
  * Model ExecutiveBriefCache
  * 
  */

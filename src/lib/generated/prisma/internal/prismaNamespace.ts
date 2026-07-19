@@ -401,6 +401,7 @@ export const ModelName = {
   Service: 'Service',
   Booking: 'Booking',
   BusinessHour: 'BusinessHour',
+  BlackoutDate: 'BlackoutDate',
   ExecutiveBriefCache: 'ExecutiveBriefCache',
   BookingRule: 'BookingRule'
 } as const
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "service" | "booking" | "businessHour" | "executiveBriefCache" | "bookingRule"
+    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "service" | "booking" | "businessHour" | "blackoutDate" | "executiveBriefCache" | "bookingRule"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1680,6 +1681,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BlackoutDate: {
+      payload: Prisma.$BlackoutDatePayload<ExtArgs>
+      fields: Prisma.BlackoutDateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BlackoutDateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BlackoutDateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload>
+        }
+        findFirst: {
+          args: Prisma.BlackoutDateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BlackoutDateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload>
+        }
+        findMany: {
+          args: Prisma.BlackoutDateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload>[]
+        }
+        create: {
+          args: Prisma.BlackoutDateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload>
+        }
+        createMany: {
+          args: Prisma.BlackoutDateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BlackoutDateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload>[]
+        }
+        delete: {
+          args: Prisma.BlackoutDateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload>
+        }
+        update: {
+          args: Prisma.BlackoutDateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload>
+        }
+        deleteMany: {
+          args: Prisma.BlackoutDateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BlackoutDateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BlackoutDateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload>[]
+        }
+        upsert: {
+          args: Prisma.BlackoutDateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlackoutDatePayload>
+        }
+        aggregate: {
+          args: Prisma.BlackoutDateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBlackoutDate>
+        }
+        groupBy: {
+          args: Prisma.BlackoutDateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BlackoutDateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BlackoutDateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BlackoutDateCountAggregateOutputType> | number
+        }
+      }
+    }
     ExecutiveBriefCache: {
       payload: Prisma.$ExecutiveBriefCachePayload<ExtArgs>
       fields: Prisma.ExecutiveBriefCacheFieldRefs
@@ -2103,6 +2178,20 @@ export const BusinessHourScalarFieldEnum = {
 export type BusinessHourScalarFieldEnum = (typeof BusinessHourScalarFieldEnum)[keyof typeof BusinessHourScalarFieldEnum]
 
 
+export const BlackoutDateScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BlackoutDateScalarFieldEnum = (typeof BlackoutDateScalarFieldEnum)[keyof typeof BlackoutDateScalarFieldEnum]
+
+
 export const ExecutiveBriefCacheScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -2470,6 +2559,7 @@ export type GlobalOmitConfig = {
   service?: Prisma.ServiceOmit
   booking?: Prisma.BookingOmit
   businessHour?: Prisma.BusinessHourOmit
+  blackoutDate?: Prisma.BlackoutDateOmit
   executiveBriefCache?: Prisma.ExecutiveBriefCacheOmit
   bookingRule?: Prisma.BookingRuleOmit
 }

@@ -68,6 +68,7 @@ export const ModelName = {
   Service: 'Service',
   Booking: 'Booking',
   BusinessHour: 'BusinessHour',
+  BlackoutDate: 'BlackoutDate',
   ExecutiveBriefCache: 'ExecutiveBriefCache',
   BookingRule: 'BookingRule'
 } as const
@@ -322,6 +323,20 @@ export const BusinessHourScalarFieldEnum = {
 } as const
 
 export type BusinessHourScalarFieldEnum = (typeof BusinessHourScalarFieldEnum)[keyof typeof BusinessHourScalarFieldEnum]
+
+
+export const BlackoutDateScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BlackoutDateScalarFieldEnum = (typeof BlackoutDateScalarFieldEnum)[keyof typeof BlackoutDateScalarFieldEnum]
 
 
 export const ExecutiveBriefCacheScalarFieldEnum = {
