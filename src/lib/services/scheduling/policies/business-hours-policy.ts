@@ -5,6 +5,7 @@ import type {
 import type { SchedulingContext } from "../scheduling-context";
 import type { SchedulingDecision } from "../scheduling-decision";
 import type { SchedulingPolicy } from "./policy";
+import { convertTimeToMinutes } from "../time/time-utils";
 
 type BusinessDay = keyof BusinessHoursConfiguration;
 
@@ -18,29 +19,6 @@ const BUSINESS_DAYS: readonly BusinessDay[] = [
   "saturday",
 ];
 
-function convertTimeToMinutes(time: string): number | null {
-  const match = /^(\d{2}):(\d{2})$/.exec(time);
-
-  if (!match) {
-    return null;
-  }
-
-  const hours = Number(match[1]);
-  const minutes = Number(match[2]);
-
-  if (
-    !Number.isInteger(hours) ||
-    !Number.isInteger(minutes) ||
-    hours < 0 ||
-    hours > 23 ||
-    minutes < 0 ||
-    minutes > 59
-  ) {
-    return null;
-  }
-
-  return hours * 60 + minutes;
-}
 
 function reject(decision: SchedulingDecision, reason: string): void {
   decision.allowed = false;
