@@ -18,6 +18,9 @@ export interface SchedulingConfiguration {
   minimumAdvanceNoticeMinutes: number;
   maximumBookingWindowDays: number;
 
+  preBookingBufferMinutes: number;
+  postBookingBufferMinutes: number;
+
   businessHours: BusinessHoursConfiguration;
 }
 
@@ -25,6 +28,9 @@ export const defaultSchedulingConfiguration: SchedulingConfiguration = {
   minimumAdvanceNoticeMinutes: 0,
 
   maximumBookingWindowDays: 90,
+
+  preBookingBufferMinutes: 0,
+  postBookingBufferMinutes: 0,
 
   businessHours: {
     sunday: {

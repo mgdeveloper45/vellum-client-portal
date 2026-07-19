@@ -76,3 +76,10 @@ export function addMinutes(time: string, minutes: number): string | null {
     .toString()
     .padStart(2, "0")}`;
 }
+
+export function subtractMinutes(
+  value: number,
+  minutes: number,
+): number {
+  return value - minutes;
+}
