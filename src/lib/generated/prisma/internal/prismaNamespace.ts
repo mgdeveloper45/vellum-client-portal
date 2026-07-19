@@ -402,6 +402,7 @@ export const ModelName = {
   Booking: 'Booking',
   BusinessHour: 'BusinessHour',
   BlackoutDate: 'BlackoutDate',
+  StaffTimeOff: 'StaffTimeOff',
   ExecutiveBriefCache: 'ExecutiveBriefCache',
   BookingRule: 'BookingRule'
 } as const
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "service" | "booking" | "businessHour" | "blackoutDate" | "executiveBriefCache" | "bookingRule"
+    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "service" | "booking" | "businessHour" | "blackoutDate" | "staffTimeOff" | "executiveBriefCache" | "bookingRule"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1755,6 +1756,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    StaffTimeOff: {
+      payload: Prisma.$StaffTimeOffPayload<ExtArgs>
+      fields: Prisma.StaffTimeOffFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StaffTimeOffFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StaffTimeOffFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload>
+        }
+        findFirst: {
+          args: Prisma.StaffTimeOffFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StaffTimeOffFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload>
+        }
+        findMany: {
+          args: Prisma.StaffTimeOffFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload>[]
+        }
+        create: {
+          args: Prisma.StaffTimeOffCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload>
+        }
+        createMany: {
+          args: Prisma.StaffTimeOffCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StaffTimeOffCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload>[]
+        }
+        delete: {
+          args: Prisma.StaffTimeOffDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload>
+        }
+        update: {
+          args: Prisma.StaffTimeOffUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload>
+        }
+        deleteMany: {
+          args: Prisma.StaffTimeOffDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StaffTimeOffUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StaffTimeOffUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload>[]
+        }
+        upsert: {
+          args: Prisma.StaffTimeOffUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffTimeOffPayload>
+        }
+        aggregate: {
+          args: Prisma.StaffTimeOffAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStaffTimeOff>
+        }
+        groupBy: {
+          args: Prisma.StaffTimeOffGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffTimeOffGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StaffTimeOffCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffTimeOffCountAggregateOutputType> | number
+        }
+      }
+    }
     ExecutiveBriefCache: {
       payload: Prisma.$ExecutiveBriefCachePayload<ExtArgs>
       fields: Prisma.ExecutiveBriefCacheFieldRefs
@@ -2192,6 +2267,21 @@ export const BlackoutDateScalarFieldEnum = {
 export type BlackoutDateScalarFieldEnum = (typeof BlackoutDateScalarFieldEnum)[keyof typeof BlackoutDateScalarFieldEnum]
 
 
+export const StaffTimeOffScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  staffId: 'staffId',
+  reason: 'reason',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StaffTimeOffScalarFieldEnum = (typeof StaffTimeOffScalarFieldEnum)[keyof typeof StaffTimeOffScalarFieldEnum]
+
+
 export const ExecutiveBriefCacheScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -2560,6 +2650,7 @@ export type GlobalOmitConfig = {
   booking?: Prisma.BookingOmit
   businessHour?: Prisma.BusinessHourOmit
   blackoutDate?: Prisma.BlackoutDateOmit
+  staffTimeOff?: Prisma.StaffTimeOffOmit
   executiveBriefCache?: Prisma.ExecutiveBriefCacheOmit
   bookingRule?: Prisma.BookingRuleOmit
 }

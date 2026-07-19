@@ -238,6 +238,7 @@ export type UserWhereInput = {
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   messages?: Prisma.MessageListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
@@ -261,6 +262,7 @@ export type UserOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  timeOffEntries?: Prisma.StaffTimeOffOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   messages?: Prisma.MessageOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
@@ -287,6 +289,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   messages?: Prisma.MessageListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
@@ -345,6 +348,7 @@ export type UserCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
@@ -368,6 +372,7 @@ export type UserUncheckedCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -389,6 +394,7 @@ export type UserUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
@@ -412,6 +418,7 @@ export type UserUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -692,6 +699,20 @@ export type UserUpdateOneRequiredWithoutSentInvitationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSentInvitationsInput, Prisma.UserUpdateWithoutSentInvitationsInput>, Prisma.UserUncheckedUpdateWithoutSentInvitationsInput>
 }
 
+export type UserCreateNestedOneWithoutTimeOffEntriesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTimeOffEntriesInput, Prisma.UserUncheckedCreateWithoutTimeOffEntriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTimeOffEntriesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTimeOffEntriesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTimeOffEntriesInput, Prisma.UserUncheckedCreateWithoutTimeOffEntriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTimeOffEntriesInput
+  upsert?: Prisma.UserUpsertWithoutTimeOffEntriesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTimeOffEntriesInput, Prisma.UserUpdateWithoutTimeOffEntriesInput>, Prisma.UserUncheckedUpdateWithoutTimeOffEntriesInput>
+}
+
 export type UserCreateWithoutClientProjectsInput = {
   id?: string
   email: string
@@ -704,6 +725,7 @@ export type UserCreateWithoutClientProjectsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
@@ -726,6 +748,7 @@ export type UserUncheckedCreateWithoutClientProjectsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -751,6 +774,7 @@ export type UserCreateWithoutOwnedProjectsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
@@ -773,6 +797,7 @@ export type UserUncheckedCreateWithoutOwnedProjectsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -809,6 +834,7 @@ export type UserUpdateWithoutClientProjectsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
@@ -831,6 +857,7 @@ export type UserUncheckedUpdateWithoutClientProjectsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -862,6 +889,7 @@ export type UserUpdateWithoutOwnedProjectsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
@@ -884,6 +912,7 @@ export type UserUncheckedUpdateWithoutOwnedProjectsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -904,6 +933,7 @@ export type UserCreateWithoutNotificationsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -926,6 +956,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -962,6 +993,7 @@ export type UserUpdateWithoutNotificationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -984,6 +1016,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -1004,6 +1037,7 @@ export type UserCreateWithoutAuditLogsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffCreateNestedManyWithoutStaffInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -1026,6 +1060,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedCreateNestedManyWithoutStaffInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -1062,6 +1097,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUpdateManyWithoutStaffNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -1084,6 +1120,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedUpdateManyWithoutStaffNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -1104,6 +1141,7 @@ export type UserCreateWithoutMessagesInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -1126,6 +1164,7 @@ export type UserUncheckedCreateWithoutMessagesInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -1162,6 +1201,7 @@ export type UserUpdateWithoutMessagesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -1184,6 +1224,7 @@ export type UserUncheckedUpdateWithoutMessagesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -1204,6 +1245,7 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
@@ -1226,6 +1268,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -1262,6 +1305,7 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
@@ -1284,6 +1328,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -1304,6 +1349,7 @@ export type UserCreateWithoutWorkspaceInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
@@ -1325,6 +1371,7 @@ export type UserUncheckedCreateWithoutWorkspaceInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -1390,6 +1437,7 @@ export type UserCreateWithoutSentInvitationsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
@@ -1412,6 +1460,7 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedCreateNestedManyWithoutStaffInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -1448,6 +1497,7 @@ export type UserUpdateWithoutSentInvitationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
@@ -1470,12 +1520,117 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   clientProjects?: Prisma.ProjectUncheckedUpdateManyWithoutClientNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutTimeOffEntriesInput = {
+  id?: string
+  email: string
+  firstName: string
+  lastName: string
+  password?: string | null
+  role: $Enums.UserRole
+  notes?: string | null
+  isBlacklisted?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  clientProjects?: Prisma.ProjectCreateNestedManyWithoutClientInput
+  ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutUsersInput
+  sentInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutInvitedByInput
+}
+
+export type UserUncheckedCreateWithoutTimeOffEntriesInput = {
+  id?: string
+  email: string
+  firstName: string
+  lastName: string
+  password?: string | null
+  role: $Enums.UserRole
+  notes?: string | null
+  workspaceId?: string | null
+  isBlacklisted?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  clientProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutClientInput
+  ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  sentInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutInvitedByInput
+}
+
+export type UserCreateOrConnectWithoutTimeOffEntriesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTimeOffEntriesInput, Prisma.UserUncheckedCreateWithoutTimeOffEntriesInput>
+}
+
+export type UserUpsertWithoutTimeOffEntriesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTimeOffEntriesInput, Prisma.UserUncheckedUpdateWithoutTimeOffEntriesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTimeOffEntriesInput, Prisma.UserUncheckedCreateWithoutTimeOffEntriesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTimeOffEntriesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTimeOffEntriesInput, Prisma.UserUncheckedUpdateWithoutTimeOffEntriesInput>
+}
+
+export type UserUpdateWithoutTimeOffEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  clientProjects?: Prisma.ProjectUpdateManyWithoutClientNestedInput
+  ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutUsersNestedInput
+  sentInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutInvitedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTimeOffEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  clientProjects?: Prisma.ProjectUncheckedUpdateManyWithoutClientNestedInput
+  ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  sentInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByNestedInput
 }
 
 export type UserCreateManyWorkspaceInput = {
@@ -1504,6 +1659,7 @@ export type UserUpdateWithoutWorkspaceInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
@@ -1525,6 +1681,7 @@ export type UserUncheckedUpdateWithoutWorkspaceInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timeOffEntries?: Prisma.StaffTimeOffUncheckedUpdateManyWithoutStaffNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -1554,6 +1711,7 @@ export type UserUncheckedUpdateManyWithoutWorkspaceInput = {
  */
 
 export type UserCountOutputType = {
+  timeOffEntries: number
   auditLogs: number
   messages: number
   notifications: number
@@ -1564,6 +1722,7 @@ export type UserCountOutputType = {
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  timeOffEntries?: boolean | UserCountOutputTypeCountTimeOffEntriesArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   messages?: boolean | UserCountOutputTypeCountMessagesArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
@@ -1581,6 +1740,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the UserCountOutputType
    */
   select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTimeOffEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StaffTimeOffWhereInput
 }
 
 /**
@@ -1646,6 +1812,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  timeOffEntries?: boolean | Prisma.User$timeOffEntriesArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
@@ -1706,6 +1873,7 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "firstName" | "lastName" | "password" | "role" | "notes" | "workspaceId" | "isBlacklisted" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  timeOffEntries?: boolean | Prisma.User$timeOffEntriesArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
@@ -1726,6 +1894,7 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
+    timeOffEntries: Prisma.$StaffTimeOffPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     messages: Prisma.$MessagePayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
@@ -2142,6 +2311,7 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  timeOffEntries<T extends Prisma.User$timeOffEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$timeOffEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffTimeOffPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   messages<T extends Prisma.User$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2589,6 +2759,30 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Users to delete.
    */
   limit?: number
+}
+
+/**
+ * User.timeOffEntries
+ */
+export type User$timeOffEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StaffTimeOff
+   */
+  select?: Prisma.StaffTimeOffSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StaffTimeOff
+   */
+  omit?: Prisma.StaffTimeOffOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StaffTimeOffInclude<ExtArgs> | null
+  where?: Prisma.StaffTimeOffWhereInput
+  orderBy?: Prisma.StaffTimeOffOrderByWithRelationInput | Prisma.StaffTimeOffOrderByWithRelationInput[]
+  cursor?: Prisma.StaffTimeOffWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StaffTimeOffScalarFieldEnum | Prisma.StaffTimeOffScalarFieldEnum[]
 }
 
 /**

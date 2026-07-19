@@ -1,6 +1,8 @@
 import { PrismaBlackoutDateRepository } from "@/lib/repositories/prisma-blackout-date-repository";
 import { PrismaBookingAvailabilityRepository } from "@/lib/repositories/prisma-booking-availability-repository";
+import { PrismaStaffTimeOffRepository } from "@/lib/repositories/prisma-staff-time-off-repository";
 
+import { StaffTimeOffPolicy } from "./policies/staff-time-off-policy";
 import { createAvailabilityChecker } from "./availability-engine";
 import { AdvanceNoticePolicy } from "./policies/advance-notice-policy";
 import { BlackoutDatePolicy } from "./policies/blackout-date-policy";
@@ -17,6 +19,9 @@ const bookingAvailabilityRepository =
 const blackoutDateRepository =
   new PrismaBlackoutDateRepository();
 
+  const staffTimeOffRepository =
+  new PrismaStaffTimeOffRepository();
+
 const checkAvailability = createAvailabilityChecker(
   bookingAvailabilityRepository,
 );
@@ -28,6 +33,7 @@ const policyPipeline = new PolicyPipeline([
   new AdvanceNoticePolicy(),
   new BookingWindowPolicy(),
   new BlackoutDatePolicy(blackoutDateRepository),
+  new StaffTimeOffPolicy(staffTimeOffRepository),
   new BusinessHoursPolicy(),
   new StaffWorkingHoursPolicy(resourceProvider),
 ]);

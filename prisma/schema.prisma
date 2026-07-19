@@ -20,6 +20,7 @@ model User {
   isActive            Boolean               @default(true)
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
+  timeOffEntries      StaffTimeOff[]
   auditLogs           AuditLog[]
   messages            Message[]
   notifications       Notification[]
@@ -186,6 +187,7 @@ model Workspace {
   updatedAt           DateTime              @updatedAt
   apiKeys             ApiKey[]
   blackoutDates       BlackoutDate[]
+  staffTimeOff        StaffTimeOff[]
   bookings            Booking[]
   bookingRules        BookingRule[]
   businessHours       BusinessHour[]
@@ -294,6 +296,33 @@ model BlackoutDate {
   @@index([workspaceId, startDate])
   @@index([workspaceId, endDate])
   @@index([workspaceId, enabled, startDate, endDate])
+}
+
+model StaffTimeOff {
+  id          String    @id @default(cuid())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  staffId     String
+  staff       User      @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  reason      String?
+
+  startDate   DateTime
+  endDate     DateTime
+
+  enabled     Boolean   @default(true)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([workspaceId])
+  @@index([staffId])
+  @@index([workspaceId, staffId])
+  @@index([workspaceId, enabled])
+  @@index([startDate])
+  @@index([endDate])
 }
 
 model ExecutiveBriefCache {

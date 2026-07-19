@@ -108,6 +108,11 @@ export type BusinessHour = Prisma.BusinessHourModel
  */
 export type BlackoutDate = Prisma.BlackoutDateModel
 /**
+ * Model StaffTimeOff
+ * 
+ */
+export type StaffTimeOff = Prisma.StaffTimeOffModel
+/**
  * Model ExecutiveBriefCache
  * 
  */
