@@ -25,6 +25,7 @@ import {
 } from "@/lib/validation/booking";
 import { schedulingEngine } from "@/lib/services/scheduling/scheduling-engine";
 import { bookingRuleRepository } from "@/lib/repositories/booking-rule-repository";
+import { createBookingService } from "@/lib/services/booking/create-booking-service-instance";
 
 async function getWorkspaceId(userId: string) {
   const user = await prisma.user.findUnique({
@@ -55,83 +56,42 @@ export async function createBookingAction(formData: FormData) {
     startTime: formData.get("startTime"),
   });
 
-  const service = await prisma.service.findFirst({
-    where: {
-      id: input.serviceId,
-      workspaceId: input.workspaceId,
-      active: true,
-    },
-  });
+  const result = await createBookingService.execute(input);
 
-  if (!service) {
-    return;
-  }
-
-  const bookingDate = buildBookingDateTime(input.date, "00:00");
-
-  const bookingStartDateTime = buildBookingDateTime(
-    input.date,
-    input.startTime,
-  );
-
-  const endTime = minutesToTime(
-    timeToMinutes(input.startTime) + service.duration,
-  );
-
-  const bookingRules = await bookingRuleRepository.getWorkspaceRules(
-    input.workspaceId,
-  );
-
-  const schedulingDecision = await schedulingEngine.process({
-    workspaceId: input.workspaceId,
-    serviceId: input.serviceId,
-    servicePrice: service.price,
-    configuration: defaultSchedulingConfiguration,
-    bookingDate: bookingStartDateTime,
-    bookingStartTime: input.startTime,
-    bookingEndTime: endTime,
-    isNewClient: true,
-    isVip: false,
-    existingBookingsToday: 0,
-    bookingRules,
-  });
-
-  if (!schedulingDecision.allowed) {
-    console.warn("Booking rejected by scheduling engine", {
-      workspaceId: input.workspaceId,
-      serviceId: input.serviceId,
-      reasons: schedulingDecision.reasons,
+  if (!result.success || !result.bookingId) {
+    console.warn("Booking creation failed", {
+      code: result.code,
+      reasons: result.reasons,
     });
 
     return;
   }
 
-  if (!schedulingDecision.deposit) {
-    throw new Error("Scheduling deposit calculation did not complete");
-  }
-
-  const deposit = schedulingDecision.deposit;
-  const bookingEndDateTime = buildBookingDateTime(input.date, endTime);
-
-  console.log("Deposit calculation", deposit);
-
-  const booking = await prisma.booking.create({
-    data: {
-      customerName: input.customerName,
-      customerEmail: input.customerEmail,
-      customerPhone: input.customerPhone ?? null,
-      notes: input.notes ?? null,
-      date: bookingDate,
-      startTime: input.startTime,
-      endTime,
-      serviceId: input.serviceId,
-      workspaceId: input.workspaceId,
+  const booking = await prisma.booking.findUnique({
+    where: {
+      id: result.bookingId,
     },
     include: {
       service: true,
       workspace: true,
     },
   });
+
+  if (!booking) {
+    console.error("Created booking could not be reloaded", {
+      bookingId: result.bookingId,
+      workspaceId: input.workspaceId,
+    });
+
+    return;
+  }
+
+  const bookingStartDateTime = buildBookingDateTime(
+    input.date,
+    booking.startTime,
+  );
+
+  const bookingEndDateTime = buildBookingDateTime(input.date, booking.endTime);
 
   await sendBookingConfirmation({
     email: booking.customerEmail,

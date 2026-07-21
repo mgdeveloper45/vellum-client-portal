@@ -3,12 +3,17 @@ import type {
   StaffAvailability,
 } from "./resource-provider";
 
-export class DefaultSchedulingResourceProvider implements SchedulingResourceProvider {
-    async getStaffAvailability(
+export class DefaultSchedulingResourceProvider
+  implements SchedulingResourceProvider
+{
+  async getStaffAvailability(
     _workspaceId: string,
     staffId: string,
     _bookingDate: Date,
   ): Promise<StaffAvailability | null> {
+    void _workspaceId;
+    void _bookingDate;
+
     return {
       staffId,
       enabled: true,
