@@ -1,6 +1,10 @@
 "use server";
 
 import { auth } from "@/auth";
+import {
+  createServiceService,
+  toggleServiceActiveService,
+} from "@/lib/services/service/composition/service-services";
 import { canManageWorkspace } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import {
@@ -9,7 +13,7 @@ import {
 } from "@/lib/validation/service";
 import { redirect } from "next/navigation";
 
-async function getWorkspaceId(userId: string) {
+async function getWorkspaceId(userId: string): Promise<string | undefined> {
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -19,7 +23,7 @@ async function getWorkspaceId(userId: string) {
     },
   });
 
-  return user?.workspaceId;
+  return user?.workspaceId ?? undefined;
 }
 
 export async function createServiceAction(formData: FormData) {
@@ -42,15 +46,17 @@ export async function createServiceAction(formData: FormData) {
     return;
   }
 
-  await prisma.service.create({
-    data: {
-      name: input.name,
-      description: input.description ?? null,
-      duration: input.duration,
-      price: Math.round(input.priceDollars * 100),
-      workspaceId,
-    },
+  const result = await createServiceService.execute({
+    workspaceId,
+    name: input.name,
+    description: input.description,
+    duration: input.duration,
+    priceDollars: input.priceDollars,
   });
+
+  if (!result.success) {
+    return;
+  }
 
   redirect("/services");
 }
@@ -73,17 +79,13 @@ export async function toggleServiceActiveAction(formData: FormData) {
     return;
   }
 
-  const result = await prisma.service.updateMany({
-    where: {
-      id: input.serviceId,
-      workspaceId,
-    },
-    data: {
-      active: !input.active,
-    },
+  const result = await toggleServiceActiveService.execute({
+    serviceId: input.serviceId,
+    workspaceId,
+    active: input.active,
   });
 
-  if (result.count === 0) {
+  if (!result.success) {
     return;
   }
 
