@@ -4,16 +4,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { canManageWorkspace } from "@/lib/permissions";
-import { defaultSchedulingConfiguration } from "@/lib/services/scheduling/scheduling-configuration";
 import {
   createBookingCalendarEvent,
   deleteBookingCalendarEvent,
   updateBookingCalendarEvent,
 } from "@/lib/services/booking/calendar-service";
-import {
-  minutesToTime,
-  timeToMinutes,
-} from "@/lib/services/booking/availability-service";
 import {
   sendBookingConfirmation,
   sendBookingRescheduled,
@@ -23,9 +18,11 @@ import {
   rescheduleBookingSchema,
   updateBookingStatusSchema,
 } from "@/lib/validation/booking";
-import { schedulingEngine } from "@/lib/services/scheduling/scheduling-engine";
-import { bookingRuleRepository } from "@/lib/repositories/booking-rule-repository";
-import { createBookingService } from "@/lib/services/booking/create-booking-service-instance";
+import {
+  createBookingService,
+  rescheduleBookingService,
+  updateBookingStatusService,
+} from "@/lib/services/booking/composition/booking-services";
 
 async function getWorkspaceId(userId: string) {
   const user = await prisma.user.findUnique({
@@ -167,39 +164,21 @@ export async function updateBookingStatusAction(formData: FormData) {
     return;
   }
 
-  const existingBooking = await prisma.booking.findFirst({
-    where: {
-      id: input.bookingId,
-      workspaceId,
-    },
-    select: {
-      id: true,
-      googleCalendarEventId: true,
-    },
+  const result = await updateBookingStatusService.execute({
+    bookingId: input.bookingId,
+    workspaceId,
+    status: input.status,
   });
 
-  if (!existingBooking) {
+  if (!result.success) {
     return;
   }
 
-  if (input.status === "CANCELLED" && existingBooking.googleCalendarEventId) {
-    await deleteBookingCalendarEvent(existingBooking.googleCalendarEventId);
+  if (result.status === "CANCELLED" && result.previousGoogleCalendarEventId) {
+    await deleteBookingCalendarEvent(result.previousGoogleCalendarEventId);
   }
 
-  await prisma.booking.update({
-    where: {
-      id: existingBooking.id,
-    },
-    data: {
-      status: input.status,
-      googleCalendarEventId:
-        input.status === "CANCELLED"
-          ? null
-          : existingBooking.googleCalendarEventId,
-    },
-  });
-
-  if (input.status === "CANCELLED") {
+  if (result.status === "CANCELLED") {
     await prisma.notification.create({
       data: {
         userId: session.user.id,
@@ -207,7 +186,7 @@ export async function updateBookingStatusAction(formData: FormData) {
         message:
           "A booking was cancelled and removed from the active calendar.",
         type: "BOOKING",
-        href: `/bookings/${existingBooking.id}`,
+        href: `/bookings/${result.bookingId}`,
       },
     });
   }
@@ -234,68 +213,28 @@ export async function rescheduleBookingAction(formData: FormData) {
     return;
   }
 
-  const booking = await prisma.booking.findFirst({
-    where: {
-      id: input.bookingId,
-      workspaceId,
-    },
-    include: {
-      service: true,
-      workspace: true,
-    },
-  });
-
-  if (!booking) {
-    return;
-  }
-
-  const endTime = minutesToTime(
-    timeToMinutes(input.startTime) + booking.service.duration,
-  );
-
-  const bookingDate = buildBookingDateTime(input.date, "00:00");
-
-  const bookingStartDateTime = buildBookingDateTime(
-    input.date,
-    input.startTime,
-  );
-
-  const bookingRules =
-    await bookingRuleRepository.getWorkspaceRules(workspaceId);
-
-  const schedulingDecision = await schedulingEngine.process({
+  const result = await rescheduleBookingService.execute({
+    bookingId: input.bookingId,
     workspaceId,
-    serviceId: booking.serviceId,
-    servicePrice: booking.service.price,
-    configuration: defaultSchedulingConfiguration,
-    bookingDate: bookingStartDateTime,
-    bookingStartTime: input.startTime,
-    bookingEndTime: endTime,
-    isNewClient: false,
-    isVip: false,
-    existingBookingsToday: 0,
-    bookingRules,
-    excludeBookingId: booking.id,
+    date: input.date,
+    startTime: input.startTime,
   });
 
-  if (!schedulingDecision.allowed) {
-    console.warn("Booking reschedule rejected by scheduling engine", {
-      bookingId: booking.id,
+  if (!result.success || !result.bookingId) {
+    console.warn("Booking reschedule failed", {
+      bookingId: input.bookingId,
       workspaceId,
-      reasons: schedulingDecision.reasons,
+      code: result.code,
+      reasons: result.reasons,
     });
 
     return;
   }
-  const updatedBooking = await prisma.booking.update({
+
+  const updatedBooking = await prisma.booking.findFirst({
     where: {
-      id: booking.id,
-    },
-    data: {
-      date: bookingDate,
-      startTime: input.startTime,
-      endTime,
-      status: "CONFIRMED",
+      id: result.bookingId,
+      workspaceId,
     },
     include: {
       service: true,
@@ -303,9 +242,21 @@ export async function rescheduleBookingAction(formData: FormData) {
     },
   });
 
-  const startDateTime = bookingStartDateTime;
+  if (!updatedBooking) {
+    console.error("Rescheduled booking could not be reloaded", {
+      bookingId: result.bookingId,
+      workspaceId,
+    });
 
-  const endDateTime = buildBookingDateTime(input.date, endTime);
+    return;
+  }
+
+  const startDateTime = buildBookingDateTime(
+    input.date,
+    updatedBooking.startTime,
+  );
+
+  const endDateTime = buildBookingDateTime(input.date, updatedBooking.endTime);
 
   await updateBookingCalendarEvent({
     eventId: updatedBooking.googleCalendarEventId,

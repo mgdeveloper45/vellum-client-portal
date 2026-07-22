@@ -1,17 +1,19 @@
 import type { BookingRule } from "@/lib/services/scheduling/booking-rules";
-import type { SchedulingDecision } from "@/lib/services/scheduling/scheduling-decision";
 import type { SchedulingConfiguration } from "@/lib/services/scheduling/scheduling-configuration";
+import type { SchedulingDecision } from "@/lib/services/scheduling/scheduling-decision";
 import { minutesToTime, timeToMinutes } from "./availability-service";
 import type { BookingRepository } from "./booking-repository";
-import type { BookingRequest } from "./booking-request";
-import type { ServiceRepository } from "./service-repository";
-import { BookingErrorCode, type BookingResult } from "./booking-result";
+import type { RescheduleBookingRequest } from "./reschedule-booking-request";
+import {
+  RescheduleBookingErrorCode,
+  type RescheduleBookingResult,
+} from "./reschedule-booking-result";
 
-export interface BookingRuleProvider {
+export interface RescheduleBookingRuleProvider {
   getWorkspaceRules(workspaceId: string): Promise<BookingRule[]>;
 }
 
-export interface SchedulingProcessor {
+export interface RescheduleSchedulingProcessor {
   process(request: {
     workspaceId: string;
     serviceId: string;
@@ -24,47 +26,50 @@ export interface SchedulingProcessor {
     isVip: boolean;
     existingBookingsToday: number;
     bookingRules: BookingRule[];
+    excludeBookingId?: string;
   }): Promise<SchedulingDecision>;
 }
 
-export interface CreateBookingServiceDependencies {
+export interface RescheduleBookingServiceDependencies {
   bookingRepository: BookingRepository;
-  serviceRepository: ServiceRepository;
-  bookingRuleProvider: BookingRuleProvider;
-  schedulingProcessor: SchedulingProcessor;
+  bookingRuleProvider: RescheduleBookingRuleProvider;
+  schedulingProcessor: RescheduleSchedulingProcessor;
   schedulingConfiguration: SchedulingConfiguration;
 }
 
-function buildBookingDateTime(date: string, time: string) {
+function buildBookingDateTime(date: string, time: string): Date {
   return new Date(`${date}T${time}:00`);
 }
 
-export function createCreateBookingService(
-  dependencies: CreateBookingServiceDependencies,
+export function createRescheduleBookingService(
+  dependencies: RescheduleBookingServiceDependencies,
 ) {
   return {
-    async execute(request: BookingRequest): Promise<BookingResult> {
-      const service = await dependencies.serviceRepository.findActiveService(
-        request.serviceId,
+    async execute(
+      request: RescheduleBookingRequest,
+    ): Promise<RescheduleBookingResult> {
+      const booking = await dependencies.bookingRepository.findForReschedule(
+        request.bookingId,
         request.workspaceId,
       );
 
-      if (!service) {
+      if (!booking) {
         return {
           success: false,
-          code: BookingErrorCode.SERVICE_NOT_FOUND,
-          reasons: ["The selected service is unavailable."],
+          code: RescheduleBookingErrorCode.BOOKING_NOT_FOUND,
+          reasons: ["The booking could not be found."],
         };
       }
 
+      const endTime = minutesToTime(
+        timeToMinutes(request.startTime) + booking.service.duration,
+      );
+
       const bookingDate = buildBookingDateTime(request.date, "00:00");
+
       const bookingStartDateTime = buildBookingDateTime(
         request.date,
         request.startTime,
-      );
-
-      const endTime = minutesToTime(
-        timeToMinutes(request.startTime) + service.duration,
       );
 
       const bookingRules =
@@ -75,63 +80,51 @@ export function createCreateBookingService(
       const schedulingDecision = await dependencies.schedulingProcessor.process(
         {
           workspaceId: request.workspaceId,
-          serviceId: request.serviceId,
-          servicePrice: service.price,
+          serviceId: booking.serviceId,
+          servicePrice: booking.service.price,
           configuration: dependencies.schedulingConfiguration,
           bookingDate: bookingStartDateTime,
           bookingStartTime: request.startTime,
           bookingEndTime: endTime,
-          isNewClient: true,
+          isNewClient: false,
           isVip: false,
           existingBookingsToday: 0,
           bookingRules,
+          excludeBookingId: booking.id,
         },
       );
 
       if (!schedulingDecision.allowed) {
         return {
           success: false,
-          code: BookingErrorCode.BOOKING_NOT_ALLOWED,
+          code: RescheduleBookingErrorCode.RESCHEDULE_NOT_ALLOWED,
           reasons: schedulingDecision.reasons,
         };
       }
 
-      if (!schedulingDecision.deposit) {
-        return {
-          success: false,
-          code: BookingErrorCode.DEPOSIT_CALCULATION_FAILED,
-          reasons: ["The booking deposit could not be calculated."],
-        };
-      }
-
       try {
-        const booking = await dependencies.bookingRepository.create({
-          customerName: request.customerName,
-          customerEmail: request.customerEmail,
-          customerPhone: request.customerPhone ?? null,
-          notes: request.notes ?? null,
+        const updatedBooking = await dependencies.bookingRepository.reschedule({
+          bookingId: booking.id,
           date: bookingDate,
           startTime: request.startTime,
           endTime,
-          serviceId: request.serviceId,
-          workspaceId: request.workspaceId,
         });
 
         return {
           success: true,
-          bookingId: booking.id,
+          bookingId: updatedBooking.id,
         };
       } catch (error) {
-        console.error("Booking persistence failed", {
+        console.error("Booking reschedule persistence failed", {
+          bookingId: booking.id,
           workspaceId: request.workspaceId,
-          serviceId: request.serviceId,
           error,
         });
 
         return {
           success: false,
-          code: BookingErrorCode.BOOKING_CREATE_FAILED,
-          reasons: ["The booking could not be created. Please try again."],
+          code: RescheduleBookingErrorCode.BOOKING_UPDATE_FAILED,
+          reasons: ["The booking could not be rescheduled. Please try again."],
         };
       }
     },

@@ -2,9 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import type { BookingRepository } from "../booking-repository";
 import { createCreateBookingService } from "../create-booking-service";
 import { BookingErrorCode } from "../booking-result";
+import type { ServiceRepository } from "../service-repository";
 
 const schedulingConfiguration = {} as Parameters<
-  Parameters<typeof createCreateBookingService>[0]["schedulingProcessor"]["process"]
+  Parameters<
+    typeof createCreateBookingService
+  >[0]["schedulingProcessor"]["process"]
 >[0]["configuration"];
 
 const request = {
@@ -18,21 +21,23 @@ const request = {
   startTime: "10:00",
 };
 
-function createDependencies(overrides?: {
-  service?: Awaited<ReturnType<BookingRepository["findActiveService"]>>;
-  schedulingDecision?: {
-    allowed: boolean;
-    reasons: string[];
-    warnings: string[];
-    deposit?: {
-      required: boolean;
-      amount: number;
-      reason: string;
-    };
+interface SchedulingDecisionOverride {
+  allowed: boolean;
+  reasons: string[];
+  warnings: string[];
+  deposit?: {
+    required: boolean;
+    amount: number;
+    reason: string;
   };
+}
+
+function createDependencies(overrides?: {
+  service?: Awaited<ReturnType<ServiceRepository["findActiveService"]>>;
+  schedulingDecision?: SchedulingDecisionOverride;
   createError?: Error;
 }) {
-  const bookingRepository: BookingRepository = {
+  const serviceRepository: ServiceRepository = {
     findActiveService: vi.fn().mockResolvedValue(
       overrides?.service === undefined
         ? {
@@ -44,9 +49,26 @@ function createDependencies(overrides?: {
           }
         : overrides.service,
     ),
+  };
+
+  const bookingRepository: BookingRepository = {
     create: overrides?.createError
       ? vi.fn().mockRejectedValue(overrides.createError)
-      : vi.fn().mockResolvedValue({ id: "booking-1" }),
+      : vi.fn().mockResolvedValue({
+          id: "booking-1",
+        }),
+
+    findForReschedule: vi.fn().mockResolvedValue(null),
+
+    reschedule: vi.fn().mockResolvedValue({
+      id: "booking-1",
+    }),
+
+    findForStatusUpdate: vi.fn().mockResolvedValue(null),
+
+    updateStatus: vi.fn().mockResolvedValue({
+      id: "booking-1",
+    }),
   };
 
   const bookingRuleProvider = {
@@ -70,6 +92,7 @@ function createDependencies(overrides?: {
 
   return {
     bookingRepository,
+    serviceRepository,
     bookingRuleProvider,
     schedulingProcessor,
     schedulingConfiguration,
@@ -87,8 +110,17 @@ describe("createBookingService", () => {
       success: true,
       bookingId: "booking-1",
     });
+
+    expect(
+      dependencies.serviceRepository.findActiveService,
+    ).toHaveBeenCalledWith(request.serviceId, request.workspaceId);
+
     expect(dependencies.bookingRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
+        customerName: "Jordan Lee",
+        customerEmail: "jordan@example.com",
+        customerPhone: "4155550100",
+        notes: "First visit",
         startTime: "10:00",
         endTime: "11:00",
         serviceId: "service-1",
@@ -98,14 +130,22 @@ describe("createBookingService", () => {
   });
 
   it("returns SERVICE_NOT_FOUND when the service is unavailable", async () => {
-    const dependencies = createDependencies({ service: null });
+    const dependencies = createDependencies({
+      service: null,
+    });
+
     const service = createCreateBookingService(dependencies);
 
     const result = await service.execute(request);
 
-    expect(result.success).toBe(false);
-    expect(result.code).toBe(BookingErrorCode.SERVICE_NOT_FOUND);
+    expect(result).toEqual({
+      success: false,
+      code: BookingErrorCode.SERVICE_NOT_FOUND,
+      reasons: ["The selected service is unavailable."],
+    });
+
     expect(dependencies.schedulingProcessor.process).not.toHaveBeenCalled();
+
     expect(dependencies.bookingRepository.create).not.toHaveBeenCalled();
   });
 
@@ -117,6 +157,7 @@ describe("createBookingService", () => {
         warnings: [],
       },
     });
+
     const service = createCreateBookingService(dependencies);
 
     const result = await service.execute(request);
@@ -126,6 +167,7 @@ describe("createBookingService", () => {
       code: BookingErrorCode.BOOKING_NOT_ALLOWED,
       reasons: ["Outside business hours"],
     });
+
     expect(dependencies.bookingRepository.create).not.toHaveBeenCalled();
   });
 
@@ -137,11 +179,17 @@ describe("createBookingService", () => {
         warnings: [],
       },
     });
+
     const service = createCreateBookingService(dependencies);
 
     const result = await service.execute(request);
 
-    expect(result.code).toBe(BookingErrorCode.DEPOSIT_CALCULATION_FAILED);
+    expect(result).toEqual({
+      success: false,
+      code: BookingErrorCode.DEPOSIT_CALCULATION_FAILED,
+      reasons: ["The booking deposit could not be calculated."],
+    });
+
     expect(dependencies.bookingRepository.create).not.toHaveBeenCalled();
   });
 
@@ -149,11 +197,15 @@ describe("createBookingService", () => {
     const dependencies = createDependencies({
       createError: new Error("database unavailable"),
     });
+
     const service = createCreateBookingService(dependencies);
 
     const result = await service.execute(request);
 
-    expect(result.success).toBe(false);
-    expect(result.code).toBe(BookingErrorCode.BOOKING_CREATE_FAILED);
+    expect(result).toEqual({
+      success: false,
+      code: BookingErrorCode.BOOKING_CREATE_FAILED,
+      reasons: ["The booking could not be created. Please try again."],
+    });
   });
 });
