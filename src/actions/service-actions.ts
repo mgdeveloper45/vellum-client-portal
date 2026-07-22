@@ -1,30 +1,17 @@
 "use server";
 
 import { auth } from "@/auth";
+import { canManageWorkspace } from "@/lib/permissions";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import {
   createServiceService,
   toggleServiceActiveService,
 } from "@/lib/services/service/composition/service-services";
-import { canManageWorkspace } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
 import {
   createServiceSchema,
   toggleServiceActiveSchema,
 } from "@/lib/validation/service";
 import { redirect } from "next/navigation";
-
-async function getWorkspaceId(userId: string): Promise<string | undefined> {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
-
-  return user?.workspaceId ?? undefined;
-}
 
 export async function createServiceAction(formData: FormData) {
   const session = await auth();
@@ -40,7 +27,10 @@ export async function createServiceAction(formData: FormData) {
     priceDollars: formData.get("price"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;
@@ -73,7 +63,10 @@ export async function toggleServiceActiveAction(formData: FormData) {
     active: formData.get("active") === "true",
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;

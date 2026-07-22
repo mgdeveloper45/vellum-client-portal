@@ -1,13 +1,14 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { canManageWorkspace } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
 import {
   BUSINESS_DAYS,
   DEFAULT_BUSINESS_HOURS,
 } from "@/lib/constants/business-hours";
-import { redirect } from "next/navigation";
+import { canManageWorkspace } from "@/lib/permissions";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { updateBusinessHoursService } from "@/lib/services/business-hours/composition/business-hours-services";
 
 export async function updateBusinessHoursAction(formData: FormData) {
   const session = await auth();
@@ -16,53 +17,34 @@ export async function updateBusinessHoursAction(formData: FormData) {
     return;
   }
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
-  await Promise.all(
-    BUSINESS_DAYS.map((day) => {
-      const closed = formData.get(`${day}_closed`) === "on";
+  const businessHours = BUSINESS_DAYS.map((day) => ({
+    dayOfWeek: day,
+    closed: formData.get(`${day}_closed`) === "on",
+    openTime: String(
+      formData.get(`${day}_openTime`) ?? DEFAULT_BUSINESS_HOURS.openTime,
+    ),
+    closeTime: String(
+      formData.get(`${day}_closeTime`) ?? DEFAULT_BUSINESS_HOURS.closeTime,
+    ),
+  }));
 
-      const openTime = String(
-        formData.get(`${day}_openTime`) ?? DEFAULT_BUSINESS_HOURS.openTime,
-      );
+  const result = await updateBusinessHoursService({
+    workspaceId,
+    businessHours,
+  });
 
-      const closeTime = String(
-        formData.get(`${day}_closeTime`) ?? DEFAULT_BUSINESS_HOURS.closeTime,
-      );
-
-      return prisma.businessHour.upsert({
-        where: {
-          workspaceId_dayOfWeek: {
-            workspaceId: currentUser.workspaceId!,
-            dayOfWeek: day,
-          },
-        },
-        update: {
-          closed,
-          openTime,
-          closeTime,
-        },
-        create: {
-          workspaceId: currentUser.workspaceId!,
-          dayOfWeek: day,
-          closed,
-          openTime,
-          closeTime,
-        },
-      });
-    }),
-  );
+  if (!result.success) {
+    throw new Error(result.message);
+  }
 
   redirect("/settings");
 }

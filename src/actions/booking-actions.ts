@@ -1,14 +1,19 @@
 "use server";
 
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 import { canManageWorkspace } from "@/lib/permissions";
+import { prisma } from "@/lib/prisma";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import {
   createBookingCalendarEvent,
   deleteBookingCalendarEvent,
   updateBookingCalendarEvent,
 } from "@/lib/services/booking/calendar-service";
+import {
+  createBookingService,
+  rescheduleBookingService,
+  updateBookingStatusService,
+} from "@/lib/services/booking/composition/booking-services";
 import {
   sendBookingConfirmation,
   sendBookingRescheduled,
@@ -18,24 +23,7 @@ import {
   rescheduleBookingSchema,
   updateBookingStatusSchema,
 } from "@/lib/validation/booking";
-import {
-  createBookingService,
-  rescheduleBookingService,
-  updateBookingStatusService,
-} from "@/lib/services/booking/composition/booking-services";
-
-async function getWorkspaceId(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
-
-  return user?.workspaceId;
-}
+import { redirect } from "next/navigation";
 
 function buildBookingDateTime(date: string, time: string) {
   return new Date(`${date}T${time}:00`);
@@ -158,7 +146,10 @@ export async function updateBookingStatusAction(formData: FormData) {
     status: formData.get("status"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;
@@ -207,7 +198,10 @@ export async function rescheduleBookingAction(formData: FormData) {
     startTime: formData.get("startTime"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;

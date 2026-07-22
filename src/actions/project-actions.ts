@@ -7,6 +7,7 @@ import { createAuditLog } from "@/lib/audit";
 import { logger } from "@/lib/logger";
 import { canManageProjects } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import { runWithRequestContext } from "@/lib/request-context";
 import { createRequestId } from "@/lib/request-id";
 import {
@@ -14,19 +15,6 @@ import {
   deleteProjectSchema,
   updateProjectSchema,
 } from "@/lib/validation/project";
-
-async function getWorkspaceId(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
-
-  return user?.workspaceId;
-}
 
 async function runProjectAction<T>(callback: () => Promise<T>) {
   const requestHeaders = await headers();
@@ -66,7 +54,10 @@ export async function createProjectAction(formData: FormData) {
       status: formData.get("status"),
     });
 
-    const workspaceId = await getWorkspaceId(session.user.id);
+    const workspaceId =
+      await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+        session.user.id,
+      );
 
     if (!workspaceId) {
       logger.warn("Project creation denied", {
@@ -178,7 +169,10 @@ export async function updateProjectAction(formData: FormData) {
       ownerId: formData.get("ownerId"),
     });
 
-    const workspaceId = await getWorkspaceId(session.user.id);
+    const workspaceId =
+      await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+        session.user.id,
+      );
 
     if (!workspaceId) {
       logger.warn("Project update denied", {
@@ -260,7 +254,10 @@ export async function deleteProjectAction(formData: FormData) {
       projectId: formData.get("projectId"),
     });
 
-    const workspaceId = await getWorkspaceId(session.user.id);
+    const workspaceId =
+      await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+        session.user.id,
+      );
 
     if (!workspaceId) {
       logger.warn("Project deletion denied", {

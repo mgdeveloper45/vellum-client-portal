@@ -1,27 +1,15 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { createAuditLog } from "@/lib/audit";
 import { canManageProjects } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import {
   createMilestoneSchema,
   milestoneMutationSchema,
 } from "@/lib/validation/milestone";
-import { redirect } from "next/navigation";
-
-async function getWorkspaceId(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
-
-  return user?.workspaceId;
-}
 
 export async function createMilestoneAction(formData: FormData) {
   const session = await auth();
@@ -36,7 +24,10 @@ export async function createMilestoneAction(formData: FormData) {
     dueDate: formData.get("dueDate"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;
@@ -93,7 +84,10 @@ export async function cycleMilestoneStatusAction(formData: FormData) {
     projectId: formData.get("projectId"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;
@@ -156,7 +150,10 @@ export async function deleteMilestoneAction(formData: FormData) {
     projectId: formData.get("projectId"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;

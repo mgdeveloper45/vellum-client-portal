@@ -4,24 +4,12 @@ import { auth } from "@/auth";
 import { createAuditLog } from "@/lib/audit";
 import { canManageProposals } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import {
   createProposalSchema,
   proposalMutationSchema,
 } from "@/lib/validation/proposal";
 import { redirect } from "next/navigation";
-
-async function getWorkspaceId(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
-
-  return user?.workspaceId;
-}
 
 export async function createProposalAction(formData: FormData) {
   const session = await auth();
@@ -34,7 +22,10 @@ export async function createProposalAction(formData: FormData) {
     projectId: formData.get("projectId"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;
@@ -87,7 +78,10 @@ export async function toggleProposalApprovalAction(formData: FormData) {
     projectId: formData.get("projectId"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;
@@ -144,7 +138,10 @@ export async function deleteProposalAction(formData: FormData) {
     projectId: formData.get("projectId"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;

@@ -1,8 +1,9 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import { createInvoiceCheckoutSession } from "@/lib/services/payments/stripe-payment-service";
 
 export async function createInvoiceCheckoutAction(formData: FormData) {
@@ -18,16 +19,12 @@ export async function createInvoiceCheckoutAction(formData: FormData) {
     return;
   }
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
@@ -36,7 +33,7 @@ export async function createInvoiceCheckoutAction(formData: FormData) {
       id: invoiceId,
       paid: false,
       project: {
-        workspaceId: currentUser.workspaceId,
+        workspaceId,
       },
     },
     include: {

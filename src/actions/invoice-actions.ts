@@ -4,24 +4,12 @@ import { auth } from "@/auth";
 import { createAuditLog } from "@/lib/audit";
 import { canManageInvoices } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import {
   createInvoiceSchema,
   invoiceMutationSchema,
 } from "@/lib/validation/invoice";
 import { redirect } from "next/navigation";
-
-async function getWorkspaceId(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
-
-  return user?.workspaceId;
-}
 
 /**
  * Creates a new invoice for a project.
@@ -38,7 +26,10 @@ export async function createInvoiceAction(formData: FormData) {
     amount: formData.get("amount"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;
@@ -96,7 +87,10 @@ export async function toggleInvoicePaidAction(formData: FormData) {
     projectId: formData.get("projectId"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;
@@ -155,7 +149,10 @@ export async function deleteInvoiceAction(formData: FormData) {
     projectId: formData.get("projectId"),
   });
 
-  const workspaceId = await getWorkspaceId(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
   if (!workspaceId) {
     return;

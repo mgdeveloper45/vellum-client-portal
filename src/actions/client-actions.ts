@@ -5,22 +5,12 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { canManageClients } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import {
   createClientSchema,
   deleteClientSchema,
   updateClientSchema,
 } from "@/lib/validation/client";
-
-async function getManagingUserWorkspace(userId: string) {
-  return prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
-}
 
 /**
  * Creates a new client user.
@@ -40,9 +30,12 @@ export async function createClientAction(formData: FormData) {
     notes: formData.get("notes"),
   });
 
-  const currentUser = await getManagingUserWorkspace(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
@@ -56,7 +49,7 @@ export async function createClientAction(formData: FormData) {
       notes: input.notes,
       password: hashedPassword,
       role: "CLIENT",
-      workspaceId: currentUser.workspaceId,
+      workspaceId,
     },
   });
 
@@ -82,9 +75,12 @@ export async function updateClientAction(formData: FormData) {
     isBlacklisted: formData.get("isBlacklisted") === "on",
   });
 
-  const currentUser = await getManagingUserWorkspace(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
@@ -92,7 +88,7 @@ export async function updateClientAction(formData: FormData) {
     where: {
       id: input.clientId,
       role: "CLIENT",
-      workspaceId: currentUser.workspaceId,
+      workspaceId,
     },
     data: {
       firstName: input.firstName,
@@ -124,9 +120,12 @@ export async function deleteClientAction(formData: FormData) {
     clientId: formData.get("clientId"),
   });
 
-  const currentUser = await getManagingUserWorkspace(session.user.id);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
@@ -134,7 +133,7 @@ export async function deleteClientAction(formData: FormData) {
     where: {
       id: input.clientId,
       role: "CLIENT",
-      workspaceId: currentUser.workspaceId,
+      workspaceId,
     },
   });
 
