@@ -7,6 +7,7 @@ export interface BookingAvailabilityRecord {
 export interface FindBookingAvailabilityInput {
   workspaceId: string;
   bookingDate: Date;
+  serviceId?: string;
   excludeBookingId?: string;
 }
 

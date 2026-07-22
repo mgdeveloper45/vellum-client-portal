@@ -25,6 +25,11 @@ export class PrismaBookingAvailabilityRepository implements BookingAvailabilityR
         status: {
           not: "CANCELLED",
         },
+        ...(input.serviceId
+          ? {
+              serviceId: input.serviceId,
+            }
+          : {}),
         ...(input.excludeBookingId
           ? {
               id: {

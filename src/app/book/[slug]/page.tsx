@@ -3,20 +3,7 @@ import { TimeSelector } from "@/components/booking/time-selector";
 import { BookingHeader } from "@/components/booking/booking-header";
 import { ServiceSelector } from "@/components/booking/service-selector";
 import { CalendarDateSelector } from "@/components/booking/calendar-date-selector";
-import {
-  generateTimeSlots,
-  removeBookedSlots,
-} from "@/lib/services/booking/availability-service";
-
-const dayMap = {
-  0: "SUNDAY",
-  1: "MONDAY",
-  2: "TUESDAY",
-  3: "WEDNESDAY",
-  4: "THURSDAY",
-  5: "FRIDAY",
-  6: "SATURDAY",
-} as const;
+import { getAvailableSlotsService } from "@/lib/services/availability/composition/availability-service";
 
 export default async function PublicBookingPage({
   params,
@@ -60,67 +47,42 @@ export default async function PublicBookingPage({
 
   const selectedService =
     workspace.services.find(
-      (service) => service.id === resolvedSearchParams.serviceId,
+      (service) =>
+        service.id === resolvedSearchParams.serviceId,
     ) ?? workspace.services[0];
 
   const selectedDate =
-    resolvedSearchParams.date ?? new Date().toISOString().slice(0, 10);
+    resolvedSearchParams.date ??
+    new Date().toISOString().slice(0, 10);
 
   const selectedTime = resolvedSearchParams.time;
 
-  const dayIndex = new Date(
-    `${selectedDate}T00:00:00`,
-  ).getDay() as keyof typeof dayMap;
+  let availableSlots: string[] = [];
 
-  const dayOfWeek = dayMap[dayIndex];
-
-  const businessHour = await prisma.businessHour.findUnique({
-    where: {
-      workspaceId_dayOfWeek: {
-        workspaceId: workspace.id,
-        dayOfWeek,
-      },
-    },
-  });
-
-  const bookings = selectedService
-    ? await prisma.booking.findMany({
-      where: {
+  if (selectedService) {
+    const availabilityResult =
+      await getAvailableSlotsService({
         workspaceId: workspace.id,
         serviceId: selectedService.id,
-        date: new Date(`${selectedDate}T00:00:00`),
-        status: {
-          not: "CANCELLED",
-        },
-      },
-    })
-    : [];
-
-  const rawSlots =
-    selectedService && businessHour && !businessHour.closed
-      ? generateTimeSlots({
-        openTime: businessHour.openTime,
-        closeTime: businessHour.closeTime,
+        bookingDate: new Date(`${selectedDate}T00:00:00`),
         duration: selectedService.duration,
-      })
-      : [];
+      });
 
-  const availableSlots = selectedService
-    ? removeBookedSlots({
-      slots: rawSlots,
-      duration: selectedService.duration,
-      bookings,
-    })
-    : [];
+    if (availabilityResult.success) {
+      availableSlots = availabilityResult.availableSlots;
+    }
+  }
 
-  const displayName = workspace.companyName || workspace.name || "Vellum";
+  const displayName =
+    workspace.companyName || workspace.name || "Vellum";
 
   return (
     <main
       className="min-h-screen bg-background p-8 text-foreground"
       style={
         {
-          "--workspace-accent": workspace.accentColor || "#8B5CF6",
+          "--workspace-accent":
+            workspace.accentColor || "#8B5CF6",
         } as React.CSSProperties
       }
     >

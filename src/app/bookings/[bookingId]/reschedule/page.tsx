@@ -4,10 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { rescheduleBookingAction } from "@/actions/booking-actions";
 import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
-import {
-    generateTimeSlots,
-    removeBookedSlots,
-} from "@/lib/services/booking/availability-service";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { getAvailableSlotsService } from "@/lib/services/availability/composition/availability-service";
 
 export default async function RescheduleBookingPage({
     params,
@@ -33,23 +31,19 @@ export default async function RescheduleBookingPage({
         resolvedSearchParams.date ??
         new Date().toISOString().slice(0, 10);
 
-    const currentUser = await prisma.user.findUnique({
-        where: {
-            id: session.user.id,
-        },
-        select: {
-            workspaceId: true,
-        },
-    });
+    const workspaceId =
+        await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+            session.user.id,
+        );
 
-    if (!currentUser?.workspaceId) {
+    if (!workspaceId) {
         return null;
     }
 
     const booking = await prisma.booking.findFirst({
         where: {
             id: bookingId,
-            workspaceId: currentUser.workspaceId,
+            workspaceId,
         },
         include: {
             service: true,
@@ -75,58 +69,18 @@ export default async function RescheduleBookingPage({
         );
     }
 
-    const selectedDateObject = new Date(`${selectedDate}T00:00:00`);
-
-    const dayMap = {
-        0: "SUNDAY",
-        1: "MONDAY",
-        2: "TUESDAY",
-        3: "WEDNESDAY",
-        4: "THURSDAY",
-        5: "FRIDAY",
-        6: "SATURDAY",
-    } as const;
-
-    const dayOfWeek =
-        dayMap[selectedDateObject.getDay() as keyof typeof dayMap];
-
-    const businessHour = await prisma.businessHour.findUnique({
-        where: {
-            workspaceId_dayOfWeek: {
-                workspaceId: currentUser.workspaceId,
-                dayOfWeek,
-            },
-        },
-    });
-
-    const existingBookings = await prisma.booking.findMany({
-        where: {
-            workspaceId: currentUser.workspaceId,
+    const availabilityResult =
+        await getAvailableSlotsService({
+            workspaceId,
             serviceId: booking.serviceId,
-            date: selectedDateObject,
-            status: {
-                not: "CANCELLED",
-            },
-            id: {
-                not: booking.id,
-            },
-        },
-    });
+            bookingDate: new Date(`${selectedDate}T00:00:00`),
+            duration: booking.service.duration,
+            excludeBookingId: booking.id,
+        });
 
-    const rawSlots =
-        businessHour && !businessHour.closed
-            ? generateTimeSlots({
-                openTime: businessHour.openTime,
-                closeTime: businessHour.closeTime,
-                duration: booking.service.duration,
-            })
-            : [];
-
-    const availableSlots = removeBookedSlots({
-        slots: rawSlots,
-        duration: booking.service.duration,
-        bookings: existingBookings,
-    });
+    const availableSlots = availabilityResult.success
+        ? availabilityResult.availableSlots
+        : [];
 
     return (
         <BrandedDashboardShell>

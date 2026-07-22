@@ -13,6 +13,10 @@ import type { BusinessHourConfiguration } from "../business-hours-types";
 class InMemoryBusinessHoursRepository implements BusinessHoursRepository {
   savedSchedules: UpsertWeeklyBusinessHoursInput[] = [];
 
+  async findForDay() {
+    return null;
+  }
+
   async upsertWeeklySchedule(
     input: UpsertWeeklyBusinessHoursInput,
   ): Promise<void> {
@@ -200,6 +204,10 @@ describe("updateBusinessHoursService", () => {
 
   it("propagates repository failures", async () => {
     const repository: BusinessHoursRepository = {
+      async findForDay() {
+        return null;
+      },
+
       async upsertWeeklySchedule() {
         throw new Error("Database unavailable");
       },
