@@ -1,17 +1,21 @@
 import Link from "next/link";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { prisma } from "@/lib/prisma";
-import { buildClientEngine } from "@/lib/services/clients/client-engine";
+
+import { auth } from "@/auth";
 import { ClientCommandCenter } from "@/components/client-command-center/client-command-center";
 import { ClientHeader } from "@/components/client-command-center/client-header";
-import { ClientLifetimeValueCard } from "@/components/client-command-center/client-lifetime-value-card";
 import { ClientHealthCard } from "@/components/client-command-center/client-health-card";
-import { ClientRetentionCard } from "@/components/client-command-center/client-retention-card";
+import { ClientLifetimeValueCard } from "@/components/client-command-center/client-lifetime-value-card";
 import { ClientOpportunitiesCard } from "@/components/client-command-center/client-opportunities-card";
+import { ClientRetentionCard } from "@/components/client-command-center/client-retention-card";
 import { ClientSummaryCard } from "@/components/client-command-center/client-summary-card";
-import { MetricCard } from "@/components/ui/metric-card";
-import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
+import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CommandCard } from "@/components/ui/command-card";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
+import { MetricCard } from "@/components/ui/metric-card";
+import { canManageClients } from "@/lib/permissions";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { buildClientEngine } from "@/lib/services/clients/client-engine";
+import { getClientDetailService } from "@/lib/services/clients/composition/client-services";
 
 interface Props {
   params: Promise<{
@@ -19,28 +23,38 @@ interface Props {
   }>;
 }
 
-export default async function ClientDetailPage({ params }: Props) {
+export default async function ClientDetailPage({
+  params,
+}: Props) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return null;
+  }
+
   const { clientId } = await params;
 
-  const client = await prisma.user.findUnique({
-    where: {
-      id: clientId,
-    },
-    include: {
-      clientProjects: {
-        include: {
-          messages: true,
-          invoices: true,
-          proposals: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-    },
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
+
+  if (!workspaceId) {
+    return null;
+  }
+
+  const userCanManageClients = canManageClients(
+    session.user.role,
+  );
+
+  const result = await getClientDetailService({
+    workspaceId,
+    clientId,
+    viewerUserId: session.user.id,
+    canManageClients: userCanManageClients,
   });
 
-  if (!client) {
+  if (!result.success) {
     return (
       <DashboardShell>
         <ExecutiveEmptyState
@@ -59,6 +73,7 @@ export default async function ClientDetailPage({ params }: Props) {
     );
   }
 
+  const client = result.client;
   const totalProjects = client.clientProjects.length;
 
   const invoices = client.clientProjects.flatMap(
@@ -75,7 +90,10 @@ export default async function ClientDetailPage({ params }: Props) {
 
   const totalRevenue = invoices
     .filter((invoice) => invoice.paid)
-    .reduce((total, invoice) => total + invoice.amount, 0);
+    .reduce(
+      (total, invoice) => total + invoice.amount,
+      0,
+    );
 
   const lastProject = client.clientProjects[0];
 
@@ -102,20 +120,28 @@ export default async function ClientDetailPage({ params }: Props) {
             health={clientIntelligence.health.status}
           />
 
-          <Link
-            href={`/clients/${client.id}/edit`}
-            className="inline-flex min-h-10 items-center justify-center rounded-full border border-border px-4 py-2 text-sm transition hover:border-primary/40 hover:bg-primary/5"
-          >
-            Edit Client
-          </Link>
+          {userCanManageClients && (
+            <Link
+              href={`/clients/${client.id}/edit`}
+              className="inline-flex min-h-10 items-center justify-center rounded-full border border-border px-4 py-2 text-sm transition hover:border-primary/40 hover:bg-primary/5"
+            >
+              Edit Client
+            </Link>
+          )}
         </div>
 
-        <ClientSummaryCard summary={clientIntelligence.summary} />
+        <ClientSummaryCard
+          summary={clientIntelligence.summary}
+        />
 
         <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
           <ClientLifetimeValueCard
-            lifetimeValue={clientIntelligence.lifetimeValue}
-            averageBookingValue={clientIntelligence.averageBookingValue}
+            lifetimeValue={
+              clientIntelligence.lifetimeValue
+            }
+            averageBookingValue={
+              clientIntelligence.averageBookingValue
+            }
           />
 
           <MetricCard
@@ -146,19 +172,24 @@ export default async function ClientDetailPage({ params }: Props) {
         <section className="grid gap-6 xl:grid-cols-2">
           <ClientHealthCard
             score={clientIntelligence.health.score}
-            reasons={clientIntelligence.health.reasons}
+            reasons={
+              clientIntelligence.health.reasons
+            }
           />
 
           <ClientRetentionCard
             risk={clientIntelligence.retention.risk}
             recommendedAction={
-              clientIntelligence.retention.recommendedAction
+              clientIntelligence.retention
+                .recommendedAction
             }
           />
         </section>
 
         <ClientOpportunitiesCard
-          opportunities={clientIntelligence.opportunities}
+          opportunities={
+            clientIntelligence.opportunities
+          }
         />
 
         <CommandCard
@@ -181,12 +212,14 @@ export default async function ClientDetailPage({ params }: Props) {
               title="No projects yet"
               description="Projects associated with this client will appear here with their invoices, messages, and proposals."
               action={
-                <Link
-                  href="/projects/new"
-                  className="inline-flex min-h-11 items-center justify-center rounded-full border border-primary bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90"
-                >
-                  Create Project
-                </Link>
+                userCanManageClients ? (
+                  <Link
+                    href="/projects/new"
+                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-primary bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90"
+                  >
+                    Create Project
+                  </Link>
+                ) : undefined
               }
               className="min-h-[240px]"
             />
@@ -197,7 +230,9 @@ export default async function ClientDetailPage({ params }: Props) {
                   key={project.id}
                   className="rounded-2xl border border-border bg-background p-4 transition hover:border-primary/30"
                 >
-                  <h3 className="font-medium">{project.name}</h3>
+                  <h3 className="font-medium">
+                    {project.name}
+                  </h3>
 
                   <p className="mt-1 text-sm leading-6 text-foreground/60">
                     {project.description}

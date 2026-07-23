@@ -1,14 +1,23 @@
+import { auth } from "@/auth";
 import { createClientAction } from "@/actions/client-actions";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { canManageClients } from "@/lib/permissions";
 
-/**
- * New Client page.
- * Allows an admin to create a client account.
- */
-export default function NewClientPage() {
+export default async function NewClientPage() {
+  const session = await auth();
+
+  if (
+    !session?.user ||
+    !canManageClients(session.user.role)
+  ) {
+    return null;
+  }
+
   return (
     <DashboardShell>
-      <h1 className="text-3xl font-light">New Client</h1>
+      <h1 className="text-3xl font-light">
+        New Client
+      </h1>
 
       <form
         action={createClientAction}
