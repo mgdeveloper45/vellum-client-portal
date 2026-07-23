@@ -1,78 +1,113 @@
-import { prisma } from "@/lib/prisma";
 import { getR2DownloadUrl } from "@/lib/r2";
 import { formatStatus } from "@/lib/utils";
 
-export async function buildProjectDetail(projectId: string) {
-  const project = await prisma.project.findUnique({
-    where: {
-      id: projectId,
-    },
-    include: {
-      client: true,
-      milestones: true,
-      invoices: true,
-      proposals: true,
-      files: true,
-      messages: {
-        include: {
-          sender: true,
-        },
-      },
-    },
-  });
+import type {
+  ProjectDetailRecord,
+  ProjectRepository,
+} from "./project-repository";
 
-  if (!project) {
-    return null;
-  }
+export interface BuildProjectDetailRequest {
+  workspaceId: string;
+  projectId: string;
+  viewerUserId: string;
+  canManageProjects: boolean;
+}
 
-  const timelineItems = [
-    ...project.messages.map((message) => ({
-      id: message.id,
-      type: "Message",
-      title: `${message.sender.firstName} ${message.sender.lastName} sent a message`,
-      detail: message.content,
-      date: message.createdAt,
-    })),
+export interface ProjectTimelineItem {
+  id: string;
+  type: "Message" | "Invoice" | "Proposal" | "Milestone";
+  title: string;
+  detail: string;
+  date: Date;
+}
 
-    ...project.invoices.map((invoice) => ({
-      id: invoice.id,
-      type: "Invoice",
-      title: invoice.paid ? "Invoice paid" : "Invoice created",
-      detail: `$${invoice.amount.toLocaleString()}`,
-      date: invoice.createdAt,
-    })),
+export interface ProjectFileViewModel {
+  id: string;
+  name: string;
+  url: string;
+  fileType: string;
+  projectId: string;
+  createdAt: Date;
+  downloadUrl: string;
+}
 
-    ...project.proposals.map((proposal) => ({
-      id: proposal.id,
-      type: "Proposal",
-      title: proposal.approved ? "Proposal approved" : "Proposal pending",
-      detail: "Project proposal",
-      date: proposal.createdAt,
-    })),
+export interface ProjectDetailViewModel {
+  project: ProjectDetailRecord;
+  timelineItems: ProjectTimelineItem[];
+  projectFiles: ProjectFileViewModel[];
+}
 
-    ...project.milestones.map((milestone) => ({
-      id: milestone.id,
-      type: "Milestone",
-      title: milestone.title,
-      detail: formatStatus(milestone.status),
-      date: milestone.dueDate ?? milestone.createdAt,
-    })),
-  ].sort((left, right) => right.date.getTime() - left.date.getTime());
+interface ProjectDetailBuilderDependencies {
+  projectRepository: ProjectRepository;
+  getDownloadUrl: (objectKey: string) => Promise<string>;
+}
 
-  const projectFiles = await Promise.all(
-    project.files.map(async (file) => ({
-      ...file,
-      downloadUrl: await getR2DownloadUrl(file.url),
-    })),
-  );
+export function createProjectDetailBuilder({
+  projectRepository,
+  getDownloadUrl,
+}: ProjectDetailBuilderDependencies) {
+  return async function buildProjectDetail(
+    request: BuildProjectDetailRequest,
+  ): Promise<ProjectDetailViewModel | null> {
+    const project = await projectRepository.findDetail({
+      workspaceId: request.workspaceId.trim(),
+      projectId: request.projectId.trim(),
+      clientId: request.canManageProjects
+        ? undefined
+        : request.viewerUserId.trim(),
+    });
 
-  return {
-    project,
-    timelineItems,
-    projectFiles,
+    if (!project) {
+      return null;
+    }
+
+    const timelineItems: ProjectTimelineItem[] = [
+      ...project.messages.map((message) => ({
+        id: message.id,
+        type: "Message" as const,
+        title: `${message.sender.firstName} ${message.sender.lastName} sent a message`,
+        detail: message.content,
+        date: message.createdAt,
+      })),
+
+      ...project.invoices.map((invoice) => ({
+        id: invoice.id,
+        type: "Invoice" as const,
+        title: invoice.paid ? "Invoice paid" : "Invoice created",
+        detail: `$${invoice.amount.toLocaleString()}`,
+        date: invoice.createdAt,
+      })),
+
+      ...project.proposals.map((proposal) => ({
+        id: proposal.id,
+        type: "Proposal" as const,
+        title: proposal.approved ? "Proposal approved" : "Proposal pending",
+        detail: "Project proposal",
+        date: proposal.createdAt,
+      })),
+
+      ...project.milestones.map((milestone) => ({
+        id: milestone.id,
+        type: "Milestone" as const,
+        title: milestone.title,
+        detail: formatStatus(milestone.status),
+        date: milestone.dueDate ?? milestone.createdAt,
+      })),
+    ].sort((left, right) => right.date.getTime() - left.date.getTime());
+
+    const projectFiles = await Promise.all(
+      project.files.map(async (file) => ({
+        ...file,
+        downloadUrl: await getDownloadUrl(file.url),
+      })),
+    );
+
+    return {
+      project,
+      timelineItems,
+      projectFiles,
+    };
   };
 }
 
-export type ProjectDetailViewModel = NonNullable<
-  Awaited<ReturnType<typeof buildProjectDetail>>
->;
+export { getR2DownloadUrl };

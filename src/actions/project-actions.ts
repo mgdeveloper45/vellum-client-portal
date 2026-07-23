@@ -2,14 +2,19 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+
 import { auth } from "@/auth";
 import { createAuditLog } from "@/lib/audit";
 import { logger } from "@/lib/logger";
 import { canManageProjects } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import { runWithRequestContext } from "@/lib/request-context";
 import { createRequestId } from "@/lib/request-id";
+import {
+  createProjectService,
+  deleteProjectService,
+  updateProjectService,
+} from "@/lib/services/projects/composition/project-services";
 import {
   createProjectSchema,
   deleteProjectSchema,
@@ -29,9 +34,6 @@ async function runProjectAction<T>(callback: () => Promise<T>) {
   );
 }
 
-/**
- * Creates a project.
- */
 export async function createProjectAction(formData: FormData) {
   return runProjectAction(async () => {
     const startedAt = Date.now();
@@ -69,70 +71,37 @@ export async function createProjectAction(formData: FormData) {
       return;
     }
 
-    /*
-     * Verify both referenced users belong to the
-     * caller's workspace before creating the project.
-     */
-    const [owner, client] = await Promise.all([
-      prisma.user.findFirst({
-        where: {
-          id: input.ownerId,
-          workspaceId,
-        },
-        select: {
-          id: true,
-        },
-      }),
+    const result = await createProjectService({
+      workspaceId,
+      ...input,
+    });
 
-      prisma.user.findFirst({
-        where: {
-          id: input.clientId,
-          workspaceId,
-          role: "CLIENT",
-        },
-        select: {
-          id: true,
-        },
-      }),
-    ]);
-
-    if (!owner || !client) {
+    if (!result.success) {
       logger.warn("Project creation denied", {
         action: "PROJECT_CREATE",
         userId: session.user.id,
         workspaceId,
-        reason: "invalid_workspace_membership",
+        reason: result.reason,
       });
 
       return;
     }
 
-    const project = await prisma.project.create({
-      data: {
-        name: input.name,
-        description: input.description,
-        status: input.status,
-        ownerId: owner.id,
-        clientId: client.id,
-        workspaceId,
-      },
-    });
-
     await createAuditLog({
       action: "PROJECT_CREATED",
       entity: "PROJECT",
-      entityId: project.id,
+      entityId: result.project.id,
       userId: session.user.id,
       metadata: {
-        name: project.name,
-        status: project.status,
-        clientId: project.clientId,
+        name: result.project.name,
+        status: result.project.status,
+        clientId: result.project.clientId,
       },
     });
 
     logger.info("Project created", {
       action: "PROJECT_CREATE",
-      projectId: project.id,
+      projectId: result.project.id,
       userId: session.user.id,
       workspaceId,
       durationMs: Date.now() - startedAt,
@@ -143,9 +112,6 @@ export async function createProjectAction(formData: FormData) {
   });
 }
 
-/**
- * Updates a project.
- */
 export async function updateProjectAction(formData: FormData) {
   return runProjectAction(async () => {
     const startedAt = Date.now();
@@ -185,25 +151,18 @@ export async function updateProjectAction(formData: FormData) {
       return;
     }
 
-    const result = await prisma.project.updateMany({
-      where: {
-        id: input.projectId,
-        workspaceId,
-      },
-      data: {
-        name: input.name,
-        description: input.description,
-        status: input.status,
-      },
+    const result = await updateProjectService({
+      workspaceId,
+      ...input,
     });
 
-    if (result.count === 0) {
+    if (!result.success) {
       logger.warn("Project update denied", {
         action: "PROJECT_UPDATE",
         projectId: input.projectId,
         userId: session.user.id,
         workspaceId,
-        reason: "project_not_found",
+        reason: result.reason,
       });
 
       return;
@@ -212,30 +171,28 @@ export async function updateProjectAction(formData: FormData) {
     await createAuditLog({
       action: "PROJECT_UPDATED",
       entity: "PROJECT",
-      entityId: input.projectId,
+      entityId: result.project.id,
       userId: session.user.id,
       metadata: {
-        name: input.name,
-        status: input.status,
+        name: result.project.name,
+        status: result.project.status,
+        clientId: result.project.clientId,
       },
     });
 
     logger.info("Project updated", {
       action: "PROJECT_UPDATE",
-      projectId: input.projectId,
+      projectId: result.project.id,
       userId: session.user.id,
       workspaceId,
       durationMs: Date.now() - startedAt,
       status: "success",
     });
 
-    redirect("/projects");
+    redirect(`/projects/${result.project.id}`);
   });
 }
 
-/**
- * Deletes a project.
- */
 export async function deleteProjectAction(formData: FormData) {
   return runProjectAction(async () => {
     const startedAt = Date.now();
@@ -270,56 +227,38 @@ export async function deleteProjectAction(formData: FormData) {
       return;
     }
 
-    /*
-     * Verify the project exists before recording a
-     * deletion audit event.
-     */
-    const project = await prisma.project.findFirst({
-      where: {
-        id: input.projectId,
-        workspaceId,
-      },
-      select: {
-        id: true,
-        name: true,
-        status: true,
-        clientId: true,
-      },
+    const result = await deleteProjectService({
+      workspaceId,
+      projectId: input.projectId,
     });
 
-    if (!project) {
+    if (!result.success) {
       logger.warn("Project deletion denied", {
         action: "PROJECT_DELETE",
         projectId: input.projectId,
         userId: session.user.id,
         workspaceId,
-        reason: "project_not_found",
+        reason: result.reason,
       });
 
       return;
     }
 
-    await prisma.project.delete({
-      where: {
-        id: project.id,
-      },
-    });
-
     await createAuditLog({
       action: "PROJECT_DELETED",
       entity: "PROJECT",
-      entityId: project.id,
+      entityId: result.project.id,
       userId: session.user.id,
       metadata: {
-        name: project.name,
-        status: project.status,
-        clientId: project.clientId,
+        name: result.project.name,
+        status: result.project.status,
+        clientId: result.project.clientId,
       },
     });
 
     logger.info("Project deleted", {
       action: "PROJECT_DELETE",
-      projectId: project.id,
+      projectId: result.project.id,
       userId: session.user.id,
       workspaceId,
       durationMs: Date.now() - startedAt,

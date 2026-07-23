@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
-import { canManageProjects } from "@/lib/permissions";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { ProjectDetailContent } from "@/components/projects/project-detail-content";
-import { buildProjectDetail } from "@/lib/services/projects/project-detail-builder";
+import { canManageProjects } from "@/lib/permissions";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { buildProjectDetail } from "@/lib/services/projects/composition/project-services";
 
 type ProjectDetailPageProps = {
   params: Promise<{
@@ -21,8 +22,25 @@ export default async function ProjectDetailPage({
 
   const { projectId } = await params;
 
-  const projectDetail =
-    await buildProjectDetail(projectId);
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
+
+  if (!workspaceId) {
+    return null;
+  }
+
+  const userCanManageProjects = canManageProjects(
+    session.user.role,
+  );
+
+  const projectDetail = await buildProjectDetail({
+    workspaceId,
+    projectId,
+    viewerUserId: session.user.id,
+    canManageProjects: userCanManageProjects,
+  });
 
   if (!projectDetail) {
     return (
@@ -37,15 +55,9 @@ export default async function ProjectDetailPage({
   return (
     <ProjectDetailContent
       project={projectDetail.project}
-      timelineItems={
-        projectDetail.timelineItems
-      }
-      projectFiles={
-        projectDetail.projectFiles
-      }
-      canManageProject={canManageProjects(
-        session.user.role,
-      )}
+      timelineItems={projectDetail.timelineItems}
+      projectFiles={projectDetail.projectFiles}
+      canManageProject={userCanManageProjects}
     />
   );
 }

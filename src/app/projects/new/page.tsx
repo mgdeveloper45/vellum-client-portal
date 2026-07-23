@@ -1,7 +1,9 @@
+import { createProjectAction } from "@/actions/project-actions";
 import { auth } from "@/auth";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { prisma } from "@/lib/prisma";
-import { createProjectAction } from "@/actions/project-actions";
+import { canManageProjects } from "@/lib/permissions";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { listProjectClientsService } from "@/lib/services/projects/composition/project-services";
 
 export default async function NewProjectPage() {
     const session = await auth();
@@ -10,22 +12,31 @@ export default async function NewProjectPage() {
         return null;
     }
 
-    if (session.user.role !== "ADMIN") {
+    if (!canManageProjects(session.user.role)) {
         return (
             <DashboardShell>
-                <p>Only admins can create projects.</p>
+                <p>
+                    You do not have permission to create projects.
+                </p>
             </DashboardShell>
         );
     }
 
-    const clients = await prisma.user.findMany({
-        where: {
-            role: "CLIENT",
-        },
-        orderBy: {
-            firstName: "asc",
-        },
-    });
+    const workspaceId =
+        await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+            session.user.id,
+        );
+
+    if (!workspaceId) {
+        return null;
+    }
+
+    const result =
+        await listProjectClientsService(workspaceId);
+
+    const clients = result.success
+        ? result.clients
+        : [];
 
     return (
         <DashboardShell>
@@ -62,9 +73,7 @@ export default async function NewProjectPage() {
                     required
                     className="w-full rounded-lg border border-border bg-background px-4 py-3"
                 >
-                    <option value="">
-                        Select client
-                    </option>
+                    <option value="">Select client</option>
 
                     {clients.map((client) => (
                         <option
@@ -85,13 +94,8 @@ export default async function NewProjectPage() {
                         Planning
                     </option>
 
-                    <option value="ACTIVE">
-                        Active
-                    </option>
-
-                    <option value="REVIEW">
-                        Review
-                    </option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="REVIEW">Review</option>
 
                     <option value="COMPLETED">
                         Completed

@@ -1,8 +1,11 @@
+import Link from "next/link";
+
+import { auth } from "@/auth";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { ProjectCard } from "@/components/projects/project-card";
-import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
-import Link from "next/link";
+import { canManageProjects } from "@/lib/permissions";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { listProjectsService } from "@/lib/services/projects/composition/project-services";
 
 export default async function ProjectsPage() {
   const session = await auth();
@@ -11,51 +14,44 @@ export default async function ProjectsPage() {
     return null;
   }
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return null;
   }
 
-  const projectFilter =
-    session.user.role === "ADMIN"
-      ? {
-        workspaceId: currentUser.workspaceId,
-      }
-      : {
-        workspaceId: currentUser.workspaceId,
-        clientId: session.user.id,
-      };
+  const userCanManageProjects = canManageProjects(
+    session.user.role,
+  );
 
-  const projects = await prisma.project.findMany({
-    where: projectFilter,
-    include: {
-      client: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+  const result = await listProjectsService({
+    workspaceId,
+    viewerUserId: session.user.id,
+    canManageProjects: userCanManageProjects,
   });
+
+  const projects = result.success
+    ? result.projects
+    : [];
 
   return (
     <BrandedDashboardShell>
       <div className="flex items-start justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-light">Projects</h1>
+          <h1 className="text-3xl font-light">
+            Projects
+          </h1>
 
           <p className="mt-2 text-foreground/70">
-            Manage client work, approvals, deadlines, and delivery.
+            Manage client work, approvals, deadlines,
+            and delivery.
           </p>
         </div>
 
-        {session.user.role === "ADMIN" && (
+        {userCanManageProjects && (
           <Link
             href="/projects/new"
             className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background"
