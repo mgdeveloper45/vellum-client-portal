@@ -20,6 +20,7 @@ import {
   deleteProjectSchema,
   updateProjectSchema,
 } from "@/lib/validation/project";
+import { revalidatePath } from "next/cache";
 
 async function runProjectAction<T>(callback: () => Promise<T>) {
   const requestHeaders = await headers();
@@ -108,6 +109,9 @@ export async function createProjectAction(formData: FormData) {
       status: "success",
     });
 
+    revalidatePath("/projects");
+    revalidatePath(`/clients/${result.project.clientId}`);
+
     redirect("/projects");
   });
 }
@@ -189,6 +193,11 @@ export async function updateProjectAction(formData: FormData) {
       status: "success",
     });
 
+    revalidatePath("/projects");
+    revalidatePath(`/projects/${result.project.id}`);
+    revalidatePath(`/projects/${result.project.id}/edit`);
+    revalidatePath(`/clients/${result.project.clientId}`);
+
     redirect(`/projects/${result.project.id}`);
   });
 }
@@ -264,6 +273,9 @@ export async function deleteProjectAction(formData: FormData) {
       durationMs: Date.now() - startedAt,
       status: "success",
     });
+
+    revalidatePath("/projects");
+    revalidatePath(`/clients/${result.project.clientId}`);
 
     redirect("/projects");
   });

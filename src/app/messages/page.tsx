@@ -1,7 +1,10 @@
 import Link from "next/link";
+
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { canManageProjects } from "@/lib/permissions";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { listMessagesService } from "@/lib/services/messages/composition/message-services";
 
 export default async function MessagesPage() {
   const session = await auth();
@@ -10,37 +13,37 @@ export default async function MessagesPage() {
     return null;
   }
 
-  const projectFilter =
-    session.user.role === "ADMIN"
-      ? {}
-      : {
-        clientId: session.user.id,
-      };
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  const messages = await prisma.message.findMany({
-    where: {
-      project: projectFilter,
-    },
-    include: {
-      sender: true,
-      project: {
-        include: {
-          client: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 25,
+  if (!workspaceId) {
+    return null;
+  }
+
+  const result = await listMessagesService({
+    workspaceId,
+    viewerUserId: session.user.id,
+    canManageProjects: canManageProjects(
+      session.user.role,
+    ),
+    limit: 25,
   });
+
+  const messages = result.success
+    ? result.messages
+    : [];
 
   return (
     <BrandedDashboardShell>
-      <h1 className="text-3xl font-light">Messages</h1>
+      <h1 className="text-3xl font-light">
+        Messages
+      </h1>
 
       <p className="mt-2 text-foreground/70">
-        Recent project conversations across your workspace.
+        Recent project conversations across your
+        workspace.
       </p>
 
       <div className="mt-8 grid gap-3">
@@ -51,11 +54,13 @@ export default async function MessagesPage() {
             className="rounded-2xl border border-border bg-card p-5 transition hover:border-accent"
           >
             <p className="font-medium">
-              {message.sender.firstName} {message.sender.lastName}
+              {message.sender.firstName}{" "}
+              {message.sender.lastName}
             </p>
 
             <p className="mt-1 text-sm text-foreground/60">
-              {message.project.name} · {message.project.client.firstName}{" "}
+              {message.project.name} ·{" "}
+              {message.project.client.firstName}{" "}
               {message.project.client.lastName}
             </p>
 

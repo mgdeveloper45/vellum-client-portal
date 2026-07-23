@@ -2,6 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 import { auth } from "@/auth";
 import { canManageClients } from "@/lib/permissions";
@@ -21,7 +22,12 @@ export async function createClientAction(formData: FormData) {
   const session = await auth();
 
   if (!session?.user || !canManageClients(session.user.role)) {
-    return;
+    console.error("Client creation unauthorized", {
+      hasUser: Boolean(session?.user),
+      role: session?.user?.role,
+    });
+
+    throw new Error("You are not authorized to create clients.");
   }
 
   const input = createClientSchema.parse({
@@ -37,7 +43,11 @@ export async function createClientAction(formData: FormData) {
     );
 
   if (!workspaceId) {
-    return;
+    console.error("Client creation failed: workspace missing", {
+      userId: session.user.id,
+    });
+
+    throw new Error("Your account is not assigned to a workspace.");
   }
 
   const passwordHash = await bcrypt.hash("password123", 10);
@@ -52,8 +62,20 @@ export async function createClientAction(formData: FormData) {
   });
 
   if (!result.success) {
-    return;
+    console.error("Client creation failed", {
+      reason: result.reason,
+      message: result.message,
+      email: input.email,
+      workspaceId,
+    });
+
+    throw new Error(
+      `Client creation failed: ${result.reason} — ${result.message}`,
+    );
   }
+
+  revalidatePath("/clients");
+  revalidatePath("/projects/new");
 
   redirect("/clients");
 }
@@ -97,7 +119,12 @@ export async function updateClientAction(formData: FormData) {
     return;
   }
 
-  redirect(`/clients/${result.clientId}`);
+  revalidatePath("/clients");
+  revalidatePath(`/clients/${input.clientId}`);
+  revalidatePath(`/clients/${input.clientId}/edit`);
+  revalidatePath("/projects/new");
+
+  redirect(`/clients/${input.clientId}`);
 }
 
 export async function deleteClientAction(formData: FormData) {
@@ -128,6 +155,9 @@ export async function deleteClientAction(formData: FormData) {
   if (!result.success) {
     return;
   }
+
+  revalidatePath("/clients");
+  revalidatePath("/projects/new");
 
   redirect("/clients");
 }

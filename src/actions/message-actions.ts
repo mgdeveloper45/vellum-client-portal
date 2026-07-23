@@ -1,15 +1,15 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
 import { auth } from "@/auth";
 import { createAuditLog } from "@/lib/audit";
 import { sendProjectMessageEmail } from "@/lib/email";
-import { prisma } from "@/lib/prisma";
+import { canManageProjects } from "@/lib/permissions";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { createMessageService } from "@/lib/services/messages/composition/message-services";
 import { createMessageSchema } from "@/lib/validation/message";
-import { redirect } from "next/navigation";
-
-function createMessagePreview(content: string) {
-  return content.length > 100 ? `${content.slice(0, 100)}...` : content;
-}
 
 /**
  * Creates a project message from an authorized
@@ -27,100 +27,55 @@ export async function createMessageAction(formData: FormData) {
     content: formData.get("content"),
   });
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      id: true,
-      workspaceId: true,
-      firstName: true,
-      lastName: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser) {
+  if (!workspaceId) {
     return;
   }
 
-  const project = await prisma.project.findFirst({
-    where: {
-      id: input.projectId,
-
-      OR: [
-        {
-          clientId: currentUser.id,
-        },
-
-        ...(currentUser.workspaceId
-          ? [
-              {
-                workspaceId: currentUser.workspaceId,
-              },
-            ]
-          : []),
-      ],
-    },
-
-    include: {
-      client: true,
-      owner: true,
-    },
+  const result = await createMessageService({
+    workspaceId,
+    projectId: input.projectId,
+    senderId: session.user.id,
+    content: input.content,
+    canManageProjects: canManageProjects(session.user.role),
+    sessionSenderName: session.user.name,
   });
 
-  if (!project) {
+  if (!result.success) {
     return;
   }
-
-  const createdMessage = await prisma.message.create({
-    data: {
-      projectId: project.id,
-      senderId: currentUser.id,
-      content: input.content,
-    },
-  });
-
-  const preview = createMessagePreview(createdMessage.content);
 
   await createAuditLog({
     action: "MESSAGE_SENT",
     entity: "MESSAGE",
-    entityId: createdMessage.id,
-    userId: currentUser.id,
+    entityId: result.message.id,
+    userId: session.user.id,
     metadata: {
-      projectId: project.id,
-      preview,
+      projectId: result.message.projectId,
+      preview: result.preview,
     },
   });
 
-  const senderIsClient = currentUser.id === project.clientId;
+  if (result.emailDelivery) {
+    const appUrl = process.env.APP_URL;
 
-  const recipient = senderIsClient ? project.owner : project.client;
-
-  if (recipient.id !== currentUser.id) {
-    await prisma.notification.create({
-      data: {
-        userId: recipient.id,
-        title: "New project message",
-        message: preview,
-        type: "MESSAGE",
-        href: `/projects/${project.id}`,
-      },
-    });
-
-    const senderName =
-      session.user.name?.trim() ||
-      `${currentUser.firstName} ${currentUser.lastName}`.trim() ||
-      "Vellum User";
-
-    await sendProjectMessageEmail({
-      email: recipient.email,
-      projectName: project.name,
-      senderName,
-      message: createdMessage.content,
-      projectUrl: `${process.env.APP_URL}/projects/${project.id}`,
-    });
+    if (appUrl) {
+      await sendProjectMessageEmail({
+        email: result.emailDelivery.recipientEmail,
+        projectName: result.emailDelivery.projectName,
+        senderName: result.emailDelivery.senderName,
+        message: result.emailDelivery.content,
+        projectUrl: `${appUrl}/projects/${result.emailDelivery.projectId}`,
+      });
+    }
   }
 
-  redirect(`/projects/${project.id}`);
+  revalidatePath("/messages");
+  revalidatePath(`/projects/${result.message.projectId}`);
+
+  redirect(`/projects/${result.message.projectId}`);
 }
