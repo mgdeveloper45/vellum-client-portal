@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { getProposalsService } from "@/lib/services/proposal/composition/proposal-services";
 
 export default async function ProposalsPage() {
   const session = await auth();
@@ -9,27 +10,21 @@ export default async function ProposalsPage() {
     return null;
   }
 
-  const projectFilter =
-    session.user.role === "ADMIN"
-      ? {}
-      : {
-        clientId: session.user.id,
-      };
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  const proposals = await prisma.proposal.findMany({
-    where: {
-      project: projectFilter,
-    },
-    include: {
-      project: {
-        include: {
-          client: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+  if (!workspaceId) {
+    return null;
+  }
+
+  const proposals = await getProposalsService.execute({
+    workspaceId,
+    clientId:
+      session.user.role === "ADMIN"
+        ? undefined
+        : session.user.id,
   });
 
   return (

@@ -3,8 +3,12 @@
 import { auth } from "@/auth";
 import { createAuditLog } from "@/lib/audit";
 import { canManageProposals } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import {
+  createProposalService,
+  deleteProposalService,
+  toggleProposalApprovalService,
+} from "@/lib/services/proposal/composition/proposal-services";
 import {
   createProposalSchema,
   proposalMutationSchema,
@@ -31,39 +35,27 @@ export async function createProposalAction(formData: FormData) {
     return;
   }
 
-  const project = await prisma.project.findFirst({
-    where: {
-      id: input.projectId,
-      workspaceId,
-    },
-    select: {
-      id: true,
-    },
+  const result = await createProposalService.execute({
+    projectId: input.projectId,
+    workspaceId,
   });
 
-  if (!project) {
+  if (!result.success) {
     return;
   }
-
-  const proposal = await prisma.proposal.create({
-    data: {
-      projectId: project.id,
-      approved: false,
-    },
-  });
 
   await createAuditLog({
     action: "PROPOSAL_CREATED",
     entity: "PROPOSAL",
-    entityId: proposal.id,
+    entityId: result.proposal.id,
     userId: session.user.id,
     metadata: {
-      projectId: proposal.projectId,
-      approved: proposal.approved,
+      projectId: result.proposal.projectId,
+      approved: result.proposal.approved,
     },
   });
 
-  redirect(`/projects/${project.id}`);
+  redirect(`/projects/${result.proposal.projectId}`);
 }
 
 export async function toggleProposalApprovalAction(formData: FormData) {
@@ -87,43 +79,30 @@ export async function toggleProposalApprovalAction(formData: FormData) {
     return;
   }
 
-  const proposal = await prisma.proposal.findFirst({
-    where: {
-      id: input.proposalId,
-      projectId: input.projectId,
-      project: {
-        workspaceId,
-      },
-    },
+  const result = await toggleProposalApprovalService.execute({
+    proposalId: input.proposalId,
+    projectId: input.projectId,
+    workspaceId,
   });
 
-  if (!proposal) {
+  if (!result.success) {
     return;
   }
 
-  const updatedProposal = await prisma.proposal.update({
-    where: {
-      id: proposal.id,
-    },
-    data: {
-      approved: !proposal.approved,
-    },
-  });
-
   await createAuditLog({
-    action: updatedProposal.approved
+    action: result.proposal.approved
       ? "PROPOSAL_APPROVED"
       : "PROPOSAL_REJECTED",
     entity: "PROPOSAL",
-    entityId: updatedProposal.id,
+    entityId: result.proposal.id,
     userId: session.user.id,
     metadata: {
-      projectId: updatedProposal.projectId,
-      approved: updatedProposal.approved,
+      projectId: result.proposal.projectId,
+      approved: result.proposal.approved,
     },
   });
 
-  redirect(`/projects/${input.projectId}`);
+  redirect(`/projects/${result.proposal.projectId}`);
 }
 
 export async function deleteProposalAction(formData: FormData) {
@@ -147,40 +126,26 @@ export async function deleteProposalAction(formData: FormData) {
     return;
   }
 
-  const proposal = await prisma.proposal.findFirst({
-    where: {
-      id: input.proposalId,
-      projectId: input.projectId,
-      project: {
-        workspaceId,
-      },
-    },
-    select: {
-      id: true,
-      approved: true,
-    },
+  const result = await deleteProposalService.execute({
+    proposalId: input.proposalId,
+    projectId: input.projectId,
+    workspaceId,
   });
 
-  if (!proposal) {
+  if (!result.success) {
     return;
   }
-
-  await prisma.proposal.delete({
-    where: {
-      id: proposal.id,
-    },
-  });
 
   await createAuditLog({
     action: "PROPOSAL_DELETED",
     entity: "PROPOSAL",
-    entityId: proposal.id,
+    entityId: result.proposal.id,
     userId: session.user.id,
     metadata: {
-      projectId: input.projectId,
-      approved: proposal.approved,
+      projectId: result.proposal.projectId,
+      approved: result.proposal.approved,
     },
   });
 
-  redirect(`/projects/${input.projectId}`);
+  redirect(`/projects/${result.proposal.projectId}`);
 }
