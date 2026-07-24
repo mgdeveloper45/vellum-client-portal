@@ -2,9 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
-import { createInvoiceCheckoutSession } from "@/lib/services/payments/stripe-payment-service";
+import { createInvoiceCheckoutService } from "@/lib/services/payments/composition/payment-services";
 
 export async function createInvoiceCheckoutAction(formData: FormData) {
   const session = await auth();
@@ -28,32 +27,14 @@ export async function createInvoiceCheckoutAction(formData: FormData) {
     return;
   }
 
-  const invoice = await prisma.invoice.findFirst({
-    where: {
-      id: invoiceId,
-      paid: false,
-      project: {
-        workspaceId,
-      },
-    },
-    include: {
-      project: true,
-    },
+  const result = await createInvoiceCheckoutService.execute({
+    invoiceId,
+    workspaceId,
   });
 
-  if (!invoice) {
+  if (!result.success) {
     return;
   }
 
-  const checkoutSession = await createInvoiceCheckoutSession({
-    invoiceId: invoice.id,
-    amount: invoice.amount,
-    description: `Invoice for ${invoice.project.name}`,
-  });
-
-  if (!checkoutSession.url) {
-    return;
-  }
-
-  redirect(checkoutSession.url);
+  redirect(result.checkoutUrl);
 }
