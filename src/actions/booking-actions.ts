@@ -2,7 +2,6 @@
 
 import { auth } from "@/auth";
 import { canManageWorkspace } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import {
   createBookingCalendarEvent,
@@ -18,6 +17,7 @@ import {
   sendBookingConfirmation,
   sendBookingRescheduled,
 } from "@/lib/services/booking/email-service";
+import { prismaBookingWorkflowRepository } from "@/lib/services/booking/prisma-booking-workflow-repository";
 import {
   createBookingSchema,
   rescheduleBookingSchema,
@@ -30,7 +30,7 @@ function buildBookingDateTime(date: string, time: string) {
 }
 
 export async function createBookingAction(formData: FormData) {
-  const input = createBookingSchema.parse({
+  const parsed = createBookingSchema.safeParse({
     serviceId: formData.get("serviceId"),
     workspaceId: formData.get("workspaceId"),
     customerName: formData.get("customerName"),
@@ -41,25 +41,34 @@ export async function createBookingAction(formData: FormData) {
     startTime: formData.get("startTime"),
   });
 
-  const result = await createBookingService.execute(input);
-
-  if (!result.success || !result.bookingId) {
-    console.warn("Booking creation failed", {
-      code: result.code,
-      reasons: result.reasons,
+  if (!parsed.success) {
+    console.error("Booking form validation failed", {
+      issues: parsed.error.flatten(),
     });
 
     return;
   }
 
-  const booking = await prisma.booking.findUnique({
-    where: {
-      id: result.bookingId,
-    },
-    include: {
-      service: true,
-      workspace: true,
-    },
+  const input = parsed.data;
+
+  const result = await createBookingService.execute(input);
+
+  if (!result.success || !result.bookingId) {
+    console.error("Booking creation failed", {
+      code: result.code,
+      reasons: result.reasons,
+      workspaceId: input.workspaceId,
+      serviceId: input.serviceId,
+      date: input.date,
+      startTime: input.startTime,
+    });
+
+    return;
+  }
+
+  const booking = await prismaBookingWorkflowRepository.findBookingForWorkflow({
+    bookingId: result.bookingId,
+    workspaceId: input.workspaceId,
   });
 
   if (!booking) {
@@ -71,63 +80,72 @@ export async function createBookingAction(formData: FormData) {
     return;
   }
 
-  const bookingStartDateTime = buildBookingDateTime(
-    input.date,
-    booking.startTime,
-  );
+  /*
+   * The booking has already been persisted.
+   * Failures in email, calendar, or notification delivery must not prevent
+   * the customer from reaching the confirmation page.
+   */
 
-  const bookingEndDateTime = buildBookingDateTime(input.date, booking.endTime);
-
-  await sendBookingConfirmation({
-    email: booking.customerEmail,
-    customerName: booking.customerName,
-    businessName:
-      booking.workspace.companyName || booking.workspace.name || "Vellum",
-    serviceName: booking.service.name,
-    bookingDate: booking.date.toLocaleDateString(),
-    bookingTime: `${booking.startTime}–${booking.endTime}`,
-  });
-
-  const calendarEvent = await createBookingCalendarEvent({
-    summary: `${booking.service.name} with ${booking.customerName}`,
-    description: booking.notes || undefined,
-    startDateTime: bookingStartDateTime,
-    endDateTime: bookingEndDateTime,
-    attendeeEmail: booking.customerEmail,
-  });
-
-  if (calendarEvent?.id) {
-    await prisma.booking.update({
-      where: {
-        id: booking.id,
-      },
-      data: {
-        googleCalendarEventId: calendarEvent.id,
-      },
+  try {
+    await sendBookingConfirmation({
+      email: booking.customerEmail,
+      customerName: booking.customerName,
+      businessName:
+        booking.workspace.companyName || booking.workspace.name || "Vellum",
+      serviceName: booking.service.name,
+      bookingDate: booking.date.toLocaleDateString(),
+      bookingTime: `${booking.startTime}–${booking.endTime}`,
+    });
+  } catch (error) {
+    console.error("Booking confirmation email failed", {
+      bookingId: booking.id,
+      error,
     });
   }
 
-  const workspaceAdmin = await prisma.user.findFirst({
-    where: {
-      workspaceId: input.workspaceId,
-      role: {
-        in: ["OWNER", "ADMIN"],
-      },
-    },
-    select: {
-      id: true,
-    },
-  });
+  try {
+    const bookingStartDateTime = buildBookingDateTime(
+      input.date,
+      booking.startTime,
+    );
 
-  if (workspaceAdmin) {
-    await prisma.notification.create({
-      data: {
-        userId: workspaceAdmin.id,
-        title: "New booking created",
-        message: `${booking.customerName} booked ${booking.service.name} for ${booking.date.toLocaleDateString()} at ${booking.startTime}.`,
-        type: "BOOKING",
-        href: `/bookings/${booking.id}`,
-      },
+    const bookingEndDateTime = buildBookingDateTime(
+      input.date,
+      booking.endTime,
+    );
+
+    const calendarEvent = await createBookingCalendarEvent({
+      summary: `${booking.service.name} with ${booking.customerName}`,
+      description: booking.notes || undefined,
+      startDateTime: bookingStartDateTime,
+      endDateTime: bookingEndDateTime,
+      attendeeEmail: booking.customerEmail,
+    });
+
+    if (calendarEvent?.id) {
+      await prismaBookingWorkflowRepository.updateGoogleCalendarEventId({
+        bookingId: booking.id,
+        googleCalendarEventId: calendarEvent.id,
+      });
+    }
+  } catch (error) {
+    console.error("Booking calendar synchronization failed", {
+      bookingId: booking.id,
+      error,
+    });
+  }
+
+  try {
+    await prismaBookingWorkflowRepository.createWorkspaceAdminNotification({
+      workspaceId: input.workspaceId,
+      title: "New booking created",
+      message: `${booking.customerName} booked ${booking.service.name} for ${booking.date.toLocaleDateString()} at ${booking.startTime}.`,
+      href: `/bookings/${booking.id}`,
+    });
+  } catch (error) {
+    console.error("Booking notification creation failed", {
+      bookingId: booking.id,
+      error,
     });
   }
 
@@ -170,15 +188,11 @@ export async function updateBookingStatusAction(formData: FormData) {
   }
 
   if (result.status === "CANCELLED") {
-    await prisma.notification.create({
-      data: {
-        userId: session.user.id,
-        title: "Booking cancelled",
-        message:
-          "A booking was cancelled and removed from the active calendar.",
-        type: "BOOKING",
-        href: `/bookings/${result.bookingId}`,
-      },
+    await prismaBookingWorkflowRepository.createUserNotification({
+      userId: session.user.id,
+      title: "Booking cancelled",
+      message: "A booking was cancelled and removed from the active calendar.",
+      href: `/bookings/${result.bookingId}`,
     });
   }
 
@@ -225,16 +239,11 @@ export async function rescheduleBookingAction(formData: FormData) {
     return;
   }
 
-  const updatedBooking = await prisma.booking.findFirst({
-    where: {
-      id: result.bookingId,
+  const updatedBooking =
+    await prismaBookingWorkflowRepository.findBookingForWorkflow({
+      bookingId: result.bookingId,
       workspaceId,
-    },
-    include: {
-      service: true,
-      workspace: true,
-    },
-  });
+    });
 
   if (!updatedBooking) {
     console.error("Rescheduled booking could not be reloaded", {
@@ -271,14 +280,11 @@ export async function rescheduleBookingAction(formData: FormData) {
     bookingTime: `${updatedBooking.startTime} – ${updatedBooking.endTime}`,
   });
 
-  await prisma.notification.create({
-    data: {
-      userId: session.user.id,
-      title: "Booking rescheduled",
-      message: `${updatedBooking.customerName}'s ${updatedBooking.service.name} booking was moved to ${updatedBooking.date.toLocaleDateString()} at ${updatedBooking.startTime}.`,
-      type: "BOOKING",
-      href: `/bookings/${updatedBooking.id}`,
-    },
+  await prismaBookingWorkflowRepository.createUserNotification({
+    userId: session.user.id,
+    title: "Booking rescheduled",
+    message: `${updatedBooking.customerName}'s ${updatedBooking.service.name} booking was moved to ${updatedBooking.date.toLocaleDateString()} at ${updatedBooking.startTime}.`,
+    href: `/bookings/${updatedBooking.id}`,
   });
 
   redirect(`/bookings/${updatedBooking.id}`);

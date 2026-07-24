@@ -1,81 +1,82 @@
-import { prisma } from "@/lib/prisma";
 import { buildBookingEngine } from "@/lib/services/bookings/booking-engine";
+import type { BookingCommandCenterRepository } from "./booking-command-center-repository";
+import { prismaBookingCommandCenterRepository } from "./prisma-booking-command-center-repository";
 
-export async function getBookingCommandCenter({
-  bookingId,
-  workspaceId,
-}: {
+type GetBookingCommandCenterInput = {
   bookingId: string;
   workspaceId: string;
-}) {
-  const booking = await prisma.booking.findFirst({
-    where: {
-      id: bookingId,
-      workspaceId,
-    },
-    include: {
-      service: true,
-      workspace: true,
-    },
-  });
+};
 
-  if (!booking) {
-    return null;
-  }
+type BookingCommandCenterDependencies = {
+  bookingCommandCenterRepository: BookingCommandCenterRepository;
+};
 
-  const relatedProjects = await prisma.project.findMany({
-    where: {
-      workspaceId,
-      client: {
-        email: booking.customerEmail,
-      },
-    },
-    include: {
-      invoices: true,
-      messages: true,
-      files: true,
-    },
-  });
+export function createGetBookingCommandCenter(
+  dependencies: BookingCommandCenterDependencies,
+) {
+  return async function getBookingCommandCenter(
+    input: GetBookingCommandCenterInput,
+  ) {
+    const booking =
+      await dependencies.bookingCommandCenterRepository.findBooking(input);
 
-  const hasProject = relatedProjects.length > 0;
-  const invoices = relatedProjects.flatMap((project) => project.invoices);
-  const messages = relatedProjects.flatMap((project) => project.messages);
-  const files = relatedProjects.flatMap((project) => project.files);
+    if (!booking) {
+      return null;
+    }
 
-  const hasInvoice = invoices.length > 0;
-  const invoicePaid = invoices.some((invoice) => invoice.paid);
-  const hasMessages = messages.length > 0;
-  const hasFiles = files.length > 0;
+    const relatedProjects =
+      await dependencies.bookingCommandCenterRepository.findRelatedProjects({
+        workspaceId: input.workspaceId,
+        customerEmail: booking.customerEmail,
+      });
 
-  const intelligence = buildBookingEngine({
-    bookingId: booking.id,
-    customerName: booking.customerName,
-    serviceName: booking.service.name,
-    status: booking.status,
-    bookingCreatedAt: booking.createdAt,
-    bookingDate: booking.date,
-    hasGoogleCalendarEvent: Boolean(booking.googleCalendarEventId),
-    hasProject,
-    hasInvoice,
-    invoicePaid,
-    hasMessages,
-    hasFiles,
-  });
+    const hasProject = relatedProjects.length > 0;
 
-  return {
-    booking,
-    relatedProjects,
-    invoices,
-    messages,
-    files,
-    flags: {
+    const invoices = relatedProjects.flatMap((project) => project.invoices);
+
+    const messages = relatedProjects.flatMap((project) => project.messages);
+
+    const files = relatedProjects.flatMap((project) => project.files);
+
+    const hasInvoice = invoices.length > 0;
+    const invoicePaid = invoices.some((invoice) => invoice.paid);
+    const hasMessages = messages.length > 0;
+    const hasFiles = files.length > 0;
+
+    const intelligence = buildBookingEngine({
+      bookingId: booking.id,
+      customerName: booking.customerName,
+      serviceName: booking.service.name,
+      status: booking.status,
+      bookingCreatedAt: booking.createdAt,
+      bookingDate: booking.date,
+      hasGoogleCalendarEvent: Boolean(booking.googleCalendarEventId),
       hasProject,
       hasInvoice,
       invoicePaid,
       hasMessages,
       hasFiles,
-      calendarSynced: Boolean(booking.googleCalendarEventId),
-    },
-    intelligence,
+    });
+
+    return {
+      booking,
+      relatedProjects,
+      invoices,
+      messages,
+      files,
+      flags: {
+        hasProject,
+        hasInvoice,
+        invoicePaid,
+        hasMessages,
+        hasFiles,
+        calendarSynced: Boolean(booking.googleCalendarEventId),
+      },
+      intelligence,
+    };
   };
 }
+
+export const getBookingCommandCenter = createGetBookingCommandCenter({
+  bookingCommandCenterRepository: prismaBookingCommandCenterRepository,
+});
