@@ -2,8 +2,11 @@
 
 import { auth } from "@/auth";
 import { canManageWorkspace } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
-import { createApiKey, revokeApiKey } from "@/lib/services/api/api-key-service";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import {
+  createApiKeyService,
+  revokeApiKeyService,
+} from "@/lib/services/api/composition/api-key-services";
 import { redirect } from "next/navigation";
 
 export async function createApiKeyAction(formData: FormData) {
@@ -19,22 +22,18 @@ export async function createApiKeyAction(formData: FormData) {
     return;
   }
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
-  const { rawKey } = await createApiKey({
+  const { rawKey } = await createApiKeyService.execute({
     name,
-    workspaceId: currentUser.workspaceId,
+    workspaceId,
   });
 
   redirect(`/settings?apiKey=${rawKey}`);
@@ -49,22 +48,18 @@ export async function revokeApiKeyAction(formData: FormData) {
 
   const apiKeyId = String(formData.get("apiKeyId") ?? "");
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId || !apiKeyId) {
+  if (!workspaceId || !apiKeyId) {
     return;
   }
 
-  await revokeApiKey({
+  await revokeApiKeyService.execute({
     apiKeyId,
-    workspaceId: currentUser.workspaceId,
+    workspaceId,
   });
 
   redirect("/settings");
