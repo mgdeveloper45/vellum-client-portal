@@ -17,7 +17,9 @@ import {
   createApiKeyAction,
   revokeApiKeyAction,
 } from "@/actions/api-key-actions";
-import { listApiKeys } from "@/lib/services/api/api-key-service";
+import { listApiKeysService } from "@/lib/services/api/composition/api-key-services";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+
 
 
 export default async function SettingsPage({
@@ -33,6 +35,13 @@ export default async function SettingsPage({
     return null;
   }
 
+  const user = session.user;
+
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      user.id,
+    );
+
   const currentUser = await prisma.user.findUnique({
     where: {
       id: session.user.id,
@@ -46,8 +55,8 @@ export default async function SettingsPage({
     ? `http://localhost:3000/book/${currentUser.workspace.slug}`
     : null;
 
-  const apiKeys = currentUser?.workspaceId
-    ? await listApiKeys(currentUser.workspaceId)
+  const apiKeys = workspaceId
+    ? await listApiKeysService.execute(workspaceId)
     : [];
 
   const resolvedSearchParams = await searchParams;

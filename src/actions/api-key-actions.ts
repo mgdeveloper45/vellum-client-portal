@@ -9,14 +9,21 @@ import {
 } from "@/lib/services/api/composition/api-key-services";
 import { redirect } from "next/navigation";
 
-export async function createApiKeyAction(formData: FormData) {
+export async function createApiKeyAction(
+  formData: FormData,
+) {
   const session = await auth();
 
-  if (!session?.user || !canManageWorkspace(session.user.role)) {
+  if (
+    !session?.user ||
+    !canManageWorkspace(session.user.role)
+  ) {
     return;
   }
 
-  const name = String(formData.get("name") ?? "").trim();
+  const name = String(
+    formData.get("name") ?? "",
+  ).trim();
 
   if (!name) {
     return;
@@ -31,22 +38,30 @@ export async function createApiKeyAction(formData: FormData) {
     return;
   }
 
-  const { rawKey } = await createApiKeyService.execute({
-    name,
-    workspaceId,
-  });
+  const { rawKey } =
+    await createApiKeyService.execute({
+      name,
+      workspaceId,
+    });
 
   redirect(`/settings?apiKey=${rawKey}`);
 }
 
-export async function revokeApiKeyAction(formData: FormData) {
+export async function revokeApiKeyAction(
+  formData: FormData,
+) {
   const session = await auth();
 
-  if (!session?.user || !canManageWorkspace(session.user.role)) {
+  if (
+    !session?.user ||
+    !canManageWorkspace(session.user.role)
+  ) {
     return;
   }
 
-  const apiKeyId = String(formData.get("apiKeyId") ?? "");
+  const apiKeyId = String(
+    formData.get("apiKeyId") ?? "",
+  );
 
   const workspaceId =
     await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
