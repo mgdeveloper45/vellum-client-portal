@@ -1,10 +1,12 @@
 "use server";
 
-import crypto from "crypto";
 import { auth } from "@/auth";
-import bcrypt from "bcryptjs";
 import { sendWorkspaceInvitationEmail } from "@/lib/email";
-import { prisma } from "@/lib/prisma";
+import {
+  acceptWorkspaceInvitationService,
+  createWorkspaceInvitationService,
+} from "@/lib/services/workspace/composition/workspace-invitation-services";
+import type { WorkspaceInvitationRole } from "@/lib/services/workspace/workspace-invitation-repository";
 import { redirect } from "next/navigation";
 
 export async function createWorkspaceInvitationAction(formData: FormData) {
@@ -14,45 +16,32 @@ export async function createWorkspaceInvitationAction(formData: FormData) {
     return;
   }
 
-  const email = String(formData.get("email")).trim();
-  const role = String(formData.get("role")) as "ADMIN" | "CLIENT";
+  const email = String(formData.get("email") ?? "").trim();
+  const role = String(formData.get("role") ?? "") as WorkspaceInvitationRole;
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-      workspace: {
-        select: {
-          name: true,
-        },
-      },
-    },
+  const result = await createWorkspaceInvitationService({
+    invitedById: session.user.id,
+    email,
+    role,
   });
 
-  if (!currentUser?.workspaceId) {
+  if (result.status !== "created") {
     return;
   }
 
-  const token = crypto.randomBytes(32).toString("hex");
+  const appUrl = process.env.APP_URL;
 
-  const invitation = await prisma.workspaceInvitation.create({
-    data: {
-      email,
-      role,
-      token,
-      workspaceId: currentUser.workspaceId,
-      invitedById: session.user.id,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-    },
-  });
+  if (!appUrl) {
+    throw new Error(
+      "APP_URL is required to create workspace invitation links.",
+    );
+  }
 
-  const inviteUrl = `${process.env.APP_URL}/accept-invite?token=${invitation.token}`;
+  const inviteUrl = `${appUrl}/accept-invite?token=${result.invitation.token}`;
 
   await sendWorkspaceInvitationEmail({
-    email: invitation.email,
-    workspaceName: currentUser.workspace?.name ?? "Vellum Workspace",
+    email: result.invitation.email,
+    workspaceName: result.invitation.workspaceName,
     inviteUrl,
   });
 
@@ -60,73 +49,17 @@ export async function createWorkspaceInvitationAction(formData: FormData) {
 }
 
 export async function acceptWorkspaceInvitationAction(formData: FormData) {
-  const token = String(formData.get("token"));
-  const email = String(formData.get("email")).trim();
-  const firstName = String(formData.get("firstName")).trim();
-  const lastName = String(formData.get("lastName")).trim();
-  const password = String(formData.get("password"));
-
-  const invitation = await prisma.workspaceInvitation.findUnique({
-    where: {
-      token,
-    },
+  const result = await acceptWorkspaceInvitationService({
+    token: String(formData.get("token") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    firstName: String(formData.get("firstName") ?? ""),
+    lastName: String(formData.get("lastName") ?? ""),
+    password: String(formData.get("password") ?? ""),
   });
 
-  if (
-    !invitation ||
-    invitation.acceptedAt ||
-    invitation.expiresAt < new Date()
-  ) {
+  if (result.status !== "accepted") {
     return;
   }
-
-  if (invitation.email !== email) {
-    return;
-  }
-
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-  });
-
-  if (existingUser) {
-    await prisma.user.update({
-      where: {
-        id: existingUser.id,
-      },
-      data: {
-        firstName,
-        lastName,
-        role: invitation.role,
-        isActive: true,
-        workspaceId: invitation.workspaceId,
-      },
-    });
-  } else {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await prisma.user.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        role: invitation.role,
-        isActive: true,
-        workspaceId: invitation.workspaceId,
-      },
-    });
-  }
-
-  await prisma.workspaceInvitation.update({
-    where: {
-      id: invitation.id,
-    },
-    data: {
-      acceptedAt: new Date(),
-    },
-  });
 
   redirect("/sign-in");
 }
