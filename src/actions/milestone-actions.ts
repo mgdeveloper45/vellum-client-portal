@@ -1,15 +1,19 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { createAuditLog } from "@/lib/audit";
 import { canManageProjects } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import {
+  createMilestoneService,
+  cycleMilestoneStatusService,
+  deleteMilestoneService,
+} from "@/lib/services/milestone/composition/milestone-services";
 import {
   createMilestoneSchema,
   milestoneMutationSchema,
 } from "@/lib/validation/milestone";
+import { redirect } from "next/navigation";
 
 export async function createMilestoneAction(formData: FormData) {
   const session = await auth();
@@ -33,43 +37,31 @@ export async function createMilestoneAction(formData: FormData) {
     return;
   }
 
-  const project = await prisma.project.findFirst({
-    where: {
-      id: input.projectId,
-      workspaceId,
-    },
-    select: {
-      id: true,
-    },
+  const result = await createMilestoneService.execute({
+    projectId: input.projectId,
+    workspaceId,
+    title: input.title,
+    dueDate: input.dueDate ?? null,
   });
 
-  if (!project) {
+  if (!result.success) {
     return;
   }
-
-  const milestone = await prisma.milestone.create({
-    data: {
-      projectId: project.id,
-      title: input.title,
-      status: "PENDING",
-      dueDate: input.dueDate ? new Date(`${input.dueDate}T00:00:00`) : null,
-    },
-  });
 
   await createAuditLog({
     action: "MILESTONE_CREATED",
     entity: "MILESTONE",
-    entityId: milestone.id,
+    entityId: result.milestone.id,
     userId: session.user.id,
     metadata: {
-      projectId: milestone.projectId,
-      title: milestone.title,
-      status: milestone.status,
-      dueDate: milestone.dueDate?.toISOString() ?? null,
+      projectId: result.milestone.projectId,
+      title: result.milestone.title,
+      status: result.milestone.status,
+      dueDate: result.milestone.dueDate?.toISOString() ?? null,
     },
   });
 
-  redirect(`/projects/${project.id}`);
+  redirect(`/projects/${result.milestone.projectId}`);
 }
 
 export async function cycleMilestoneStatusAction(formData: FormData) {
@@ -93,49 +85,29 @@ export async function cycleMilestoneStatusAction(formData: FormData) {
     return;
   }
 
-  const milestone = await prisma.milestone.findFirst({
-    where: {
-      id: input.milestoneId,
-      projectId: input.projectId,
-      project: {
-        workspaceId,
-      },
-    },
+  const result = await cycleMilestoneStatusService.execute({
+    milestoneId: input.milestoneId,
+    projectId: input.projectId,
+    workspaceId,
   });
 
-  if (!milestone) {
+  if (!result.success) {
     return;
   }
-
-  const nextStatus =
-    milestone.status === "PENDING"
-      ? "IN_PROGRESS"
-      : milestone.status === "IN_PROGRESS"
-        ? "COMPLETE"
-        : "PENDING";
-
-  const updatedMilestone = await prisma.milestone.update({
-    where: {
-      id: milestone.id,
-    },
-    data: {
-      status: nextStatus,
-    },
-  });
 
   await createAuditLog({
     action: "MILESTONE_STATUS_CHANGED",
     entity: "MILESTONE",
-    entityId: updatedMilestone.id,
+    entityId: result.milestone.id,
     userId: session.user.id,
     metadata: {
-      projectId: updatedMilestone.projectId,
-      previousStatus: milestone.status,
-      status: updatedMilestone.status,
+      projectId: result.milestone.projectId,
+      previousStatus: result.previousStatus,
+      status: result.milestone.status,
     },
   });
 
-  redirect(`/projects/${input.projectId}`);
+  redirect(`/projects/${result.milestone.projectId}`);
 }
 
 export async function deleteMilestoneAction(formData: FormData) {
@@ -159,44 +131,28 @@ export async function deleteMilestoneAction(formData: FormData) {
     return;
   }
 
-  const milestone = await prisma.milestone.findFirst({
-    where: {
-      id: input.milestoneId,
-      projectId: input.projectId,
-      project: {
-        workspaceId,
-      },
-    },
-    select: {
-      id: true,
-      title: true,
-      status: true,
-      dueDate: true,
-    },
+  const result = await deleteMilestoneService.execute({
+    milestoneId: input.milestoneId,
+    projectId: input.projectId,
+    workspaceId,
   });
 
-  if (!milestone) {
+  if (!result.success) {
     return;
   }
-
-  await prisma.milestone.delete({
-    where: {
-      id: milestone.id,
-    },
-  });
 
   await createAuditLog({
     action: "MILESTONE_DELETED",
     entity: "MILESTONE",
-    entityId: milestone.id,
+    entityId: result.milestone.id,
     userId: session.user.id,
     metadata: {
-      projectId: input.projectId,
-      title: milestone.title,
-      status: milestone.status,
-      dueDate: milestone.dueDate?.toISOString() ?? null,
+      projectId: result.milestone.projectId,
+      title: result.milestone.title,
+      status: result.milestone.status,
+      dueDate: result.milestone.dueDate?.toISOString() ?? null,
     },
   });
 
-  redirect(`/projects/${input.projectId}`);
+  redirect(`/projects/${result.milestone.projectId}`);
 }
