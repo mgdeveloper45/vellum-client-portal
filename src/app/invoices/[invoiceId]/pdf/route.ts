@@ -1,6 +1,7 @@
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { getInvoicePdfService } from "@/lib/services/invoice/composition/invoice-services";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export async function GET(
   _request: Request,
@@ -15,49 +16,40 @@ export async function GET(
   const session = await auth();
 
   if (!session?.user) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response("Unauthorized", {
+      status: 401,
+    });
   }
 
   const { invoiceId } = await params;
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
-    return new Response("Workspace not found", { status: 404 });
+  if (!workspaceId) {
+    return new Response("Workspace not found", {
+      status: 404,
+    });
   }
 
-  const invoice = await prisma.invoice.findFirst({
-    where: {
-      id: invoiceId,
-      project: {
-        workspaceId: currentUser.workspaceId,
-      },
-    },
-    include: {
-      project: {
-        include: {
-          client: true,
-          workspace: true,
-        },
-      },
-    },
+  const invoice = await getInvoicePdfService.execute({
+    invoiceId,
+    workspaceId,
   });
 
   if (!invoice) {
-    return new Response("Invoice not found", { status: 404 });
+    return new Response("Invoice not found", {
+      status: 404,
+    });
   }
 
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595.28, 841.89]);
 
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
   const businessName =
@@ -66,6 +58,7 @@ export async function GET(
     "Vellum";
 
   const clientName = `${invoice.project.client.firstName} ${invoice.project.client.lastName}`;
+
   const amount = `$${invoice.amount.toLocaleString()}`;
   const status = invoice.paid ? "PAID" : "UNPAID";
 
@@ -160,8 +153,14 @@ export async function GET(
   y -= 70;
 
   page.drawLine({
-    start: { x: 50, y },
-    end: { x: 545, y },
+    start: {
+      x: 50,
+      y,
+    },
+    end: {
+      x: 545,
+      y,
+    },
     thickness: 1,
     color: rgb(0.85, 0.85, 0.85),
   });
@@ -201,8 +200,14 @@ export async function GET(
   y -= 24;
 
   page.drawLine({
-    start: { x: 50, y },
-    end: { x: 545, y },
+    start: {
+      x: 50,
+      y,
+    },
+    end: {
+      x: 545,
+      y,
+    },
     thickness: 1,
     color: rgb(0.85, 0.85, 0.85),
   });

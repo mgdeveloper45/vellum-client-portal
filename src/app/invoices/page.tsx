@@ -1,15 +1,16 @@
-import Link from "next/link";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { createInvoiceCheckoutAction } from "@/actions/payment-actions";
+import { auth } from "@/auth";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { getInvoicesService } from "@/lib/services/invoice/composition/invoice-services";
+import Link from "next/link";
 
 /**
- * Invoices page.
- * Shows all invoices across all projects from PostgreSQL.
+ * Shows invoices belonging to the authenticated user's workspace.
+ *
+ * Workspace managers see all invoices in their workspace.
+ * Clients see only invoices connected to their own projects.
  */
-
-
 export default async function InvoicesPage() {
   const session = await auth();
 
@@ -17,33 +18,28 @@ export default async function InvoicesPage() {
     return null;
   }
 
-  const projectFilter =
-    session.user.role === "ADMIN"
-      ? {}
-      : {
-        clientId: session.user.id,
-      };
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  const invoices = await prisma.invoice.findMany({
-    where: {
-      project: projectFilter,
-    },
-    include: {
-      project: {
-        include: {
-          client: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+  if (!workspaceId) {
+    return null;
+  }
+
+  const invoices = await getInvoicesService.execute({
+    workspaceId,
+    clientId:
+      session.user.role === "ADMIN"
+        ? undefined
+        : session.user.id,
   });
 
   return (
     <BrandedDashboardShell>
       <div>
         <h1 className="text-3xl font-light">Invoices</h1>
+
         <p className="mt-2 text-foreground/70">
           Track client invoices, payment status, and related projects.
         </p>

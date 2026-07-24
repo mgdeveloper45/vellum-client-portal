@@ -3,8 +3,12 @@
 import { auth } from "@/auth";
 import { createAuditLog } from "@/lib/audit";
 import { canManageInvoices } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import {
+  createInvoiceService,
+  deleteInvoiceService,
+  toggleInvoicePaidService,
+} from "@/lib/services/invoice/composition/invoice-services";
 import {
   createInvoiceSchema,
   invoiceMutationSchema,
@@ -35,41 +39,29 @@ export async function createInvoiceAction(formData: FormData) {
     return;
   }
 
-  const project = await prisma.project.findFirst({
-    where: {
-      id: input.projectId,
-      workspaceId,
-    },
-    select: {
-      id: true,
-    },
+  const result = await createInvoiceService.execute({
+    projectId: input.projectId,
+    workspaceId,
+    amount: input.amount,
   });
 
-  if (!project) {
+  if (!result.success) {
     return;
   }
-
-  const invoice = await prisma.invoice.create({
-    data: {
-      projectId: project.id,
-      amount: input.amount,
-      paid: false,
-    },
-  });
 
   await createAuditLog({
     action: "INVOICE_CREATED",
     entity: "INVOICE",
-    entityId: invoice.id,
+    entityId: result.invoice.id,
     userId: session.user.id,
     metadata: {
-      amount: invoice.amount,
-      projectId: invoice.projectId,
-      paid: invoice.paid,
+      amount: result.invoice.amount,
+      projectId: result.invoice.projectId,
+      paid: result.invoice.paid,
     },
   });
 
-  redirect(`/projects/${project.id}`);
+  redirect(`/projects/${result.invoice.projectId}`);
 }
 
 /**
@@ -96,42 +88,29 @@ export async function toggleInvoicePaidAction(formData: FormData) {
     return;
   }
 
-  const invoice = await prisma.invoice.findFirst({
-    where: {
-      id: input.invoiceId,
-      projectId: input.projectId,
-      project: {
-        workspaceId,
-      },
-    },
+  const result = await toggleInvoicePaidService.execute({
+    invoiceId: input.invoiceId,
+    projectId: input.projectId,
+    workspaceId,
   });
 
-  if (!invoice) {
+  if (!result.success) {
     return;
   }
 
-  const updatedInvoice = await prisma.invoice.update({
-    where: {
-      id: invoice.id,
-    },
-    data: {
-      paid: !invoice.paid,
-    },
-  });
-
   await createAuditLog({
-    action: updatedInvoice.paid ? "INVOICE_PAID" : "INVOICE_UNPAID",
+    action: result.invoice.paid ? "INVOICE_PAID" : "INVOICE_UNPAID",
     entity: "INVOICE",
-    entityId: updatedInvoice.id,
+    entityId: result.invoice.id,
     userId: session.user.id,
     metadata: {
-      amount: updatedInvoice.amount,
-      projectId: updatedInvoice.projectId,
-      paid: updatedInvoice.paid,
+      amount: result.invoice.amount,
+      projectId: result.invoice.projectId,
+      paid: result.invoice.paid,
     },
   });
 
-  redirect(`/projects/${input.projectId}`);
+  redirect(`/projects/${result.invoice.projectId}`);
 }
 
 /**
@@ -158,42 +137,27 @@ export async function deleteInvoiceAction(formData: FormData) {
     return;
   }
 
-  const invoice = await prisma.invoice.findFirst({
-    where: {
-      id: input.invoiceId,
-      projectId: input.projectId,
-      project: {
-        workspaceId,
-      },
-    },
-    select: {
-      id: true,
-      amount: true,
-      paid: true,
-    },
+  const result = await deleteInvoiceService.execute({
+    invoiceId: input.invoiceId,
+    projectId: input.projectId,
+    workspaceId,
   });
 
-  if (!invoice) {
+  if (!result.success) {
     return;
   }
-
-  await prisma.invoice.delete({
-    where: {
-      id: invoice.id,
-    },
-  });
 
   await createAuditLog({
     action: "INVOICE_DELETED",
     entity: "INVOICE",
-    entityId: invoice.id,
+    entityId: result.invoice.id,
     userId: session.user.id,
     metadata: {
-      amount: invoice.amount,
-      projectId: input.projectId,
-      paid: invoice.paid,
+      amount: result.invoice.amount,
+      projectId: result.invoice.projectId,
+      paid: result.invoice.paid,
     },
   });
 
-  redirect(`/projects/${input.projectId}`);
+  redirect(`/projects/${result.invoice.projectId}`);
 }
