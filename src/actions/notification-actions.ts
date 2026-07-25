@@ -1,19 +1,17 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+
+import { markNotificationReadService } from "@/lib/services/notifications/composition/notification-services";
 
 export async function markNotificationReadAction(formData: FormData) {
-  const notificationId = String(formData.get("notificationId"));
+  const notificationId = String(formData.get("notificationId") ?? "").trim();
 
-  await prisma.notification.update({
-    where: {
-      id: notificationId,
-    },
-    data: {
-      read: true,
-    },
-  });
+  if (!notificationId) {
+    return;
+  }
+
+  await markNotificationReadService.execute(notificationId);
 
   redirect("/notifications");
 }
