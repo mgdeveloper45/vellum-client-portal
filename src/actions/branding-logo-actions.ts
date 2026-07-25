@@ -1,15 +1,15 @@
 "use server";
 
-import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { canManageWorkspace } from "@/lib/permissions";
-import { deleteFileFromR2, getR2PublicUrl, uploadFileToR2 } from "@/lib/r2";
+import { auth } from "@/auth";
 import {
   ALLOWED_LOGO_FILE_TYPES,
   MAX_LOGO_FILE_SIZE,
   validateUploadedFile,
 } from "@/lib/files/file-validation";
+import { canManageWorkspace } from "@/lib/permissions";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { uploadWorkspaceLogoService } from "@/lib/services/branding/composition/branding-services";
 
 export async function uploadWorkspaceLogoAction(formData: FormData) {
   const session = await auth();
@@ -33,53 +33,19 @@ export async function uploadWorkspaceLogoAction(formData: FormData) {
     throw new Error(validation.error);
   }
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-      workspace: {
-        select: {
-          logoImageUrl: true,
-        },
-      },
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
-  const key = await uploadFileToR2({
-    file: logo,
-    folder: `workspaces/${currentUser.workspaceId}/branding`,
+  await uploadWorkspaceLogoService.execute({
+    workspaceId,
+    logo,
   });
-
-  const previousLogoUrl = currentUser.workspace?.logoImageUrl;
-
-  await prisma.workspace.update({
-    where: {
-      id: currentUser.workspaceId,
-    },
-    data: {
-      logoImageUrl: getR2PublicUrl(key),
-    },
-  });
-
-  const publicBaseUrl = process.env.R2_PUBLIC_URL?.replace(/\/$/, "");
-
-  if (
-    previousLogoUrl &&
-    publicBaseUrl &&
-    previousLogoUrl.startsWith(`${publicBaseUrl}/`)
-  ) {
-    const previousKey = previousLogoUrl.slice(publicBaseUrl.length + 1);
-
-    if (previousKey && previousKey !== key) {
-      await deleteFileFromR2(previousKey).catch(() => undefined);
-    }
-  }
 
   redirect("/settings");
 }

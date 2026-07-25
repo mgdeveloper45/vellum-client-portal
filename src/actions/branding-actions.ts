@@ -1,17 +1,10 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { canManageWorkspace } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
-
-function createSlug(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { updateWorkspaceBrandingService } from "@/lib/services/branding/composition/branding-services";
 
 export async function updateWorkspaceBrandingAction(formData: FormData) {
   const session = await auth();
@@ -21,33 +14,25 @@ export async function updateWorkspaceBrandingAction(formData: FormData) {
   }
 
   const companyName = String(formData.get("companyName") ?? "").trim();
-  const slug = createSlug(companyName);
+
   const accentColor = String(formData.get("accentColor") ?? "").trim();
+
   const customDomain = String(formData.get("customDomain") ?? "").trim();
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
-  await prisma.workspace.update({
-    where: {
-      id: currentUser.workspaceId,
-    },
-    data: {
-      companyName: companyName || null,
-      slug: slug || null,
-      accentColor: accentColor || "#8B5CF6",
-      customDomain: customDomain || null,
-    },
+  await updateWorkspaceBrandingService.execute({
+    workspaceId,
+    companyName,
+    accentColor,
+    customDomain,
   });
 
   redirect("/settings");
