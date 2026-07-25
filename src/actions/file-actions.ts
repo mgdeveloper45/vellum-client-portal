@@ -1,18 +1,19 @@
 "use server";
 
-import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { auth } from "@/auth";
-import { createAuditLog } from "@/lib/audit";
-import { canManageProjects } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
-import { r2 } from "@/lib/r2";
 import { redirect } from "next/navigation";
+
+import { auth } from "@/auth";
+
+import { createAuditLog } from "@/lib/audit";
+
+import { canManageProjects } from "@/lib/permissions";
+
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+
 import {
-  ALLOWED_PROJECT_FILE_TYPES,
-  MAX_PROJECT_FILE_SIZE,
-  sanitizeFileName,
-  validateUploadedFile,
-} from "@/lib/files/file-validation";
+  uploadProjectFileService,
+  deleteProjectFileService,
+} from "@/lib/services/project-files/composition/project-file-services";
 
 export async function createProjectFileAction(formData: FormData) {
   const session = await auth();
@@ -29,80 +30,34 @@ export async function createProjectFileAction(formData: FormData) {
     return;
   }
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      workspaceId: currentUser.workspaceId,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!project) {
-    return;
-  }
-
-  const validation = validateUploadedFile(file, {
-    maxSize: MAX_PROJECT_FILE_SIZE,
-    allowedTypes: ALLOWED_PROJECT_FILE_TYPES,
-  });
-
-  if (!validation.valid) {
-    throw new Error(validation.error);
-  }
-
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  const safeFileName = sanitizeFileName(file.name);
-
-  const key = `projects/${project.id}/${Date.now()}-${safeFileName}`;
-
-  await r2.send(
-    new PutObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME!,
-      Key: key,
-      Body: buffer,
-      ContentType: file.type,
-    }),
-  );
-
-  const projectFile = await prisma.projectFile.create({
-    data: {
-      projectId: project.id,
-      name: file.name,
-      url: key,
-      fileType: file.type || "Unknown",
-    },
+  const uploaded = await uploadProjectFileService.execute({
+    workspaceId,
+    projectId,
+    file,
   });
 
   await createAuditLog({
     action: "FILE_UPLOADED",
     entity: "FILE",
-    entityId: projectFile.id,
+    entityId: uploaded.id,
     userId: session.user.id,
     metadata: {
-      name: projectFile.name,
-      fileType: projectFile.fileType,
-      projectId: projectFile.projectId,
+      name: uploaded.name,
+      fileType: uploaded.fileType,
+      projectId: uploaded.projectId,
     },
   });
 
-  redirect(`/projects/${project.id}`);
+  redirect(`/projects/${projectId}`);
 }
 
 export async function deleteProjectFileAction(formData: FormData) {
@@ -120,57 +75,30 @@ export async function deleteProjectFileAction(formData: FormData) {
     return;
   }
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return;
   }
 
-  const projectFile = await prisma.projectFile.findFirst({
-    where: {
-      id: fileId,
-      projectId,
-      project: {
-        workspaceId: currentUser.workspaceId,
-      },
-    },
-    select: {
-      id: true,
-      url: true,
-    },
-  });
-
-  if (!projectFile) {
-    return;
-  }
-
-  await r2.send(
-    new DeleteObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME!,
-      Key: projectFile.url,
-    }),
-  );
-
-  await prisma.projectFile.delete({
-    where: {
-      id: projectFile.id,
-    },
+  const deleted = await deleteProjectFileService.execute({
+    workspaceId,
+    projectId,
+    fileId,
   });
 
   await createAuditLog({
     action: "FILE_DELETED",
     entity: "FILE",
-    entityId: projectFile.id,
+    entityId: deleted.id,
     userId: session.user.id,
     metadata: {
-      projectId,
+      name: deleted.name,
+      fileType: deleted.fileType,
+      projectId: deleted.projectId,
     },
   });
 
