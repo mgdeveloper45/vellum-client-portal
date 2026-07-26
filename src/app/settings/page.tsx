@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { CopyButton } from "@/components/shared/copy-button";
 import { updateWorkspaceBrandingAction } from "@/actions/branding-actions";
 import { uploadWorkspaceLogoAction } from "@/actions/branding-logo-actions";
@@ -18,7 +17,9 @@ import {
   revokeApiKeyAction,
 } from "@/actions/api-key-actions";
 import { listApiKeysService } from "@/lib/services/api/composition/api-key-services";
-import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
+import { getSettingsWorkspaceQuery } from "@/lib/queries/settings/get-settings-workspace-query";
+import { listBusinessHoursQuery } from "@/lib/queries/settings/list-business-hours-query";
+
 
 
 
@@ -37,19 +38,9 @@ export default async function SettingsPage({
 
   const user = session.user;
 
-  const workspaceId =
-    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
-      user.id,
-    );
+  const currentUser = await getSettingsWorkspaceQuery(user.id);
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    include: {
-      workspace: true,
-    },
-  });
+  const workspaceId = currentUser?.workspaceId ?? null;
 
   const bookingUrl = currentUser?.workspace?.slug
     ? `http://localhost:3000/book/${currentUser.workspace.slug}`
@@ -66,12 +57,8 @@ export default async function SettingsPage({
       ? resolvedSearchParams.apiKey
       : null;
 
-  const businessHours = currentUser?.workspaceId
-    ? await prisma.businessHour.findMany({
-      where: {
-        workspaceId: currentUser.workspaceId,
-      },
-    })
+  const businessHours = workspaceId
+    ? await listBusinessHoursQuery(workspaceId)
     : [];
 
   const businessHoursByDay = new Map(

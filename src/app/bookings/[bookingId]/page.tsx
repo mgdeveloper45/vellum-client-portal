@@ -1,18 +1,19 @@
 import Link from "next/link";
+
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { getBookingCommandCenter } from "@/lib/services/bookings/booking-command-center";
-import { BookingHeader } from "@/components/booking-command-center/booking-header";
 import { BookingAICard } from "@/components/booking-command-center/booking-ai-card";
-import { BookingTimeline } from "@/components/booking-command-center/booking-timeline";
-import { BookingStatusCard } from "@/components/booking-command-center/booking-status-card";
-import { BookingHealthCard } from "@/components/booking-command-center/booking-health-card";
 import { BookingActionsCard } from "@/components/booking-command-center/booking-actions-card";
-import { BookingMissionCard } from "@/components/booking-command-center/booking-mission-card";
 import { BookingCommandCenter } from "@/components/booking-command-center/booking-command-center";
 import { BookingCountdownCard } from "@/components/booking-command-center/booking-countdown-card";
+import { BookingHeader } from "@/components/booking-command-center/booking-header";
+import { BookingHealthCard } from "@/components/booking-command-center/booking-health-card";
+import { BookingMissionCard } from "@/components/booking-command-center/booking-mission-card";
+import { BookingStatusCard } from "@/components/booking-command-center/booking-status-card";
+import { BookingTimeline } from "@/components/booking-command-center/booking-timeline";
 import { CustomerOverviewCard } from "@/components/booking-command-center/customer-overview-card";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
+import { getBookingCommandCenter } from "@/lib/services/bookings/booking-command-center";
 
 export default async function BookingDetailsPage({
     params,
@@ -29,31 +30,30 @@ export default async function BookingDetailsPage({
 
     const { bookingId } = await params;
 
-    const currentUser = await prisma.user.findUnique({
-        where: {
-            id: session.user.id,
-        },
-        select: {
-            workspaceId: true,
-        },
-    });
+    const workspaceId =
+        await getCurrentUserWorkspaceQuery(session.user.id);
 
-    if (!currentUser?.workspaceId) {
+    if (!workspaceId) {
         return null;
     }
 
     const bookingData = await getBookingCommandCenter({
         bookingId,
-        workspaceId: currentUser.workspaceId,
+        workspaceId,
     });
 
     if (!bookingData) {
         return (
             <BrandedDashboardShell>
                 <div className="rounded-2xl border border-border bg-card p-6">
-                    <h1 className="text-2xl font-light">Booking not found</h1>
+                    <h1 className="text-2xl font-light">
+                        Booking not found
+                    </h1>
 
-                    <Link href="/bookings" className="mt-4 inline-block workspace-accent-text">
+                    <Link
+                        href="/bookings"
+                        className="mt-4 inline-block workspace-accent-text"
+                    >
                         Back to bookings
                     </Link>
                 </div>
@@ -70,7 +70,10 @@ export default async function BookingDetailsPage({
     return (
         <BrandedDashboardShell>
             <BookingCommandCenter>
-                <Link href="/bookings" className="workspace-accent-text text-sm">
+                <Link
+                    href="/bookings"
+                    className="workspace-accent-text text-sm"
+                >
                     ← Back to bookings
                 </Link>
 
@@ -85,12 +88,19 @@ export default async function BookingDetailsPage({
                 </div>
 
                 <section className="mt-8 grid gap-6 xl:grid-cols-2">
-                    <BookingMissionCard mission={bookingIntelligence.mission} />
-                    <BookingCountdownCard countdown={bookingIntelligence.countdown} />
+                    <BookingMissionCard
+                        mission={bookingIntelligence.mission}
+                    />
+
+                    <BookingCountdownCard
+                        countdown={bookingIntelligence.countdown}
+                    />
                 </section>
 
                 <div className="mt-8">
-                    <BookingAICard summary={bookingIntelligence.aiSummary} />
+                    <BookingAICard
+                        summary={bookingIntelligence.aiSummary}
+                    />
                 </div>
 
                 <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
@@ -100,26 +110,42 @@ export default async function BookingDetailsPage({
                             customerEmail={booking.customerEmail}
                             customerPhone={booking.customerPhone}
                             workspaceName={
-                                booking.workspace.companyName || booking.workspace.name
+                                booking.workspace.companyName ??
+                                booking.workspace.name
                             }
                             notes={booking.notes}
                         />
-                        <BookingTimeline items={bookingIntelligence.timeline} />
+
+                        <BookingTimeline
+                            items={bookingIntelligence.timeline}
+                        />
                     </div>
 
                     <aside className="grid gap-6">
                         <BookingStatusCard
                             lifecycle={bookingIntelligence.lifecycle}
                             health={bookingIntelligence.health.score}
-                            countdown={bookingIntelligence.countdown.label}
-                            paymentStatus={flags.invoicePaid ? "Paid" : "Pending"}
-                            projectStatus={flags.hasProject ? "Created" : "Not Created"}
+                            countdown={
+                                bookingIntelligence.countdown.label
+                            }
+                            paymentStatus={
+                                flags.invoicePaid ? "Paid" : "Pending"
+                            }
+                            projectStatus={
+                                flags.hasProject
+                                    ? "Created"
+                                    : "Not Created"
+                            }
                             calendarSynced={flags.calendarSynced}
                         />
 
-                        <BookingHealthCard health={bookingIntelligence.health} />
+                        <BookingHealthCard
+                            health={bookingIntelligence.health}
+                        />
 
-                        <BookingActionsCard actions={bookingIntelligence.actions} />
+                        <BookingActionsCard
+                            actions={bookingIntelligence.actions}
+                        />
 
                         <a
                             href={`/bookings/${booking.id}/reschedule`}

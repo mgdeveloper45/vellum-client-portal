@@ -1,10 +1,10 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { BookingStatus } from "@/lib/generated/prisma/client";
 import { BookingTimeline } from "@/components/bookings/booking-timeline";
-import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
-import { WeeklyBookingCalendar } from "@/components/bookings/weekly-booking-calendar";
 import { MonthlyBookingCalendar } from "@/components/bookings/monthly-booking-calendar";
+import { WeeklyBookingCalendar } from "@/components/bookings/weekly-booking-calendar";
+import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { listBookingsQuery } from "@/lib/queries/bookings/list-bookings-query";
+import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
 
 export default async function BookingsPage({
     searchParams,
@@ -22,16 +22,11 @@ export default async function BookingsPage({
         return null;
     }
 
-    const currentUser = await prisma.user.findUnique({
-        where: {
-            id: session.user.id,
-        },
-        select: {
-            workspaceId: true,
-        },
-    });
+    const workspaceId = await getCurrentUserWorkspaceQuery(
+        session.user.id,
+    );
 
-    if (!currentUser?.workspaceId) {
+    if (!workspaceId) {
         return null;
     }
 
@@ -43,18 +38,8 @@ export default async function BookingsPage({
         ? new Date(`${resolvedSearchParams.weekStart}T00:00:00`)
         : null;
 
-    const selectedStatus = resolvedSearchParams.status ?? "ALL";
-
-    const bookingStatusFilter =
-        selectedStatus === "ALL"
-            ? {
-                not: BookingStatus.CANCELLED,
-            }
-            : Object.values(BookingStatus).includes(selectedStatus as BookingStatus)
-                ? (selectedStatus as BookingStatus)
-                : {
-                    not: BookingStatus.CANCELLED,
-                };
+    const selectedStatus =
+        resolvedSearchParams.status ?? "ALL";
 
     const selectedMonth =
         resolvedSearchParams.month !== undefined
@@ -66,60 +51,68 @@ export default async function BookingsPage({
             ? Number(resolvedSearchParams.year)
             : today.getFullYear();
 
-    const monthStart = new Date(selectedYear, selectedMonth, 1);
-    const monthEnd = new Date(selectedYear, selectedMonth + 1, 1);
+    const monthStart = new Date(
+        selectedYear,
+        selectedMonth,
+        1,
+    );
 
-    const bookings = await prisma.booking.findMany({
-        where: {
-            workspaceId: currentUser.workspaceId,
-            status: bookingStatusFilter,
-            date: {
-                gte: monthStart,
-                lt: monthEnd,
-            },
-        },
-        include: {
-            service: true,
-        },
-        orderBy: [
-            {
-                date: "asc",
-            },
-            {
-                startTime: "asc",
-            },
-        ],
+    const monthEnd = new Date(
+        selectedYear,
+        selectedMonth + 1,
+        1,
+    );
+
+    const bookings = await listBookingsQuery({
+        workspaceId,
+        monthStart,
+        monthEnd,
+        status: selectedStatus,
     });
 
     return (
         <BrandedDashboardShell>
-            <h1 className="text-3xl font-light">Bookings</h1>
+            <h1 className="text-3xl font-light">
+                Bookings
+            </h1>
 
             <p className="mt-2 text-foreground/70">
-                View scheduled appointments and client booking details.
+                View scheduled appointments and client booking
+                details.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
-                {["ALL", "CONFIRMED", "PENDING", "COMPLETED", "CANCELLED"].map(
-                    (status) => (
-                        <a
-                            key={status}
-                            href={status === "ALL" ? "/bookings" : `/bookings?status=${status}`}
-                            className={
-                                selectedStatus === status
-                                    ? "workspace-accent-button rounded-full px-4 py-2 text-sm font-medium"
-                                    : "rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted"
-                            }
-                        >
-                            {status === "ALL"
-                                ? "All"
-                                : status
-                                    .toLowerCase()
-                                    .replace("_", " ")
-                                    .replace(/\b\w/g, (char) => char.toUpperCase())}
-                        </a>
-                    ),
-                )}
+                {[
+                    "ALL",
+                    "CONFIRMED",
+                    "PENDING",
+                    "COMPLETED",
+                    "CANCELLED",
+                ].map((status) => (
+                    <a
+                        key={status}
+                        href={
+                            status === "ALL"
+                                ? "/bookings"
+                                : `/bookings?status=${status}`
+                        }
+                        className={
+                            selectedStatus === status
+                                ? "workspace-accent-button rounded-full px-4 py-2 text-sm font-medium"
+                                : "rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted"
+                        }
+                    >
+                        {status === "ALL"
+                            ? "All"
+                            : status
+                                .toLowerCase()
+                                .replace("_", " ")
+                                .replace(
+                                    /\b\w/g,
+                                    (char) => char.toUpperCase(),
+                                )}
+                    </a>
+                ))}
             </div>
 
             <div className="mt-8 grid gap-8">
