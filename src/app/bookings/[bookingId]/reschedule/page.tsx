@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { rescheduleBookingAction } from "@/actions/booking-actions";
 import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { getBookingRescheduleQuery } from "@/lib/queries/bookings/get-booking-reschedule-query";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import { getAvailableSlotsService } from "@/lib/services/availability/composition/availability-service";
 
@@ -40,15 +40,10 @@ export default async function RescheduleBookingPage({
         return null;
     }
 
-    const booking = await prisma.booking.findFirst({
-        where: {
-            id: bookingId,
-            workspaceId,
-        },
-        include: {
-            service: true,
-        },
-    });
+    const booking = await getBookingRescheduleQuery(
+        bookingId,
+        workspaceId,
+    );
 
     if (!booking) {
         return (
