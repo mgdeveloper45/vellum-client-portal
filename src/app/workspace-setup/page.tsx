@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { createDefaultWorkspaceAction } from "@/actions/workspace-actions";
 import { canManageWorkspace } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
+import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
 
 export default async function WorkspaceSetupPage() {
     const session = await auth();
@@ -15,7 +15,9 @@ export default async function WorkspaceSetupPage() {
         return (
             <main className="min-h-screen bg-background p-8 text-foreground">
                 <div className="mx-auto max-w-xl">
-                    <h1 className="text-2xl font-semibold">Workspace setup unavailable</h1>
+                    <h1 className="text-2xl font-semibold">
+                        Workspace setup unavailable
+                    </h1>
 
                     <p className="mt-3 text-muted-foreground">
                         Your account does not have permission to create a workspace.
@@ -29,34 +31,31 @@ export default async function WorkspaceSetupPage() {
         );
     }
 
-    const currentUser = await prisma.user.findUnique({
-        where: {
-            id: session.user.id,
-        },
-        select: {
-            workspaceId: true,
-        },
-    });
+    const workspaceId = await getCurrentUserWorkspaceQuery(
+        session.user.id,
+    );
 
-    if (!currentUser) {
-        redirect("/sign-in");
-    }
-
-    if (currentUser.workspaceId) {
+    if (workspaceId) {
         redirect("/settings");
     }
 
     return (
         <main className="min-h-screen bg-background p-8 text-foreground">
             <div className="mx-auto max-w-xl rounded-xl border bg-card p-6">
-                <h1 className="text-2xl font-semibold">Create your workspace</h1>
+                <h1 className="text-2xl font-semibold">
+                    Create your workspace
+                </h1>
 
                 <p className="mt-3 text-muted-foreground">
-                    Your account is not currently connected to a workspace. Create the
-                    default workspace to finish setting up Vellum.
+                    Your account is not currently connected to a workspace.
+                    Create the default workspace to finish setting up
+                    Vellum.
                 </p>
 
-                <form action={createDefaultWorkspaceAction} className="mt-6">
+                <form
+                    action={createDefaultWorkspaceAction}
+                    className="mt-6"
+                >
                     <button
                         type="submit"
                         className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground"
