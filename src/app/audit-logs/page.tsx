@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { listAuditLogsQuery } from "@/lib/queries/audit-logs/list-audit-logs-query";
 
 export default async function AuditLogsPage() {
     const session = await auth();
@@ -13,15 +13,7 @@ export default async function AuditLogsPage() {
         );
     }
 
-    const auditLogs = await prisma.auditLog.findMany({
-        include: {
-            user: true,
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
-        take: 100,
-    });
+    const auditLogs = await listAuditLogsQuery();
 
     return (
         <BrandedDashboardShell>
