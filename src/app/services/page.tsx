@@ -5,7 +5,8 @@ import {
 } from "@/actions/service-actions";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { canManageWorkspace } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
+import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
+import { listServicesQuery } from "@/lib/queries/services/list-services-query";
 
 export default async function ServicesPage() {
     const session = await auth();
@@ -14,29 +15,17 @@ export default async function ServicesPage() {
         return null;
     }
 
-    const currentUser = await prisma.user.findUnique({
-        where: {
-            id: session.user.id,
-        },
-        select: {
-            workspaceId: true,
-        },
-    });
+    const workspaceId = await getCurrentUserWorkspaceQuery(
+        session.user.id,
+    );
 
-    if (!currentUser?.workspaceId) {
+    if (!workspaceId) {
         return null;
     }
 
     const canManage = canManageWorkspace(session.user.role);
 
-    const services = await prisma.service.findMany({
-        where: {
-            workspaceId: currentUser.workspaceId,
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
-    });
+    const services = await listServicesQuery(workspaceId);
 
     return (
         <BrandedDashboardShell>
@@ -51,7 +40,9 @@ export default async function ServicesPage() {
                     action={createServiceAction}
                     className="mt-8 rounded-2xl border border-border bg-card p-6"
                 >
-                    <h2 className="text-xl font-medium">Create Service</h2>
+                    <h2 className="text-xl font-medium">
+                        Create Service
+                    </h2>
 
                     <div className="mt-4 grid gap-3 md:grid-cols-2">
                         <input
@@ -102,7 +93,9 @@ export default async function ServicesPage() {
                     >
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <p className="text-xl font-medium">{service.name}</p>
+                                <p className="text-xl font-medium">
+                                    {service.name}
+                                </p>
 
                                 {service.description && (
                                     <p className="mt-2 text-sm text-foreground/70">
@@ -111,8 +104,14 @@ export default async function ServicesPage() {
                                 )}
 
                                 <div className="mt-4 flex flex-wrap gap-3 text-sm text-foreground/70">
-                                    <span>{service.duration} minutes</span>
-                                    <span>${(service.price / 100).toFixed(2)}</span>
+                                    <span>
+                                        {service.duration} minutes
+                                    </span>
+
+                                    <span>
+                                        ${(service.price / 100).toFixed(2)}
+                                    </span>
+
                                     <span
                                         className={
                                             service.active
@@ -120,14 +119,23 @@ export default async function ServicesPage() {
                                                 : "rounded-full bg-muted px-3 py-1 text-foreground/60"
                                         }
                                     >
-                                        {service.active ? "Active" : "Inactive"}
+                                        {service.active
+                                            ? "Active"
+                                            : "Inactive"}
                                     </span>
                                 </div>
                             </div>
 
                             {canManage && (
-                                <form action={toggleServiceActiveAction}>
-                                    <input type="hidden" name="serviceId" value={service.id} />
+                                <form
+                                    action={toggleServiceActiveAction}
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="serviceId"
+                                        value={service.id}
+                                    />
+
                                     <input
                                         type="hidden"
                                         name="active"
@@ -135,7 +143,9 @@ export default async function ServicesPage() {
                                     />
 
                                     <button className="workspace-accent-button-outline rounded-full px-4 py-2 text-sm font-medium">
-                                        {service.active ? "Deactivate" : "Activate"}
+                                        {service.active
+                                            ? "Deactivate"
+                                            : "Activate"}
                                     </button>
                                 </form>
                             )}
