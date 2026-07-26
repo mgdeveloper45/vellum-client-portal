@@ -5,7 +5,8 @@ import {
   canInviteMembers,
   canManageWorkspace,
 } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
+import { getWorkspacePageQuery } from "@/lib/queries/workspace/get-workspace-page-query";
+import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
 
 export default async function WorkspacePage() {
   const session = await auth();
@@ -17,39 +18,21 @@ export default async function WorkspacePage() {
   const canInvite = canInviteMembers(session.user.role);
   const canManage = canManageWorkspace(session.user.role);
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId = await getCurrentUserWorkspaceQuery(
+    session.user.id,
+  );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return null;
   }
 
-  const members = await prisma.user.findMany({
-    where: {
-      workspaceId: currentUser.workspaceId,
-    },
-    orderBy: {
-      firstName: "asc",
-    },
-  });
-
-  const invitations = canInvite
-    ? await prisma.workspaceInvitation.findMany({
-        where: {
-          workspaceId: currentUser.workspaceId,
-          acceptedAt: null,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      })
-    : [];
+  const {
+    members,
+    invitations,
+  } = await getWorkspacePageQuery(
+    workspaceId,
+    canInvite,
+  );
 
   return (
     <BrandedDashboardShell>
@@ -66,7 +49,9 @@ export default async function WorkspacePage() {
           action={createWorkspaceInvitationAction}
           className="mt-8 rounded-2xl border border-border bg-card p-6"
         >
-          <h2 className="text-xl font-medium">Invite Member</h2>
+          <h2 className="text-xl font-medium">
+            Invite Member
+          </h2>
 
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             <input
@@ -84,7 +69,11 @@ export default async function WorkspacePage() {
             >
               <option value="CLIENT">Client</option>
               <option value="MANAGER">Manager</option>
-              {canManage && <option value="ADMIN">Admin</option>}
+              {canManage && (
+                <option value="ADMIN">
+                  Admin
+                </option>
+              )}
             </select>
 
             <button className="rounded-lg bg-accent px-4 py-3 font-medium text-black">
@@ -96,7 +85,9 @@ export default async function WorkspacePage() {
 
       {canInvite && (
         <div className="mt-8">
-          <h2 className="text-xl font-medium">Pending Invitations</h2>
+          <h2 className="text-xl font-medium">
+            Pending Invitations
+          </h2>
 
           <div className="mt-4 grid gap-3">
             {invitations.map((invitation) => (
@@ -104,14 +95,17 @@ export default async function WorkspacePage() {
                 key={invitation.id}
                 className="rounded-2xl border border-border bg-card p-5"
               >
-                <p className="font-medium">{invitation.email}</p>
+                <p className="font-medium">
+                  {invitation.email}
+                </p>
 
                 <p className="mt-1 text-sm text-foreground/70">
                   Role: {invitation.role}
                 </p>
 
                 <p className="mt-2 text-xs text-foreground/50">
-                  Expires {invitation.expiresAt.toLocaleDateString()}
+                  Expires{" "}
+                  {invitation.expiresAt.toLocaleDateString()}
                 </p>
               </div>
             ))}
@@ -126,7 +120,8 @@ export default async function WorkspacePage() {
             className="rounded-2xl border border-border bg-card p-5"
           >
             <p className="font-medium">
-              {member.firstName} {member.lastName}
+              {member.firstName}{" "}
+              {member.lastName}
             </p>
 
             <p className="text-sm text-foreground/70">
