@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import { routeCommand } from "@/lib/services/ai/command-router";
 import { getWorkspaceAIContext } from "@/lib/services/ai/workspace-context";
 import { analyzeWorkspace } from "@/lib/services/ai/business-insights";
@@ -13,22 +13,18 @@ export async function runAICommandAction(input: string) {
     return "Please sign in.";
   }
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      workspaceId: true,
-    },
-  });
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
 
-  if (!currentUser?.workspaceId) {
+  if (!workspaceId) {
     return "Workspace not found.";
   }
 
   const context = await getWorkspaceAIContext({
     userId: session.user.id,
-    workspaceId: currentUser.workspaceId,
+    workspaceId,
   });
 
   const command = routeCommand(input);
