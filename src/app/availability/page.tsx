@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
-import { prisma } from "@/lib/prisma";
+import { getAvailabilityPageQuery } from "@/lib/queries/availability/get-availability-page-query";
+import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
 import { generateTimeSlots } from "@/lib/services/booking/availability-service";
 
 const dayLabels = {
@@ -20,58 +21,49 @@ export default async function AvailabilityPage() {
         return null;
     }
 
-    const currentUser = await prisma.user.findUnique({
-        where: {
-            id: session.user.id,
-        },
-        select: {
-            workspaceId: true,
-        },
-    });
+    const workspaceId = await getCurrentUserWorkspaceQuery(
+        session.user.id,
+    );
 
-    if (!currentUser?.workspaceId) {
+    if (!workspaceId) {
         return null;
     }
 
-    const services = await prisma.service.findMany({
-        where: {
-            workspaceId: currentUser.workspaceId,
-            active: true,
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
-    });
-
-    const businessHours = await prisma.businessHour.findMany({
-        where: {
-            workspaceId: currentUser.workspaceId,
-        },
-        orderBy: {
-            dayOfWeek: "asc",
-        },
-    });
+    const {
+        services,
+        businessHours,
+    } = await getAvailabilityPageQuery(workspaceId);
 
     const firstService = services[0];
 
     return (
         <BrandedDashboardShell>
-            <h1 className="text-3xl font-light">Availability</h1>
+            <h1 className="text-3xl font-light">
+                Availability
+            </h1>
 
             <p className="mt-2 text-foreground/70">
-                Preview bookable time slots based on your services and business hours.
+                Preview bookable time slots based on your
+                services and business hours.
             </p>
 
             {!firstService ? (
                 <div className="mt-8 rounded-2xl border border-border bg-card p-6">
-                    <p>Create an active service first before generating availability.</p>
+                    <p>
+                        Create an active service first before
+                        generating availability.
+                    </p>
                 </div>
             ) : (
                 <div className="mt-8 grid gap-6">
                     <div className="rounded-2xl border border-border bg-card p-6">
-                        <p className="text-sm text-foreground/60">Using service</p>
+                        <p className="text-sm text-foreground/60">
+                            Using service
+                        </p>
 
-                        <h2 className="mt-2 text-2xl font-medium">{firstService.name}</h2>
+                        <h2 className="mt-2 text-2xl font-medium">
+                            {firstService.name}
+                        </h2>
 
                         <p className="mt-2 text-sm text-foreground/70">
                             {firstService.duration} minutes · $
@@ -86,7 +78,8 @@ export default async function AvailabilityPage() {
                                 : generateTimeSlots({
                                     openTime: hours.openTime,
                                     closeTime: hours.closeTime,
-                                    duration: firstService.duration,
+                                    duration:
+                                        firstService.duration,
                                 });
 
                             return (
@@ -97,7 +90,11 @@ export default async function AvailabilityPage() {
                                     <div className="flex items-center justify-between gap-4">
                                         <div>
                                             <h3 className="text-xl font-medium">
-                                                {dayLabels[hours.dayOfWeek]}
+                                                {
+                                                    dayLabels[
+                                                    hours.dayOfWeek
+                                                    ]
+                                                }
                                             </h3>
 
                                             <p className="mt-1 text-sm text-foreground/60">
