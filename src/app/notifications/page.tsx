@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 import { NotificationLinkCard } from "@/components/notifications/notification-link-card";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
+import { listNotificationsQuery } from "@/lib/queries/notifications/list-notifications-query";
 
 export default async function NotificationsPage() {
     const session = await auth();
@@ -11,14 +11,9 @@ export default async function NotificationsPage() {
         return null;
     }
 
-    const notifications = await prisma.notification.findMany({
-        where: {
-            userId: session.user.id,
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
-    });
+    const notifications = await listNotificationsQuery(
+        session.user.id,
+    );
 
     return (
         <BrandedDashboardShell>
@@ -32,7 +27,8 @@ export default async function NotificationsPage() {
                 </h1>
 
                 <p className="mt-2 text-sm leading-6 text-foreground/60">
-                    Review important alerts, reminders, and workspace activity.
+                    Review important alerts, reminders, and workspace
+                    activity.
                 </p>
             </div>
 
