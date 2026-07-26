@@ -1,14 +1,12 @@
-import { prisma } from "@/lib/prisma";
+import type { CSSProperties } from "react";
 import { TimeSelector } from "@/components/booking/time-selector";
 import { BookingHeader } from "@/components/booking/booking-header";
 import { ServiceSelector } from "@/components/booking/service-selector";
 import { CalendarDateSelector } from "@/components/booking/calendar-date-selector";
+import { getPublicBookingPageQuery } from "@/lib/queries/bookings/get-public-booking-page-query";
 import { getAvailableSlotsService } from "@/lib/services/availability/composition/availability-service";
 
-export default async function PublicBookingPage({
-  params,
-  searchParams,
-}: {
+type PublicBookingPageProps = {
   params: Promise<{
     slug: string;
   }>;
@@ -17,25 +15,16 @@ export default async function PublicBookingPage({
     date?: string;
     time?: string;
   }>;
-}) {
+};
+
+export default async function PublicBookingPage({
+  params,
+  searchParams,
+}: PublicBookingPageProps) {
   const { slug } = await params;
   const resolvedSearchParams = await searchParams;
 
-  const workspace = await prisma.workspace.findUnique({
-    where: {
-      slug,
-    },
-    include: {
-      services: {
-        where: {
-          active: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-    },
-  });
+  const workspace = await getPublicBookingPageQuery(slug);
 
   if (!workspace) {
     return (
@@ -47,26 +36,23 @@ export default async function PublicBookingPage({
 
   const selectedService =
     workspace.services.find(
-      (service) =>
-        service.id === resolvedSearchParams.serviceId,
+      (service) => service.id === resolvedSearchParams.serviceId,
     ) ?? workspace.services[0];
 
   const selectedDate =
-    resolvedSearchParams.date ??
-    new Date().toISOString().slice(0, 10);
+    resolvedSearchParams.date ?? new Date().toISOString().slice(0, 10);
 
   const selectedTime = resolvedSearchParams.time;
 
   let availableSlots: string[] = [];
 
   if (selectedService) {
-    const availabilityResult =
-      await getAvailableSlotsService({
-        workspaceId: workspace.id,
-        serviceId: selectedService.id,
-        bookingDate: new Date(`${selectedDate}T00:00:00`),
-        duration: selectedService.duration,
-      });
+    const availabilityResult = await getAvailableSlotsService({
+      workspaceId: workspace.id,
+      serviceId: selectedService.id,
+      bookingDate: new Date(`${selectedDate}T00:00:00`),
+      duration: selectedService.duration,
+    });
 
     if (availabilityResult.success) {
       availableSlots = availabilityResult.availableSlots;
@@ -83,7 +69,7 @@ export default async function PublicBookingPage({
         {
           "--workspace-accent":
             workspace.accentColor || "#8B5CF6",
-        } as React.CSSProperties
+        } as CSSProperties
       }
     >
       <div className="mx-auto grid max-w-6xl gap-6">
