@@ -1,7 +1,8 @@
 import Link from "next/link";
+
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
+import { listUsersQuery } from "@/lib/queries/users/list-users-query";
 
 export default async function UsersPage() {
     const session = await auth();
@@ -14,11 +15,7 @@ export default async function UsersPage() {
         );
     }
 
-    const users = await prisma.user.findMany({
-        orderBy: {
-            createdAt: "desc",
-        },
-    });
+    const users = await listUsersQuery();
 
     return (
         <BrandedDashboardShell>
@@ -58,7 +55,9 @@ export default async function UsersPage() {
                             </div>
 
                             <div className="text-right">
-                                <p className="text-sm text-accent">{user.role}</p>
+                                <p className="text-sm text-accent">
+                                    {user.role}
+                                </p>
 
                                 <p className="mt-1 text-xs text-foreground/50">
                                     {user.isActive ? "Active" : "Inactive"}
