@@ -1,37 +1,21 @@
 "use server";
 
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
+import { openCustomerPortalService } from "@/lib/services/billing/composition/billing-services";
 import { redirect } from "next/navigation";
 
 export async function openCustomerPortalAction() {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return;
   }
 
-  const subscription = await prisma.subscription.findFirst({
-    where: {
-      workspace: {
-        users: {
-          some: {
-            id: session.user.id,
-          },
-        },
-      },
-    },
-  });
+  const portalUrl = await openCustomerPortalService.execute(session.user.id);
 
-  if (!subscription?.stripeCustomerId) {
+  if (!portalUrl) {
     return;
   }
 
-  const portal = await stripe.billingPortal.sessions.create({
-    customer: subscription.stripeCustomerId,
-    return_url: `${process.env.APP_URL}/settings`,
-  });
-
-  redirect(portal.url);
+  redirect(portalUrl);
 }
