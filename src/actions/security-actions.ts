@@ -1,9 +1,8 @@
 "use server";
 
-import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
+import { changePasswordService } from "@/lib/services/security/composition/security-services";
 
 export type ChangePasswordState = {
   error?: string;
@@ -16,36 +15,52 @@ export async function changePasswordAction(
 ): Promise<ChangePasswordState> {
   const session = await auth();
 
-  if (!session?.user) {
-    return { error: "You must be signed in." };
+  if (!session?.user?.id) {
+    return {
+      error: "You must be signed in.",
+    };
   }
 
-  const currentPassword = String(formData.get("currentPassword")).trim();
-  const newPassword = String(formData.get("newPassword")).trim();
-  const confirmPassword = String(formData.get("confirmPassword")).trim();
+  const currentPassword = String(formData.get("currentPassword") ?? "").trim();
+
+  const newPassword = String(formData.get("newPassword") ?? "").trim();
+
+  const confirmPassword = String(formData.get("confirmPassword") ?? "").trim();
 
   if (newPassword.length < 12) {
-    return { error: "Password must be at least 12 characters." };
+    return {
+      error: "Password must be at least 12 characters.",
+    };
   }
 
   if (newPassword.length > 128) {
-    return { error: "Password is too long." };
+    return {
+      error: "Password is too long.",
+    };
   }
 
   if (!/[A-Z]/.test(newPassword)) {
-    return { error: "Password must contain at least one uppercase letter." };
+    return {
+      error: "Password must contain at least one uppercase letter.",
+    };
   }
 
   if (!/[a-z]/.test(newPassword)) {
-    return { error: "Password must contain at least one lowercase letter." };
+    return {
+      error: "Password must contain at least one lowercase letter.",
+    };
   }
 
   if (!/[0-9]/.test(newPassword)) {
-    return { error: "Password must contain at least one number." };
+    return {
+      error: "Password must contain at least one number.",
+    };
   }
 
   if (newPassword !== confirmPassword) {
-    return { error: "New passwords do not match." };
+    return {
+      error: "New passwords do not match.",
+    };
   }
 
   if (currentPassword === newPassword) {
@@ -54,35 +69,29 @@ export async function changePasswordAction(
     };
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+  const result = await changePasswordService.execute({
+    userId: session.user.id,
+    currentPassword,
+    newPassword,
   });
 
-  if (!user) {
-    return { error: "User not found." };
-  }
+  if (!result.success) {
+    if (result.error === "USER_NOT_FOUND") {
+      return {
+        error: "User not found.",
+      };
+    }
 
-  if (!user.password) {
+    if (result.error === "PASSWORD_NOT_SET") {
+      return {
+        error: "Password is not set for this account.",
+      };
+    }
+
     return {
-      error: "Password is not set for this account.",
+      error: "Current password is incorrect.",
     };
   }
-
-  const currentPasswordMatches = await bcrypt.compare(
-    currentPassword,
-    user.password,
-  );
-
-  if (!currentPasswordMatches) {
-    return { error: "Current password is incorrect." };
-  }
-
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: { password: hashedPassword },
-  });
 
   await createAuditLog({
     action: "PASSWORD_CHANGED",
@@ -91,5 +100,7 @@ export async function changePasswordAction(
     userId: session.user.id,
   });
 
-  return { success: "Password updated successfully." };
+  return {
+    success: "Password updated successfully.",
+  };
 }
