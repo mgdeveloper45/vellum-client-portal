@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
+
 import { updateUserAction } from "@/actions/user-actions";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { prisma } from "@/lib/prisma";
+import { getUserEditQuery } from "@/lib/queries/users/get-user-edit-query";
 
 type Props = {
     params: Promise<{
@@ -14,11 +15,7 @@ export default async function EditUserPage({
 }: Props) {
     const { userId } = await params;
 
-    const user = await prisma.user.findUnique({
-        where: {
-            id: userId,
-        },
-    });
+    const user = await getUserEditQuery(userId);
 
     if (!user) {
         notFound();

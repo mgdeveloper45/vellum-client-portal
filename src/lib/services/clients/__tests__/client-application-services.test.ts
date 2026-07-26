@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-
+import bcrypt from "bcryptjs";
 import type {
   ClientDetailRecord,
   ClientEditRecord,
@@ -98,7 +98,6 @@ describe("createClientService", () => {
       lastName: " Gillespie ",
       email: " Marcus@Example.com ",
       notes: " Important client ",
-      passwordHash: "hashed-password",
     });
 
     expect(result).toEqual({
@@ -106,14 +105,19 @@ describe("createClientService", () => {
       clientId: "client-1",
     });
 
-    expect(repository.createdInput).toEqual({
+    expect(repository.createdInput).toMatchObject({
       workspaceId: "workspace-1",
       firstName: "Marcus",
       lastName: "Gillespie",
       email: "marcus@example.com",
       notes: "Important client",
-      password: "hashed-password",
     });
+
+    expect(repository.createdInput?.password).toEqual(expect.any(String));
+
+    expect(
+      await bcrypt.compare("password123", repository.createdInput!.password),
+    ).toBe(true);
   });
 
   it("rejects a duplicate email", async () => {
@@ -131,7 +135,6 @@ describe("createClientService", () => {
       lastName: "Gillespie",
       email: "marcus@example.com",
       notes: "",
-      passwordHash: "hashed-password",
     });
 
     expect(result).toEqual({
