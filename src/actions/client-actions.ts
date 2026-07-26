@@ -1,6 +1,5 @@
 "use server";
 
-import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -50,15 +49,12 @@ export async function createClientAction(formData: FormData) {
     throw new Error("Your account is not assigned to a workspace.");
   }
 
-  const passwordHash = await bcrypt.hash("password123", 10);
-
   const result = await createClientService({
     workspaceId,
     firstName: input.firstName,
     lastName: input.lastName,
     email: input.email,
     notes: input.notes,
-    passwordHash,
   });
 
   if (!result.success) {

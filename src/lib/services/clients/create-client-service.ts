@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import type { ClientRepository } from "./client-repository";
 
 export interface CreateClientRequest {
@@ -6,7 +7,6 @@ export interface CreateClientRequest {
   lastName: string;
   email: string;
   notes: string;
-  passwordHash: string;
 }
 
 export type CreateClientResult =
@@ -17,7 +17,7 @@ export type CreateClientResult =
   | {
       success: false;
       reason:
-        "INVALID_WORKSPACE" | "INVALID_PASSWORD_HASH" | "EMAIL_ALREADY_EXISTS";
+        "INVALID_WORKSPACE" | "EMAIL_ALREADY_EXISTS";
       message: string;
     };
 
@@ -32,7 +32,6 @@ export function createCreateClientService({
     request: CreateClientRequest,
   ): Promise<CreateClientResult> {
     const workspaceId = request.workspaceId.trim();
-    const passwordHash = request.passwordHash.trim();
     const email = request.email.trim().toLowerCase();
 
     if (!workspaceId) {
@@ -40,14 +39,6 @@ export function createCreateClientService({
         success: false,
         reason: "INVALID_WORKSPACE",
         message: "A valid workspace is required.",
-      };
-    }
-
-    if (!passwordHash) {
-      return {
-        success: false,
-        reason: "INVALID_PASSWORD_HASH",
-        message: "A password hash is required.",
       };
     }
 
@@ -62,6 +53,8 @@ export function createCreateClientService({
         message: "A user with this email already exists.",
       };
     }
+
+const passwordHash = await bcrypt.hash("password123", 10);
 
     const client = await clientRepository.create({
       workspaceId,
