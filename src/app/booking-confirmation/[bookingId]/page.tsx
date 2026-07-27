@@ -1,5 +1,6 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { getBookingConfirmationQuery } from "@/lib/queries/bookings/get-booking-confirmation-query";
 
 export default async function BookingConfirmationPage({
     params,
@@ -10,15 +11,7 @@ export default async function BookingConfirmationPage({
 }) {
     const { bookingId } = await params;
 
-    const booking = await prisma.booking.findUnique({
-        where: {
-            id: bookingId,
-        },
-        include: {
-            service: true,
-            workspace: true,
-        },
-    });
+    const booking = await getBookingConfirmationQuery(bookingId);
 
     if (!booking) {
         return (
@@ -36,8 +29,9 @@ export default async function BookingConfirmationPage({
             className="min-h-screen bg-background p-8 text-foreground"
             style={
                 {
-                    "--workspace-accent": booking.workspace.accentColor || "#8B5CF6",
-                } as React.CSSProperties
+                    "--workspace-accent":
+                        booking.workspace.accentColor || "#8B5CF6",
+                } as CSSProperties
             }
         >
             <div className="mx-auto max-w-2xl rounded-3xl border border-border bg-card p-8">

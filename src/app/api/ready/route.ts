@@ -1,11 +1,40 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { runWithRequestContext } from "@/lib/request-context";
 import { createRequestId } from "@/lib/request-id";
 
-export async function GET() {
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const DATABASE_TIMEOUT_MS = 5_000;
+
+async function checkDatabase(): Promise<void> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    await Promise.race([
+      prisma.$queryRaw`SELECT 1`,
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => {
+          reject(
+            new Error(
+              `Database readiness check exceeded ${DATABASE_TIMEOUT_MS}ms.`,
+            ),
+          );
+        }, DATABASE_TIMEOUT_MS);
+      }),
+    ]);
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+  }
+}
+
+export async function GET(): Promise<NextResponse> {
   const requestHeaders = await headers();
 
   const requestId = requestHeaders.get("x-request-id") ?? createRequestId();
@@ -18,7 +47,7 @@ export async function GET() {
       const startedAt = performance.now();
 
       try {
-        await prisma.$queryRaw`SELECT 1`;
+        await checkDatabase();
 
         const durationMs = Math.round(performance.now() - startedAt);
 
@@ -42,7 +71,8 @@ export async function GET() {
           {
             status: 200,
             headers: {
-              "cache-control": "no-store, max-age=0",
+              "Cache-Control": "no-store, max-age=0",
+              "X-Request-Id": requestId,
             },
           },
         );
@@ -72,7 +102,9 @@ export async function GET() {
           {
             status: 503,
             headers: {
-              "cache-control": "no-store, max-age=0",
+              "Cache-Control": "no-store, max-age=0",
+              "Retry-After": "10",
+              "X-Request-Id": requestId,
             },
           },
         );

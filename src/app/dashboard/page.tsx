@@ -1,8 +1,7 @@
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
-import {
-  loadDashboardWorkspace,
-  requireDashboardUser,
-} from "@/lib/dashboard/dashboard-loader";
+import { requireDashboardUser } from "@/lib/dashboard/dashboard-loader";
+import { getDashboardQuery } from "@/lib/queries/dashboard/get-dashboard-query";
+import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
 import { buildDashboard } from "@/lib/services/dashboard/dashboard-builder";
 import { hasProfessionalPlan } from "@/lib/subscription";
 
@@ -13,22 +12,24 @@ export default async function DashboardPage() {
     return null;
   }
 
-  const [isProfessional, currentUser] = await Promise.all([
-    hasProfessionalPlan(user.id),
-    loadDashboardWorkspace(user.id),
-  ]);
+  const [isProfessional, workspaceId] =
+    await Promise.all([
+      hasProfessionalPlan(user.id),
+      getCurrentUserWorkspaceQuery(user.id),
+    ]);
 
-  if (!currentUser) {
+  if (!workspaceId) {
     return null;
   }
 
-  const workspaceId = currentUser.workspaceId;
-
-  const dashboard = await buildDashboard({
+  const dashboardData = await getDashboardQuery({
     userId: user.id,
-    userName: user.name,
     userRole: user.role,
     workspaceId,
+  });
+
+  const dashboard = await buildDashboard({
+    data: dashboardData,
   });
 
   return (

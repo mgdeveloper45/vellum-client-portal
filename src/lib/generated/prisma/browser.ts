@@ -88,6 +88,11 @@ export type WorkspaceInvitation = Prisma.WorkspaceInvitationModel
  */
 export type Subscription = Prisma.SubscriptionModel
 /**
+ * Model StripeWebhookEvent
+ * 
+ */
+export type StripeWebhookEvent = Prisma.StripeWebhookEventModel
+/**
  * Model Service
  * 
  */

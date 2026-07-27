@@ -1,27 +1,60 @@
 import { prisma } from "@/lib/prisma";
-import {
-  getDashboardDateRanges,
-  loadDashboardCounts,
-} from "@/lib/dashboard/dashboard-loader";
 
-export async function loadDashboardData(user: {
-  id: string;
-  role: string;
+type GetDashboardQueryInput = {
+  userId: string;
+  userRole: string;
   workspaceId: string;
-}) {
-  const workspaceId = user.workspaceId;
+};
 
-  const workspaceProjectFilter =
-    user.role === "ADMIN"
-      ? { workspaceId }
-      : {
-          workspaceId,
-          clientId: user.id,
-        };
+const WORKSPACE_STAFF_ROLES = new Set(["OWNER", "ADMIN", "MANAGER"]);
+
+function getDashboardDateRanges() {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const todayEnd = new Date(todayStart);
+  todayEnd.setDate(todayStart.getDate() + 1);
+
+  const nextSevenDays = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(todayStart);
+    date.setDate(todayStart.getDate() + index);
+
+    const nextDate = new Date(date);
+    nextDate.setDate(date.getDate() + 1);
+
+    return {
+      date,
+      nextDate,
+      label: date.toLocaleDateString(undefined, {
+        weekday: "short",
+      }),
+    };
+  });
+
+  return {
+    todayStart,
+    todayEnd,
+    nextSevenDays,
+  };
+}
+
+export async function getDashboardQuery({
+  userId,
+  userRole,
+  workspaceId,
+}: GetDashboardQueryInput) {
+  const canViewWorkspaceData = WORKSPACE_STAFF_ROLES.has(userRole);
+
+  const workspaceProjectFilter = canViewWorkspaceData
+    ? {
+        workspaceId,
+      }
+    : {
+        workspaceId,
+        clientId: userId,
+      };
 
   const { todayStart, todayEnd, nextSevenDays } = getDashboardDateRanges();
-
-  type DashboardDay = (typeof nextSevenDays)[number];
 
   const now = new Date();
 
@@ -29,15 +62,12 @@ export async function loadDashboardData(user: {
   currentPeriodStart.setDate(currentPeriodStart.getDate() - 30);
 
   const previousPeriodStart = new Date(currentPeriodStart);
-
   previousPeriodStart.setDate(previousPeriodStart.getDate() - 30);
 
   const previousSevenDaysStart = new Date(todayStart);
-
   previousSevenDaysStart.setDate(previousSevenDaysStart.getDate() - 7);
 
   const thirtyDaysAgo = new Date(todayStart);
-
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const nextSevenDaysEnd =
@@ -45,6 +75,8 @@ export async function loadDashboardData(user: {
     new Date(todayStart.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   const [
+    currentUser,
+
     totalClients,
     activeProjects,
     completedProjects,
@@ -77,7 +109,17 @@ export async function loadDashboardData(user: {
     recentActivity,
     recentNotifications,
   ] = await Promise.all([
-    user.role === "ADMIN"
+    prisma.user.findFirst({
+      where: {
+        id: userId,
+        workspaceId,
+      },
+      select: {
+        firstName: true,
+      },
+    }),
+
+    canViewWorkspaceData
       ? prisma.user.count({
           where: {
             role: "CLIENT",
@@ -86,7 +128,23 @@ export async function loadDashboardData(user: {
         })
       : Promise.resolve(1),
 
-    ...(await loadDashboardCounts(workspaceProjectFilter)),
+    prisma.project.count({
+      where: {
+        ...workspaceProjectFilter,
+        status: "ACTIVE",
+      },
+    }),
+
+    prisma.project.count({
+      where: {
+        ...workspaceProjectFilter,
+        status: "COMPLETED",
+      },
+    }),
+
+    prisma.project.count({
+      where: workspaceProjectFilter,
+    }),
 
     prisma.invoice.count({
       where: {
@@ -244,7 +302,7 @@ export async function loadDashboardData(user: {
     }),
 
     Promise.all(
-      nextSevenDays.map((day: DashboardDay) =>
+      nextSevenDays.map((day) =>
         prisma.booking.count({
           where: {
             workspaceId,
@@ -332,7 +390,7 @@ export async function loadDashboardData(user: {
 
     prisma.notification.findMany({
       where: {
-        userId: user.id,
+        userId,
       },
       orderBy: {
         createdAt: "desc",
@@ -343,6 +401,7 @@ export async function loadDashboardData(user: {
 
   return {
     workspaceId,
+    firstName: currentUser?.firstName ?? null,
     nextSevenDays,
 
     totalClients,
@@ -380,3 +439,7 @@ export async function loadDashboardData(user: {
     recentNotifications,
   };
 }
+
+export type DashboardQueryResult = Awaited<
+  ReturnType<typeof getDashboardQuery>
+>;

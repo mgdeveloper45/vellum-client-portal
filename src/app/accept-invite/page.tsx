@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
 import { AcceptInviteForm } from "@/components/workspace/accept-invite-form";
+import { getWorkspaceInvitationQuery } from "@/lib/queries/workspace/get-workspace-invitation-query";
 
 type AcceptInvitePageProps = {
     searchParams: Promise<{
@@ -20,14 +20,7 @@ export default async function AcceptInvitePage({
         );
     }
 
-    const invitation = await prisma.workspaceInvitation.findUnique({
-        where: {
-            token,
-        },
-        include: {
-            workspace: true,
-        },
-    });
+    const invitation = await getWorkspaceInvitationQuery(token);
 
     if (
         !invitation ||

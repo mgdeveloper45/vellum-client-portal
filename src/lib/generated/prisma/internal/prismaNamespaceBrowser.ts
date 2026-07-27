@@ -65,6 +65,7 @@ export const ModelName = {
   Workspace: 'Workspace',
   WorkspaceInvitation: 'WorkspaceInvitation',
   Subscription: 'Subscription',
+  StripeWebhookEvent: 'StripeWebhookEvent',
   Service: 'Service',
   Booking: 'Booking',
   BusinessHour: 'BusinessHour',
@@ -275,6 +276,18 @@ export const SubscriptionScalarFieldEnum = {
 } as const
 
 export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+export const StripeWebhookEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  status: 'status',
+  error: 'error',
+  createdAt: 'createdAt',
+  processedAt: 'processedAt'
+} as const
+
+export type StripeWebhookEventScalarFieldEnum = (typeof StripeWebhookEventScalarFieldEnum)[keyof typeof StripeWebhookEventScalarFieldEnum]
 
 
 export const ServiceScalarFieldEnum = {

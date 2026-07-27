@@ -10,11 +10,20 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Application error", {
-      message: error.message,
-      digest: error.digest,
-      stack: error.stack,
-    });
+    console.error(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: "error",
+        message: "Application route error",
+        error: {
+          message: error.message,
+          digest: error.digest,
+          ...(process.env.NODE_ENV !== "production"
+            ? { stack: error.stack }
+            : {}),
+        },
+      }),
+    );
   }, [error]);
 
   return (
@@ -29,10 +38,15 @@ export default function Error({
         </h1>
 
         <p className="mt-4 text-foreground/60">
-          Please try again. If this keeps happening, check the terminal logs for
-          more details.
+          Please try again. If this keeps happening, our team can investigate
+          using the error reference.
         </p>
 
+        {error.digest && (
+          <p className="mt-4 text-xs text-foreground/40">
+            Reference: {error.digest}
+          </p>
+        )}
         <button
           type="button"
           onClick={reset}

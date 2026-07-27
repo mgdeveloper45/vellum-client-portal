@@ -1,10 +1,10 @@
+import type { DashboardQueryResult } from "@/lib/queries/dashboard/get-dashboard-query";
 import {
   getExecutiveBrief,
   saveExecutiveBrief,
 } from "@/lib/services/ai/executive-brief-cache";
 import { createAiProvider } from "@/lib/services/ai/ai-provider-factory";
 import { ExecutiveNarrativeService } from "@/lib/services/ai/executive-narrative-service";
-import { loadDashboardData } from "@/lib/services/dashboard/dashboard-data-loader";
 import { buildDashboardOrchestrator } from "@/lib/services/dashboard/dashboard-orchestrator";
 import { buildWorkspaceCapacity } from "@/lib/services/intelligence/capacity/workspace-capacity-engine";
 import { buildBookingForecast } from "@/lib/services/intelligence/forecasting/booking-forecast-engine";
@@ -12,10 +12,7 @@ import { buildRevenueForecast } from "@/lib/services/intelligence/forecasting/re
 import { buildExecutiveIntelligencePipeline } from "@/lib/services/intelligence/executive-intelligence-pipeline";
 
 type BuildDashboardInput = {
-  userId: string;
-  userName?: string | null;
-  userRole: string;
-  workspaceId: string;
+  data: DashboardQueryResult;
 };
 
 const dayOfWeekNames = [
@@ -38,18 +35,7 @@ function parseTimeToMinutes(value: string) {
   return hours * 60 + minutes;
 }
 
-export async function buildDashboard({
-  userId,
-  userName,
-  userRole,
-  workspaceId,
-}: BuildDashboardInput) {
-  const data = await loadDashboardData({
-    id: userId,
-    role: userRole,
-    workspaceId,
-  });
-
+export async function buildDashboard({ data }: BuildDashboardInput) {
   const revenueCollected = data.totalRevenue._sum.amount ?? 0;
 
   const revenueOutstanding = data.outstandingRevenue._sum.amount ?? 0;
@@ -84,10 +70,8 @@ export async function buildDashboard({
           ) / data.activeServices.length,
         );
 
-  const firstName = userName?.split(" ")[0] ?? null;
-
   const dashboard = buildDashboardOrchestrator({
-    firstName,
+    firstName: data.firstName,
 
     totalClients: data.totalClients,
     activeProjects: data.activeProjects,
@@ -178,8 +162,9 @@ export async function buildDashboard({
     revenueCollected,
     outstandingRevenue: revenueOutstanding,
 
-    // Invoice has no dueDate, so truly overdue
-    // revenue cannot yet be distinguished.
+    // Invoice currently has no dueDate.
+    // Outstanding revenue cannot yet be
+    // classified accurately as overdue.
     overdueRevenue: 0,
 
     paidInvoices: data.paidInvoices,
@@ -193,11 +178,10 @@ export async function buildDashboard({
     revenueForecast,
     bookingForecast,
     workspaceCapacity,
-
     executiveInsights: dashboard.executiveInsights,
   });
 
-  const cachedBrief = await getExecutiveBrief(workspaceId);
+  const cachedBrief = await getExecutiveBrief(data.workspaceId);
 
   let aiResult: {
     narrative: string;
@@ -220,7 +204,7 @@ export async function buildDashboard({
 
     aiResult = await narrativeService.generate(dashboard.dashboardContext);
 
-    await saveExecutiveBrief(workspaceId, aiResult);
+    await saveExecutiveBrief(data.workspaceId, aiResult);
   }
 
   return {
@@ -236,7 +220,7 @@ export async function buildDashboard({
     topAdvice: executiveIntelligence.topAdvice,
 
     aiResult,
-    firstName,
+    firstName: data.firstName,
 
     revenueCollected,
     revenueOutstanding,
@@ -244,11 +228,9 @@ export async function buildDashboard({
     upcomingBookingRevenue,
 
     todaysBookings: data.todaysBookings,
-
     upcomingBookings: data.upcomingBookings,
 
     recentActivity: data.recentActivity,
-
     recentNotifications: data.recentNotifications,
   };
 }
