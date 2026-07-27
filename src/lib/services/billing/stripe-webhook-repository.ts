@@ -1,8 +1,3 @@
-export type StripeWebhookEventStatus =
-  | "PROCESSING"
-  | "PROCESSED"
-  | "FAILED";
-
 export type PaidInvoiceReceiptDetails = {
   invoiceId: string;
   amount: number;
@@ -22,17 +17,23 @@ export type SubscriptionActivationInput = {
 };
 
 export interface StripeWebhookRepository {
-  hasProcessedEvent(eventId: string): Promise<boolean>;
-
+  /**
+   * Claims an event for processing.
+   *
+   * Returns true when:
+   * - the event is new, or
+   * - a previously failed event is reclaimed.
+   *
+   * Returns false when another request is already processing it
+   * or it has already completed successfully.
+   */
   beginEvent(eventId: string, eventType: string): Promise<boolean>;
 
   markEventProcessed(eventId: string): Promise<void>;
 
   markEventFailed(eventId: string, errorMessage: string): Promise<void>;
 
-  markInvoicePaid(
-    invoiceId: string,
-  ): Promise<PaidInvoiceReceiptDetails | null>;
+  markInvoicePaid(invoiceId: string): Promise<PaidInvoiceReceiptDetails | null>;
 
   createInvoicePaidNotification(input: {
     userId: string;

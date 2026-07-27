@@ -6,21 +6,8 @@ import type {
 } from "@/lib/services/billing/stripe-webhook-repository";
 
 export class PrismaStripeWebhookRepository implements StripeWebhookRepository {
-  async hasProcessedEvent(eventId: string): Promise<boolean> {
-    const event = await prisma.stripeWebhookEvent.findUnique({
-      where: {
-        id: eventId,
-      },
-      select: {
-        status: true,
-      },
-    });
-
-    return event?.status === "PROCESSED";
-  }
-
   async beginEvent(eventId: string, eventType: string): Promise<boolean> {
-    const result = await prisma.stripeWebhookEvent.createMany({
+    const created = await prisma.stripeWebhookEvent.createMany({
       data: {
         id: eventId,
         type: eventType,
@@ -29,7 +16,29 @@ export class PrismaStripeWebhookRepository implements StripeWebhookRepository {
       skipDuplicates: true,
     });
 
-    return result.count === 1;
+    if (created.count === 1) {
+      return true;
+    }
+
+    /*
+     * A prior attempt may have failed after Stripe delivered the event.
+     * Atomically reclaim only FAILED events. The status condition prevents
+     * concurrent retries from both acquiring the same event.
+     */
+    const reclaimed = await prisma.stripeWebhookEvent.updateMany({
+      where: {
+        id: eventId,
+        status: "FAILED",
+      },
+      data: {
+        type: eventType,
+        status: "PROCESSING",
+        error: null,
+        processedAt: null,
+      },
+    });
+
+    return reclaimed.count === 1;
   }
 
   async markEventProcessed(eventId: string): Promise<void> {
@@ -53,6 +62,7 @@ export class PrismaStripeWebhookRepository implements StripeWebhookRepository {
       data: {
         status: "FAILED",
         error: errorMessage.slice(0, 2_000),
+        processedAt: null,
       },
     });
   }
