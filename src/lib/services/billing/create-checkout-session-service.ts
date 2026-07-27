@@ -40,6 +40,7 @@ export class CreateCheckoutSessionService {
 
     return this.stripeBillingService.createProfessionalCheckoutSession({
       stripeCustomerId,
+      workspaceId: billingAccount.workspaceId,
     });
   }
 }

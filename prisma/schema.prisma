@@ -226,6 +226,19 @@ model Subscription {
   workspace            Workspace        @relation(fields: [workspaceId], references: [id])
 }
 
+model StripeWebhookEvent {
+  id          String   @id
+  type        String
+  status      String
+  error       String?
+  createdAt   DateTime @default(now())
+  processedAt DateTime?
+
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
 model Service {
   id           String        @id @default(cuid())
   name         String

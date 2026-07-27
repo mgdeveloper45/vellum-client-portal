@@ -8,6 +8,7 @@ type CreateStripeCustomerParams = {
 
 type CreateProfessionalCheckoutSessionParams = {
   stripeCustomerId: string;
+  workspaceId: string;
 };
 
 type CreateCustomerPortalSessionParams = {
@@ -33,6 +34,7 @@ export class StripeBillingService {
 
   async createProfessionalCheckoutSession({
     stripeCustomerId,
+    workspaceId,
   }: CreateProfessionalCheckoutSessionParams): Promise<string | null> {
     const priceId = process.env.STRIPE_PROFESSIONAL_PRICE_ID;
     const appUrl = process.env.APP_URL;
@@ -54,6 +56,17 @@ export class StripeBillingService {
           quantity: 1,
         },
       ],
+      metadata: {
+        workspaceId,
+        checkoutType: "subscription",
+        plan: "PROFESSIONAL",
+      },
+      subscription_data: {
+        metadata: {
+          workspaceId,
+          plan: "PROFESSIONAL",
+        },
+      },
       success_url: `${appUrl}/settings?billing=success`,
       cancel_url: `${appUrl}/settings?billing=cancelled`,
     });

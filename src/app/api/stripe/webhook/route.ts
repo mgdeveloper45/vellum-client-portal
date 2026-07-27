@@ -1,106 +1,152 @@
-import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
-import Stripe from "stripe";
-import { sendInvoiceReceipt } from "@/lib/services/invoice/email-service";
+import { NextResponse } from "next/server";
+import type Stripe from "stripe";
 
-export async function POST(request: Request) {
-  const body = await request.text();
-  const signature = (await headers()).get("stripe-signature");
+import { logger } from "@/lib/logger";
+import { createRequestId } from "@/lib/request-id";
+import { runWithRequestContext } from "@/lib/request-context";
+import { processStripeWebhookService } from "@/lib/services/billing/composition/stripe-webhook-services";
+import { stripe } from "@/lib/stripe";
 
-  if (!signature) {
-    return new Response("Missing Stripe signature", { status: 400 });
-  }
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-  let event: Stripe.Event;
+export async function POST(request: Request): Promise<NextResponse> {
+  const requestHeaders = await headers();
+  const requestId = requestHeaders.get("x-request-id") ?? createRequestId();
 
-  try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!,
-    );
-  } catch {
-    return new Response("Invalid Stripe signature", { status: 400 });
-  }
+  return runWithRequestContext(
+    {
+      requestId,
+    },
+    async () => {
+      const signature = requestHeaders.get("stripe-signature");
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const invoiceId = session.metadata?.invoiceId;
+      if (!signature) {
+        logger.warn("Stripe webhook signature missing", {
+          component: "stripe-webhook",
+        });
 
-    if (invoiceId) {
-      const invoice = await prisma.invoice.update({
-        where: {
-          id: invoiceId,
-        },
-        data: {
-          paid: true,
-        },
-        include: {
-          project: {
-            include: {
-              client: true,
-              workspace: true,
+        return NextResponse.json(
+          {
+            received: false,
+            requestId,
+            error: "Missing Stripe signature.",
+          },
+          {
+            status: 400,
+            headers: {
+              "Cache-Control": "no-store",
+              "X-Request-Id": requestId,
             },
           },
-        },
-      });
+        );
+      }
 
-      await prisma.notification.create({
-        data: {
-          userId: invoice.project.ownerId,
-          title: "Invoice paid",
-          message: `$${invoice.amount.toLocaleString()} invoice for ${invoice.project.name} was paid.`,
-          type: "INVOICE",
-          href: `/projects/${invoice.projectId}`,
-        },
-      });
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-      await sendInvoiceReceipt({
-        email: invoice.project.client.email,
-        clientName: `${invoice.project.client.firstName} ${invoice.project.client.lastName}`,
-        businessName:
-          invoice.project.workspace?.companyName ??
-          invoice.project.workspace?.name ??
-          "Vellum",
-        projectName: invoice.project.name,
-        amount: invoice.amount,
-        invoiceId: invoice.id,
-      });
+      if (!webhookSecret) {
+        logger.error("Stripe webhook secret is not configured", {
+          component: "stripe-webhook",
+        });
 
-      return Response.json({ received: true });
-    }
+        return NextResponse.json(
+          {
+            received: false,
+            requestId,
+            error: "Webhook configuration error.",
+          },
+          {
+            status: 500,
+            headers: {
+              "Cache-Control": "no-store",
+              "X-Request-Id": requestId,
+            },
+          },
+        );
+      }
 
-    const stripeCustomerId = String(session.customer);
-    const stripeSubscriptionId = String(session.subscription);
+      let event: Stripe.Event;
 
-    if (stripeCustomerId && stripeSubscriptionId) {
-      const checkoutSession = await stripe.checkout.sessions.retrieve(
-        session.id,
-        {
-          expand: ["subscription"],
-        },
-      );
+      try {
+        const body = await request.text();
 
-      const subscription = checkoutSession.subscription as Stripe.Subscription;
+        event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      } catch (error) {
+        logger.warn("Stripe webhook signature verification failed", {
+          component: "stripe-webhook",
+          errorName: error instanceof Error ? error.name : "UnknownError",
+          errorMessage:
+            error instanceof Error ? error.message : "Unknown signature error",
+        });
 
-      const currentPeriodEnd = subscription.items.data[0]?.current_period_end
-        ? new Date(subscription.items.data[0].current_period_end * 1000)
-        : null;
+        return NextResponse.json(
+          {
+            received: false,
+            requestId,
+            error: "Invalid Stripe signature.",
+          },
+          {
+            status: 400,
+            headers: {
+              "Cache-Control": "no-store",
+              "X-Request-Id": requestId,
+            },
+          },
+        );
+      }
 
-      await prisma.subscription.update({
-        where: {
-          stripeCustomerId,
-        },
-        data: {
-          stripeSubscriptionId,
-          active: true,
-          plan: "PROFESSIONAL",
-          currentPeriodEnd,
-        },
-      });
-    }
-  }
+      try {
+        const result = await processStripeWebhookService.execute(event);
 
-  return Response.json({ received: true });
+        logger.info("Stripe webhook acknowledged", {
+          component: "stripe-webhook",
+          stripeEventId: event.id,
+          stripeEventType: event.type,
+          processingStatus: result.status,
+        });
+
+        return NextResponse.json(
+          {
+            received: true,
+            requestId,
+            status: result.status,
+          },
+          {
+            status: 200,
+            headers: {
+              "Cache-Control": "no-store",
+              "X-Request-Id": requestId,
+            },
+          },
+        );
+      } catch (error) {
+        logger.error("Stripe webhook processing failed", {
+          component: "stripe-webhook",
+          stripeEventId: event.id,
+          stripeEventType: event.type,
+          errorName: error instanceof Error ? error.name : "UnknownError",
+          errorMessage:
+            error instanceof Error
+              ? error.message
+              : "Unknown Stripe processing error",
+        });
+
+        return NextResponse.json(
+          {
+            received: false,
+            requestId,
+            error: "Webhook processing failed.",
+          },
+          {
+            status: 500,
+            headers: {
+              "Cache-Control": "no-store",
+              "X-Request-Id": requestId,
+            },
+          },
+        );
+      }
+    },
+  );
 }
