@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { contributor } from "./helpers";
 import {
   createBookingForecast,
   createInsights,
@@ -6,19 +7,6 @@ import {
   createWorkspaceCapacity,
 } from "./fixtures";
 import { buildExecutiveScore } from "../executive-score-engine";
-import type {
-  ExecutiveScore,
-  ExecutiveScoreContributor,
-} from "../executive-score-engine";
-
-function contributor(
-  score: ExecutiveScore,
-  key: ExecutiveScoreContributor["key"],
-) {
-  const result = score.contributors.find((c) => c.key === key);
-  expect(result).toBeDefined();
-  return result!;
-}
 
 describe("buildExecutiveScore", () => {
   it("builds a healthy executive score", () => {
