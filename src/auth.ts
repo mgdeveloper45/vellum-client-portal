@@ -33,7 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       });
 
       if (existingUser) {
-        return true;
+        return existingUser.isActive;
       }
 
       await prisma.user.create({
@@ -104,7 +104,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           },
         });
 
-        if (!user || !user.password) {
+        if (!user || !user.password || !user.isActive) {
           return null;
         }
 

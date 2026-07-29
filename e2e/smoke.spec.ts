@@ -3,5 +3,7 @@ import { expect, test } from "@playwright/test";
 test("home page loads", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page).toHaveTitle(/Vellum|vellum/i);
+  await expect(page).toHaveTitle(/Vellum/i);
+
+  await expect(page.locator("body")).toBeVisible();
 });

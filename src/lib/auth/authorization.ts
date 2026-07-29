@@ -6,7 +6,7 @@ export { assertRole, assertWorkspaceOwnership };
 export async function requireUser() {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user.id) {
     throw new Error("Unauthorized");
   }
 

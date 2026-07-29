@@ -25,18 +25,28 @@ export function SignInForm() {
     return (
         <div className="space-y-4">
             <form action={handleSubmit} className="space-y-4">
-                <input
-                    name="email"
-                    type="email"
-                    placeholder="Email"
-                    className="w-full rounded-lg border border-border bg-background px-4 py-3"
-                />
+                <label htmlFor="email" className="sr-only">
+                    Email
+                </label>
 
                 <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="Email"
+                />
+
+                <label htmlFor="password" className="sr-only">
+                    Password
+                </label>
+
+                <input
+                    id="password"
                     name="password"
                     type="password"
+                    autoComplete="current-password"
                     placeholder="Password"
-                    className="w-full rounded-lg border border-border bg-background px-4 py-3"
                 />
 
                 <button className="w-full rounded-lg bg-accent px-4 py-3 font-medium text-black">

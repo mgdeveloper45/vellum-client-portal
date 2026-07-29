@@ -355,6 +355,23 @@ export type EnumDayOfWeekWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDayOfWeekFilter<$PrismaModel>
 }
 
+export type EnumExecutiveBriefModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExecutiveBriefMode | Prisma.EnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  in?: $Enums.ExecutiveBriefMode[] | Prisma.ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ExecutiveBriefMode[] | Prisma.ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumExecutiveBriefModeFilter<$PrismaModel> | $Enums.ExecutiveBriefMode
+}
+
+export type EnumExecutiveBriefModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExecutiveBriefMode | Prisma.EnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  in?: $Enums.ExecutiveBriefMode[] | Prisma.ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ExecutiveBriefMode[] | Prisma.ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumExecutiveBriefModeWithAggregatesFilter<$PrismaModel> | $Enums.ExecutiveBriefMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumExecutiveBriefModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumExecutiveBriefModeFilter<$PrismaModel>
+}
+
 export type IntNullableFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
   in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
@@ -696,6 +713,23 @@ export type NestedEnumDayOfWeekWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumDayOfWeekFilter<$PrismaModel>
   _max?: Prisma.NestedEnumDayOfWeekFilter<$PrismaModel>
+}
+
+export type NestedEnumExecutiveBriefModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExecutiveBriefMode | Prisma.EnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  in?: $Enums.ExecutiveBriefMode[] | Prisma.ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ExecutiveBriefMode[] | Prisma.ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumExecutiveBriefModeFilter<$PrismaModel> | $Enums.ExecutiveBriefMode
+}
+
+export type NestedEnumExecutiveBriefModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExecutiveBriefMode | Prisma.EnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  in?: $Enums.ExecutiveBriefMode[] | Prisma.ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ExecutiveBriefMode[] | Prisma.ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumExecutiveBriefModeWithAggregatesFilter<$PrismaModel> | $Enums.ExecutiveBriefMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumExecutiveBriefModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumExecutiveBriefModeFilter<$PrismaModel>
 }
 
 export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {

@@ -68,3 +68,11 @@ export const BookingStatus = {
 } as const
 
 export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus]
+
+
+export const ExecutiveBriefMode = {
+  mock: 'mock',
+  production: 'production'
+} as const
+
+export type ExecutiveBriefMode = (typeof ExecutiveBriefMode)[keyof typeof ExecutiveBriefMode]

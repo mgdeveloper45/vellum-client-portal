@@ -2609,6 +2609,20 @@ export type EnumDayOfWeekFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 export type ListEnumDayOfWeekFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayOfWeek[]'>
     
 
+
+/**
+ * Reference to a field of type 'ExecutiveBriefMode'
+ */
+export type EnumExecutiveBriefModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExecutiveBriefMode'>
+    
+
+
+/**
+ * Reference to a field of type 'ExecutiveBriefMode[]'
+ */
+export type ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExecutiveBriefMode[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */

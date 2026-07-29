@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",
+    "test:unit": "vitest",
     "test:coverage": "vitest --coverage",
+    "test:ci": "vitest run --coverage && playwright test",
     "test:e2e": "playwright test"
   },
   "dependencies": {

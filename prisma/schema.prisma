@@ -339,14 +339,14 @@ model StaffTimeOff {
 }
 
 model ExecutiveBriefCache {
-  id          String    @id @default(cuid())
-  workspaceId String    @unique
+  id          String              @id @default(cuid())
+  workspaceId String              @unique
   narrative   String
   provider    String
-  mode        String
+  mode        ExecutiveBriefMode
   durationMs  Int
-  generatedAt DateTime  @default(now())
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  generatedAt DateTime            @default(now())
+  workspace   Workspace           @relation(fields: [workspaceId], references: [id])
 }
 
 model BookingRule {
@@ -424,4 +424,9 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+}
+
+enum ExecutiveBriefMode {
+  mock
+  production
 }

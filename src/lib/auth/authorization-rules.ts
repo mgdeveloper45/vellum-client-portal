@@ -12,3 +12,16 @@ export function assertWorkspaceOwnership(
     throw new Error("Forbidden");
   }
 }
+// assertAuthenticated()
+
+// assertWorkspaceMember()
+
+// assertOwner()
+
+// assertAdmin()
+
+// assertManager()
+
+// assertCanManageInvoices()
+
+// assertCanManageWorkspace()
