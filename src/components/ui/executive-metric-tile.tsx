@@ -12,20 +12,11 @@ export function ExecutiveMetricTile({
     helper,
 }: Props) {
     return (
-        <ExecutivePanel className="p-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-foreground/40">
-                {label}
-            </p>
-
-            <p className="mt-3 text-3xl font-light">
-                {value}
-            </p>
-
-            {helper && (
-                <p className="mt-2 text-sm text-foreground/55">
-                    {helper}
-                </p>
-            )}
-        </ExecutivePanel>
+        <ExecutivePanel
+            label={label}
+            value={value}
+            helper={helper}
+            className="p-5"
+        />
     );
 }

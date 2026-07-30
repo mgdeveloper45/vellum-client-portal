@@ -26,13 +26,30 @@ function createInput(
 
 describe("buildExecutiveIntelligencePipeline", () => {
   it("combines intelligence engines into one result", () => {
-    const pipeline = buildExecutiveIntelligencePipeline(createInput());
+    const revenueForecast = createRevenueForecast();
+    const bookingForecast = createBookingForecast();
+    const workspaceCapacity = createWorkspaceCapacity();
+    const executiveInsight = createInsight({
+      id: "pipeline-insight",
+    });
 
-    expect(pipeline.revenueForecast.projectedRevenue).toBe(18000);
-    expect(pipeline.bookingForecast.utilizationToday).toBe(75);
-    expect(pipeline.workspaceCapacity.weeklyOpenSlots).toBe(13);
+    const pipeline = buildExecutiveIntelligencePipeline(
+      createInput({
+        revenueForecast,
+        bookingForecast,
+        workspaceCapacity,
+        executiveInsights: [executiveInsight],
+      }),
+    );
+
+    expect(pipeline.revenueForecast).toEqual(revenueForecast);
+
+    expect(pipeline.bookingForecast).toEqual(bookingForecast);
+
+    expect(pipeline.workspaceCapacity).toEqual(workspaceCapacity);
 
     expect(pipeline.executiveAdvice.length).toBeGreaterThan(0);
+
     expect(pipeline.topAdvice).not.toBeNull();
 
     expect(pipeline.recommendations).toHaveLength(
@@ -56,7 +73,7 @@ describe("buildExecutiveIntelligencePipeline", () => {
     const pipeline = buildExecutiveIntelligencePipeline(
       createInput({
         revenueForecast: createRevenueForecast({
-          revenueAtRisk: 9000,
+          revenueAtRisk: 9_000,
           risk: "HIGH",
           trend: "DOWN",
         }),
@@ -69,6 +86,20 @@ describe("buildExecutiveIntelligencePipeline", () => {
     });
 
     expect(pipeline.summary.criticalAdviceCount).toBeGreaterThan(0);
+  });
+
+  it("keeps top advice synchronized with sorted advice", () => {
+    const pipeline = buildExecutiveIntelligencePipeline(
+      createInput({
+        revenueForecast: createRevenueForecast({
+          revenueAtRisk: 5_000,
+          risk: "HIGH",
+          trend: "DOWN",
+        }),
+      }),
+    );
+
+    expect(pipeline.topAdvice).toEqual(pipeline.executiveAdvice[0]);
   });
 
   it("returns healthy guidance when no urgent issues exist", () => {
@@ -92,16 +123,20 @@ describe("buildExecutiveIntelligencePipeline", () => {
           lowestUtilizationDay: null,
           highestUtilizationDay: null,
         }),
+
         executiveInsights: [],
       }),
     );
 
     expect(pipeline.executiveAdvice).toHaveLength(1);
+
     expect(pipeline.topAdvice).toMatchObject({
       id: "maintain-business-momentum",
       priority: "LOW",
     });
+
     expect(pipeline.summary.criticalAdviceCount).toBe(0);
+
     expect(pipeline.summary.highPriorityAdviceCount).toBe(0);
   });
 });

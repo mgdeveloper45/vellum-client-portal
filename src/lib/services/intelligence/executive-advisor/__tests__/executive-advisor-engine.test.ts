@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
+
 import {
-  createRevenueForecast,
   createBookingForecast,
-  createWorkspaceCapacity,
   createInsight,
+  createRevenueForecast,
+  createWorkspaceCapacity,
 } from "../../__tests__/fixtures";
 import { adviceById } from "../../__tests__/helpers";
 import {
@@ -24,42 +25,107 @@ function createInput(
 }
 
 describe("buildExecutiveAdvisor", () => {
-  it("ranks revenue protection as a high-value action", () => {
-    const advice = buildExecutiveAdvisor(createInput());
-    expect(advice[0].id).toBe("protect-revenue-at-risk");
-    expect(advice[0].estimatedImpact).toBe(1000);
-    expect(advice[0].category).toBe("REVENUE");
+  it("creates revenue-protection advice when revenue is at risk", () => {
+    const revenueForecast = createRevenueForecast({
+      revenueAtRisk: 1_000,
+      risk: "MEDIUM",
+      trend: "DOWN",
+    });
+
+    const advice = buildExecutiveAdvisor(
+      createInput({
+        revenueForecast,
+      }),
+    );
+
+    const revenueAdvice = adviceById(advice, "protect-revenue-at-risk");
+
+    expect(revenueAdvice).toMatchObject({
+      id: "protect-revenue-at-risk",
+      estimatedImpact: revenueForecast.revenueAtRisk,
+      category: "REVENUE",
+      priority: "HIGH",
+    });
   });
+
   it("creates an open-capacity recommendation", () => {
-    const advice = buildExecutiveAdvisor(createInput());
-    const capacityAdvice = adviceById(
-  advice,
-  "fill-open-capacity",
-);
-    expect(capacityAdvice?.title).toContain("Thursday");
-    expect(capacityAdvice?.estimatedImpact).toBe(2600);
+    const workspaceCapacity = createWorkspaceCapacity();
+
+    const advice = buildExecutiveAdvisor(
+      createInput({
+        workspaceCapacity,
+      }),
+    );
+
+    const capacityAdvice = adviceById(advice, "fill-open-capacity");
+
+    expect(capacityAdvice).toMatchObject({
+      id: "fill-open-capacity",
+      estimatedImpact: workspaceCapacity.estimatedOpenRevenue,
+      category: "BOOKINGS",
+    });
+
+    expect(capacityAdvice.title).toContain(
+      workspaceCapacity.lowestUtilizationDay?.label,
+    );
   });
 
   it("includes existing executive insights", () => {
-    const advice = buildExecutiveAdvisor(createInput());
+    const insight = createInsight({
+      id: "review-pending-milestones",
+    });
 
-    expect(
-      advice.some((item) => item.id === "insight-review-pending-milestones"),
-    ).toBe(true);
+    const advice = buildExecutiveAdvisor(
+      createInput({
+        executiveInsights: [insight],
+      }),
+    );
+
+    expect(advice.some((item) => item.id === `insight-${insight.id}`)).toBe(
+      true,
+    );
+  });
+
+  it("maps an executive insight to advice fields", () => {
+    const insight = createInsight({
+      id: "cash-flow-review",
+      domain: "FINANCE",
+      priority: "HIGH",
+      title: "Review cash flow",
+      recommendedAction: "Review outstanding balances.",
+      href: "/invoices",
+    });
+
+    const advice = buildExecutiveAdvisor(
+      createInput({
+        executiveInsights: [insight],
+      }),
+    );
+
+    const insightAdvice = adviceById(advice, `insight-${insight.id}`);
+
+    expect(insightAdvice).toMatchObject({
+      title: insight.title,
+      category: "REVENUE",
+      priority: "HIGH",
+      confidence: 90,
+      recommendedAction: insight.recommendedAction,
+      href: insight.href,
+    });
   });
 
   it("ranks critical revenue risk above lower-priority work", () => {
     const advice = buildExecutiveAdvisor(
       createInput({
-        revenueForecast: {
-          projectedRevenue: 10000,
+        revenueForecast: createRevenueForecast({
+          projectedRevenue: 10_000,
           expectedCollections: 500,
-          revenueAtRisk: 9000,
+          revenueAtRisk: 9_000,
           confidence: 93,
           trend: "DOWN",
           risk: "HIGH",
           summary: "Revenue is exposed to significant risk.",
-        },
+        }),
       }),
     );
 
@@ -69,39 +135,62 @@ describe("buildExecutiveAdvisor", () => {
     });
   });
 
+  it("creates booking-risk advice when booking health declines", () => {
+    const bookingForecast = createBookingForecast({
+      risk: "HIGH",
+      trend: "DOWN",
+      confidence: 88,
+      summary: "Booking demand has declined.",
+      recommendation: "Increase booking outreach.",
+    });
+
+    const advice = buildExecutiveAdvisor(
+      createInput({
+        bookingForecast,
+      }),
+    );
+
+    const bookingAdvice = adviceById(advice, "stabilize-booking-demand");
+
+    expect(bookingAdvice).toMatchObject({
+      id: "stabilize-booking-demand",
+      title: "Stabilize booking demand",
+      priority: "HIGH",
+      category: "BOOKINGS",
+      confidence: bookingForecast.confidence,
+      recommendedAction: bookingForecast.recommendation,
+    });
+  });
+
   it("returns healthy guidance when no advice candidates exist", () => {
     const advice = buildExecutiveAdvisor({
-      revenueForecast: {
-        projectedRevenue: 10000,
+      revenueForecast: createRevenueForecast({
+        projectedRevenue: 10_000,
         expectedCollections: 0,
         revenueAtRisk: 0,
         confidence: 90,
         trend: "STABLE",
         risk: "LOW",
         summary: "Revenue is stable.",
-      },
+      }),
 
-      bookingForecast: {
+      bookingForecast: createBookingForecast({
         utilizationToday: 90,
         utilizationTomorrow: 90,
         utilizationWeek: 90,
-
         availableCapacityToday: 0,
         availableCapacityTomorrow: 0,
         availableCapacityWeek: 0,
-
         peakDayLabel: "Monday",
         peakDayUtilization: 100,
-
         trend: "STABLE",
         risk: "LOW",
         confidence: 90,
-
         summary: "Bookings are healthy.",
         recommendation: "Protect confirmed appointments.",
-      },
+      }),
 
-      workspaceCapacity: {
+      workspaceCapacity: createWorkspaceCapacity({
         today: {
           label: "Monday",
           capacity: 8,
@@ -124,20 +213,15 @@ describe("buildExecutiveAdvisor", () => {
         weeklyBookings: 40,
         weeklyOpenSlots: 0,
         weeklyUtilizationRate: 100,
-
         estimatedOpenRevenue: 0,
-
         lowestUtilizationDay: null,
         highestUtilizationDay: null,
-
         constrained: true,
         risk: "LOW",
-
         summary: "The workspace is full.",
         recommendation: "Protect service quality.",
-
         days: [],
-      },
+      }),
 
       executiveInsights: [],
     });
@@ -147,11 +231,25 @@ describe("buildExecutiveAdvisor", () => {
     expect(advice[0]).toMatchObject({
       id: "maintain-business-momentum",
       priority: "LOW",
+      category: "OPERATIONS",
     });
   });
 
   it("sorts advice by score descending", () => {
-    const advice = buildExecutiveAdvisor(createInput());
+    const advice = buildExecutiveAdvisor(
+      createInput({
+        revenueForecast: createRevenueForecast({
+          revenueAtRisk: 1_000,
+          risk: "MEDIUM",
+          trend: "DOWN",
+        }),
+
+        bookingForecast: createBookingForecast({
+          risk: "MEDIUM",
+          trend: "DOWN",
+        }),
+      }),
+    );
 
     for (let index = 1; index < advice.length; index += 1) {
       expect(advice[index - 1].score).toBeGreaterThanOrEqual(
