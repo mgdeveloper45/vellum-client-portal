@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { auth } from "@/auth";
 import { BookingTimeline } from "@/components/bookings/booking-timeline";
 import { MonthlyBookingCalendar } from "@/components/bookings/monthly-booking-calendar";
@@ -89,7 +90,7 @@ export default async function BookingsPage({
                     "COMPLETED",
                     "CANCELLED",
                 ].map((status) => (
-                    <a
+                    <Link
                         key={status}
                         href={
                             status === "ALL"
@@ -111,7 +112,7 @@ export default async function BookingsPage({
                                     /\b\w/g,
                                     (char) => char.toUpperCase(),
                                 )}
-                    </a>
+                    </Link>
                 ))}
             </div>
 

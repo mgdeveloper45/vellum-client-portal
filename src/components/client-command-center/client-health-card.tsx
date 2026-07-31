@@ -16,9 +16,19 @@ export function ClientHealthCard({
         >
             <div className="space-y-3">
                 {reasons.map((reason) => (
-                    <p key={reason} className="text-sm text-foreground/70">
-                        • {reason}
-                    </p>
+                    <div
+                        key={reason}
+                        className="flex items-start gap-3 rounded-xl border border-border/50 p-3"
+                    >
+                        <div
+                            className="mt-2 h-2 w-2 rounded-full bg-primary"
+                            aria-hidden="true"
+                        />
+
+                        <p className="text-sm text-foreground/70">
+                            {reason}
+                        </p>
+                    </div>
                 ))}
             </div>
         </CommandCard>

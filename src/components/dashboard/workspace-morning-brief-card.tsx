@@ -1,5 +1,6 @@
 import type { WorkspaceMorningBrief } from "@/lib/services/workspace/workspace-morning-brief";
 import { CommandCard } from "@/components/ui/command-card";
+import { cn } from "@/lib/utils";
 
 type Props = {
     brief: WorkspaceMorningBrief;
@@ -22,85 +23,109 @@ export function WorkspaceMorningBriefCard({
             title={brief.greeting}
             subtitle={brief.dateLabel}
         >
-            <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
-                <div>
-                    <section>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                            Yesterday
-                        </p>
+            <div className="grid gap-8 xl:grid-cols-[1.3fr_0.7fr]">
+                <div className="space-y-8">
+                    <ComparisonSection
+                        title="Yesterday"
+                        metrics={[
+                            {
+                                label: "Revenue",
+                                value: formatCurrency(
+                                    brief.yesterday.revenue,
+                                ),
+                            },
+                            {
+                                label: "Bookings",
+                                value: brief.yesterday.completedBookings.toString(),
+                            },
+                            {
+                                label: "New Clients",
+                                value: brief.yesterday.newClients.toString(),
+                            },
+                            {
+                                label: "Accepted Proposals",
+                                value: brief.yesterday.proposalsAccepted.toString(),
+                            },
+                        ]}
+                    />
 
-                        <div className="mt-4 grid grid-cols-2 gap-4">
-                            <Metric
-                                label="Revenue"
-                                value={formatCurrency(brief.yesterday.revenue)}
-                            />
-
-                            <Metric
-                                label="Bookings"
-                                value={brief.yesterday.completedBookings.toString()}
-                            />
-
-                            <Metric
-                                label="New Clients"
-                                value={brief.yesterday.newClients.toString()}
-                            />
-
-                            <Metric
-                                label="Proposals"
-                                value={brief.yesterday.proposalsAccepted.toString()}
-                            />
-                        </div>
-                    </section>
-
-                    <section className="mt-8">
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                            Today
-                        </p>
-
-                        <div className="mt-4 grid grid-cols-2 gap-4">
-                            <Metric
-                                label="Appointments"
-                                value={brief.today.appointments.toString()}
-                            />
-
-                            <Metric
-                                label="Follow Ups"
-                                value={brief.today.followUps.toString()}
-                            />
-
-                            <Metric
-                                label="Overdue"
-                                value={brief.today.overdueInvoices.toString()}
-                            />
-
-                            <Metric
-                                label="Projected Revenue"
-                                value={formatCurrency(
+                    <ComparisonSection
+                        title="Today"
+                        metrics={[
+                            {
+                                label: "Appointments",
+                                value: brief.today.appointments.toString(),
+                            },
+                            {
+                                label: "Follow Ups",
+                                value: brief.today.followUps.toString(),
+                            },
+                            {
+                                label: "Overdue Invoices",
+                                value: brief.today.overdueInvoices.toString(),
+                            },
+                            {
+                                label: "Projected Revenue",
+                                value: formatCurrency(
                                     brief.estimatedRevenue,
-                                )}
-                            />
-                        </div>
-                    </section>
+                                ),
+                            },
+                        ]}
+                    />
                 </div>
 
-                <aside className="rounded-3xl border border-primary/15 bg-primary/[0.05] p-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-                        Executive Recommendation
-                    </p>
+                <aside className="flex flex-col rounded-3xl border border-primary/15 bg-primary/[0.05] p-6">
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+                            Executive Recommendation
+                        </p>
 
-                    <p className="mt-4 text-base leading-7 text-foreground/80">
-                        {brief.executiveSummary}
-                    </p>
+                        <p className="mt-5 text-base leading-8 text-foreground/80">
+                            {brief.executiveSummary}
+                        </p>
+                    </div>
 
-                    <div className="mt-6 space-y-3">
-                        {brief.recommendations.map((recommendation) => (
-                            <div
-                                key={recommendation}
-                                className="rounded-2xl border border-border bg-background p-3 text-sm"
-                            >
-                                {recommendation}
-                            </div>
-                        ))}
+                    <div className="mt-8 rounded-2xl border border-border/70 bg-background/70 p-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/45">
+                            Action Plan
+                        </p>
+
+                        <ol className="mt-5 space-y-4">
+                            {brief.recommendations.map(
+                                (recommendation, index) => (
+                                    <li
+                                        key={recommendation}
+                                        className="flex gap-4"
+                                    >
+                                        <span
+                                            className={cn(
+                                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+                                                "border border-primary/20 bg-primary/10",
+                                                "text-xs font-semibold text-primary",
+                                            )}
+                                        >
+                                            {index + 1}
+                                        </span>
+
+                                        <p className="pt-1 text-sm leading-6 text-foreground/70">
+                                            {recommendation}
+                                        </p>
+                                    </li>
+                                ),
+                            )}
+                        </ol>
+                    </div>
+
+                    <div className="mt-auto border-t border-primary/10 pt-6">
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/45">
+                            Today‘s Objective
+                        </p>
+
+                        <p className="mt-3 text-sm leading-7 text-foreground/60">
+                            Complete revenue-generating work first, resolve
+                            overdue financial items, then move into scheduled
+                            client commitments.
+                        </p>
                     </div>
                 </aside>
             </div>
@@ -108,20 +133,48 @@ export function WorkspaceMorningBriefCard({
     );
 }
 
-function Metric({
-    label,
-    value,
-}: {
+type ComparisonMetric = {
     label: string;
     value: string;
+};
+
+function ComparisonSection({
+    title,
+    metrics,
+}: {
+    title: string;
+    metrics: ComparisonMetric[];
 }) {
     return (
-        <div className="rounded-2xl border border-border bg-background p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-foreground/45">
+        <section>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                {title}
+            </p>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                {metrics.map((metric) => (
+                    <MetricCard
+                        key={metric.label}
+                        label={metric.label}
+                        value={metric.value}
+                    />
+                ))}
+            </div>
+        </section>
+    );
+}
+
+function MetricCard({
+    label,
+    value,
+}: ComparisonMetric) {
+    return (
+        <div className="rounded-2xl border border-border/60 bg-background/70 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground/45">
                 {label}
             </p>
 
-            <p className="mt-2 text-2xl font-light">
+            <p className="mt-3 text-3xl font-light tracking-tight">
                 {value}
             </p>
         </div>

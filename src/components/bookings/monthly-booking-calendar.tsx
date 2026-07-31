@@ -117,7 +117,7 @@ export function MonthlyBookingCalendar({
 
                     return (
                         <div
-                            key={index}
+                            key={date?.toISOString() ?? `empty-${index}`}
                             className={
                                 date
                                     ? "group min-h-40 rounded-3xl border border-border bg-background p-3 transition hover:border-foreground/20 hover:shadow-md"
@@ -169,7 +169,7 @@ export function MonthlyBookingCalendar({
 
                                         {dayBookings.length > 3 && (
                                             <p className="text-xs text-foreground/50">
-                                                +{dayBookings.length - 3} more
+                                                View all 7 appointments →
                                             </p>
                                         )}
                                     </div>
