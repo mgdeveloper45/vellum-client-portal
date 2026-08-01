@@ -1,8 +1,18 @@
+export type ClientStatus =
+    | "LEAD"
+    | "WAITLIST"
+    | "CONSULTATION"
+    | "DEPOSIT_PENDING"
+    | "ACTIVE"
+    | "COMPLETED"
+    | "ARCHIVED"
+    | "BANNED";
 export interface ClientSummaryRecord {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
+  clientStatus: ClientStatus;
   projectCount: number;
 }
 
@@ -12,6 +22,7 @@ export interface ClientEditRecord {
   lastName: string;
   email: string;
   notes: string | null;
+  clientStatus: ClientStatus;
   isBlacklisted: boolean;
 }
 
@@ -44,6 +55,7 @@ export interface CreateClientRecordInput {
   email: string;
   notes: string;
   password: string;
+  clientStatus: ClientStatus;
 }
 
 export interface UpdateClientRecordInput {
@@ -53,6 +65,7 @@ export interface UpdateClientRecordInput {
   lastName: string;
   email: string;
   notes: string;
+  clientStatus: ClientStatus;
   isBlacklisted: boolean;
 }
 

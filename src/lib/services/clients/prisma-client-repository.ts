@@ -33,6 +33,7 @@ export const prismaClientRepository: ClientRepository = {
         firstName: true,
         lastName: true,
         email: true,
+        clientStatus: true,
         _count: {
           select: {
             clientProjects: true,
@@ -54,6 +55,7 @@ export const prismaClientRepository: ClientRepository = {
       firstName: client.firstName,
       lastName: client.lastName,
       email: client.email,
+      clientStatus: client.clientStatus,
       projectCount: client._count.clientProjects,
     }));
   },
@@ -74,6 +76,7 @@ export const prismaClientRepository: ClientRepository = {
         lastName: true,
         email: true,
         notes: true,
+        clientStatus: true,
         isBlacklisted: true,
         clientProjects: {
           select: {
@@ -128,6 +131,7 @@ export const prismaClientRepository: ClientRepository = {
         lastName: true,
         email: true,
         notes: true,
+        clientStatus: true,
         isBlacklisted: true,
       },
     });
@@ -168,6 +172,7 @@ export const prismaClientRepository: ClientRepository = {
         notes: input.notes,
         password: input.password,
         role: "CLIENT",
+        clientStatus: "LEAD"
       },
       select: {
         id: true,

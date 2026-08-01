@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "ClientStatus" AS ENUM ('LEAD', 'WAITLIST', 'CONSULTATION', 'DEPOSIT_PENDING', 'ACTIVE', 'COMPLETED', 'ARCHIVED', 'BANNED');
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "clientStatus" "ClientStatus" NOT NULL DEFAULT 'LEAD';

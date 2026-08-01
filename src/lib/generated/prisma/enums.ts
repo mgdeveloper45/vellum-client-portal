@@ -76,3 +76,17 @@ export const ExecutiveBriefMode = {
 } as const
 
 export type ExecutiveBriefMode = (typeof ExecutiveBriefMode)[keyof typeof ExecutiveBriefMode]
+
+
+export const ClientStatus = {
+  LEAD: 'LEAD',
+  WAITLIST: 'WAITLIST',
+  CONSULTATION: 'CONSULTATION',
+  DEPOSIT_PENDING: 'DEPOSIT_PENDING',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  ARCHIVED: 'ARCHIVED',
+  BANNED: 'BANNED'
+} as const
+
+export type ClientStatus = (typeof ClientStatus)[keyof typeof ClientStatus]

@@ -16,6 +16,7 @@ model User {
   role                UserRole
   notes               String?
   workspaceId         String?
+  clientStatus        ClientStatus          @default(LEAD)
   isBlacklisted       Boolean               @default(false)
   isActive            Boolean               @default(true)
   createdAt           DateTime              @default(now())
@@ -429,4 +430,15 @@ enum BookingStatus {
 enum ExecutiveBriefMode {
   mock
   production
+}
+
+enum ClientStatus {
+  LEAD
+  WAITLIST
+  CONSULTATION
+  DEPOSIT_PENDING
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+  BANNED
 }

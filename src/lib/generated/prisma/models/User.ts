@@ -33,6 +33,7 @@ export type UserMinAggregateOutputType = {
   role: $Enums.UserRole | null
   notes: string | null
   workspaceId: string | null
+  clientStatus: $Enums.ClientStatus | null
   isBlacklisted: boolean | null
   isActive: boolean | null
   createdAt: Date | null
@@ -48,6 +49,7 @@ export type UserMaxAggregateOutputType = {
   role: $Enums.UserRole | null
   notes: string | null
   workspaceId: string | null
+  clientStatus: $Enums.ClientStatus | null
   isBlacklisted: boolean | null
   isActive: boolean | null
   createdAt: Date | null
@@ -63,6 +65,7 @@ export type UserCountAggregateOutputType = {
   role: number
   notes: number
   workspaceId: number
+  clientStatus: number
   isBlacklisted: number
   isActive: number
   createdAt: number
@@ -80,6 +83,7 @@ export type UserMinAggregateInputType = {
   role?: true
   notes?: true
   workspaceId?: true
+  clientStatus?: true
   isBlacklisted?: true
   isActive?: true
   createdAt?: true
@@ -95,6 +99,7 @@ export type UserMaxAggregateInputType = {
   role?: true
   notes?: true
   workspaceId?: true
+  clientStatus?: true
   isBlacklisted?: true
   isActive?: true
   createdAt?: true
@@ -110,6 +115,7 @@ export type UserCountAggregateInputType = {
   role?: true
   notes?: true
   workspaceId?: true
+  clientStatus?: true
   isBlacklisted?: true
   isActive?: true
   createdAt?: true
@@ -198,6 +204,7 @@ export type UserGroupByOutputType = {
   role: $Enums.UserRole
   notes: string | null
   workspaceId: string | null
+  clientStatus: $Enums.ClientStatus
   isBlacklisted: boolean
   isActive: boolean
   createdAt: Date
@@ -234,6 +241,7 @@ export type UserWhereInput = {
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   notes?: Prisma.StringNullableFilter<"User"> | string | null
   workspaceId?: Prisma.StringNullableFilter<"User"> | string | null
+  clientStatus?: Prisma.EnumClientStatusFilter<"User"> | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -258,6 +266,7 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   workspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientStatus?: Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -285,6 +294,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   notes?: Prisma.StringNullableFilter<"User"> | string | null
   workspaceId?: Prisma.StringNullableFilter<"User"> | string | null
+  clientStatus?: Prisma.EnumClientStatusFilter<"User"> | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -309,6 +319,7 @@ export type UserOrderByWithAggregationInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   workspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientStatus?: Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -330,6 +341,7 @@ export type UserScalarWhereWithAggregatesInput = {
   role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   notes?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   workspaceId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  clientStatus?: Prisma.EnumClientStatusWithAggregatesFilter<"User"> | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -344,6 +356,7 @@ export type UserCreateInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -368,6 +381,7 @@ export type UserUncheckedCreateInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -390,6 +404,7 @@ export type UserUpdateInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -414,6 +429,7 @@ export type UserUncheckedUpdateInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -437,6 +453,7 @@ export type UserCreateManyInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -451,6 +468,7 @@ export type UserUpdateManyMutationInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -466,6 +484,7 @@ export type UserUncheckedUpdateManyInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -481,6 +500,7 @@ export type UserCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  clientStatus?: Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -496,6 +516,7 @@ export type UserMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  clientStatus?: Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -511,6 +532,7 @@ export type UserMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  clientStatus?: Prisma.SortOrder
   isBlacklisted?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -547,6 +569,10 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type EnumUserRoleFieldUpdateOperationsInput = {
   set?: $Enums.UserRole
+}
+
+export type EnumClientStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ClientStatus
 }
 
 export type BoolFieldUpdateOperationsInput = {
@@ -721,6 +747,7 @@ export type UserCreateWithoutClientProjectsInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -744,6 +771,7 @@ export type UserUncheckedCreateWithoutClientProjectsInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -770,6 +798,7 @@ export type UserCreateWithoutOwnedProjectsInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -793,6 +822,7 @@ export type UserUncheckedCreateWithoutOwnedProjectsInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -830,6 +860,7 @@ export type UserUpdateWithoutClientProjectsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -853,6 +884,7 @@ export type UserUncheckedUpdateWithoutClientProjectsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -885,6 +917,7 @@ export type UserUpdateWithoutOwnedProjectsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -908,6 +941,7 @@ export type UserUncheckedUpdateWithoutOwnedProjectsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -929,6 +963,7 @@ export type UserCreateWithoutNotificationsInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -952,6 +987,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -989,6 +1025,7 @@ export type UserUpdateWithoutNotificationsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1012,6 +1049,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1033,6 +1071,7 @@ export type UserCreateWithoutAuditLogsInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1056,6 +1095,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1093,6 +1133,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1116,6 +1157,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1137,6 +1179,7 @@ export type UserCreateWithoutMessagesInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1160,6 +1203,7 @@ export type UserUncheckedCreateWithoutMessagesInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1197,6 +1241,7 @@ export type UserUpdateWithoutMessagesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1220,6 +1265,7 @@ export type UserUncheckedUpdateWithoutMessagesInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1241,6 +1287,7 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1264,6 +1311,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1301,6 +1349,7 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1324,6 +1373,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1345,6 +1395,7 @@ export type UserCreateWithoutWorkspaceInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1367,6 +1418,7 @@ export type UserUncheckedCreateWithoutWorkspaceInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1419,6 +1471,7 @@ export type UserScalarWhereInput = {
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   notes?: Prisma.StringNullableFilter<"User"> | string | null
   workspaceId?: Prisma.StringNullableFilter<"User"> | string | null
+  clientStatus?: Prisma.EnumClientStatusFilter<"User"> | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -1433,6 +1486,7 @@ export type UserCreateWithoutSentInvitationsInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1456,6 +1510,7 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1493,6 +1548,7 @@ export type UserUpdateWithoutSentInvitationsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1516,6 +1572,7 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1537,6 +1594,7 @@ export type UserCreateWithoutTimeOffEntriesInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1560,6 +1618,7 @@ export type UserUncheckedCreateWithoutTimeOffEntriesInput = {
   role: $Enums.UserRole
   notes?: string | null
   workspaceId?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1597,6 +1656,7 @@ export type UserUpdateWithoutTimeOffEntriesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1620,6 +1680,7 @@ export type UserUncheckedUpdateWithoutTimeOffEntriesInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1641,6 +1702,7 @@ export type UserCreateManyWorkspaceInput = {
   password?: string | null
   role: $Enums.UserRole
   notes?: string | null
+  clientStatus?: $Enums.ClientStatus
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: Date | string
@@ -1655,6 +1717,7 @@ export type UserUpdateWithoutWorkspaceInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1677,6 +1740,7 @@ export type UserUncheckedUpdateWithoutWorkspaceInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1699,6 +1763,7 @@ export type UserUncheckedUpdateManyWithoutWorkspaceInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientStatus?: Prisma.EnumClientStatusFieldUpdateOperationsInput | $Enums.ClientStatus
   isBlacklisted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1808,6 +1873,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean
   notes?: boolean
   workspaceId?: boolean
+  clientStatus?: boolean
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1833,6 +1899,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   notes?: boolean
   workspaceId?: boolean
+  clientStatus?: boolean
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1849,6 +1916,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   notes?: boolean
   workspaceId?: boolean
+  clientStatus?: boolean
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1865,13 +1933,14 @@ export type UserSelectScalar = {
   role?: boolean
   notes?: boolean
   workspaceId?: boolean
+  clientStatus?: boolean
   isBlacklisted?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "firstName" | "lastName" | "password" | "role" | "notes" | "workspaceId" | "isBlacklisted" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "firstName" | "lastName" | "password" | "role" | "notes" | "workspaceId" | "clientStatus" | "isBlacklisted" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   timeOffEntries?: boolean | Prisma.User$timeOffEntriesArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
@@ -1913,6 +1982,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: $Enums.UserRole
     notes: string | null
     workspaceId: string | null
+    clientStatus: $Enums.ClientStatus
     isBlacklisted: boolean
     isActive: boolean
     createdAt: Date
@@ -2357,6 +2427,7 @@ export interface UserFieldRefs {
   readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly notes: Prisma.FieldRef<"User", 'String'>
   readonly workspaceId: Prisma.FieldRef<"User", 'String'>
+  readonly clientStatus: Prisma.FieldRef<"User", 'ClientStatus'>
   readonly isBlacklisted: Prisma.FieldRef<"User", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>

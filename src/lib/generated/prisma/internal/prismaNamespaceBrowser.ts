@@ -100,6 +100,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   notes: 'notes',
   workspaceId: 'workspaceId',
+  clientStatus: 'clientStatus',
   isBlacklisted: 'isBlacklisted',
   isActive: 'isActive',
   createdAt: 'createdAt',
