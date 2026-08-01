@@ -173,12 +173,24 @@ export async function sendInvoicePaidEmail({
     />,
   );
 
-  await resend.emails.send({
+  console.log("📧 Sending invoice receipt...");
+  console.log({
+    to: email,
+    from: process.env.EMAIL_FROM,
+    subject: "Payment received",
+  });
+
+  const result = await resend.emails.send({
     from: process.env.EMAIL_FROM!,
     to: email,
     subject: "Payment received",
     html,
   });
+
+  console.log("📧 Resend response:");
+  console.dir(result, { depth: null });
+
+  return result;
 }
 
 type SendBookingRescheduledEmailParams = {

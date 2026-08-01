@@ -1,5 +1,8 @@
 import Link from "next/link";
+
+import { StatusBadge } from "@/components/ui/status-badge";
 import { formatStatus } from "@/lib/utils";
+import { getProjectStatusVariant } from "@/lib/project-status";
 
 type ProjectCardProps = {
     id: string;
@@ -19,38 +22,55 @@ export function ProjectCard({
     description,
 }: ProjectCardProps) {
     return (
-        <div className="rounded-2xl border border-border bg-card p-6">
-            <div className="flex items-start justify-between gap-4">
-                <div>
-                    <Link href={`/projects/${id}`}>
-                        <h2 className="text-xl font-medium hover:text-accent">
+        <article className="group rounded-2xl border border-border bg-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg">
+            <Link
+                href={`/projects/${id}`}
+                className="block p-6"
+                aria-label={`View project ${name}`}
+            >
+                <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                        <h2 className="truncate text-xl font-medium transition-colors group-hover:text-primary">
                             {name}
                         </h2>
-                    </Link>
-                    <p className="mt-1 text-sm text-foreground/60">{client}</p>
+
+                        <p className="mt-1 truncate text-sm text-foreground/60">
+                            {client}
+                        </p>
+                    </div>
+
+                    <StatusBadge
+                        variant={getProjectStatusVariant(status)}
+                    >
+                        {formatStatus(status)}
+                    </StatusBadge>
                 </div>
 
-                <span className="rounded-full bg-muted px-3 py-1 text-xs text-accent">
-                    {formatStatus(status)}
-                </span>
-            </div>
+                <p className="mt-5 line-clamp-3 text-sm leading-6 text-foreground/70">
+                    {description || "No project description yet."}
+                </p>
 
-            <p className="mt-5 text-sm leading-6 text-foreground/70">
-                {description}
-            </p>
+                <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+                    <span className="text-sm text-foreground/60">
+                        {dueDate === "No due date yet"
+                            ? "No due date"
+                            : `Due ${dueDate}`}
+                    </span>
 
-            <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-                <span className="text-sm text-foreground/60">
-                    Due {dueDate}
-                </span>
+                    <span className="text-sm font-medium text-primary transition-colors group-hover:text-primary/80">
+                        View Project →
+                    </span>
+                </div>
+            </Link>
 
+            <div className="border-t border-border px-6 py-3">
                 <Link
                     href={`/projects/${id}/edit`}
-                    className="text-sm text-accent"
+                    className="text-sm text-accent hover:underline"
                 >
                     Edit Project
                 </Link>
             </div>
-        </div>
+        </article>
     );
 }

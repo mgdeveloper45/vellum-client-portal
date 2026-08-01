@@ -5,10 +5,9 @@ import { useDebounce } from "use-debounce";
 import { useRouter } from "next/navigation";
 import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 import { useEffect, useState, useTransition } from "react";
-import {
-    searchWorkspaceAction,
-    type SearchResult,
-} from "@/actions/search-actions";
+import { searchWorkspaceAction } from "@/actions/search-actions";
+import type { SearchResult } from "@/lib/services/search/workspace-search-service";
+
 
 export function CommandPalette() {
     const router = useRouter();

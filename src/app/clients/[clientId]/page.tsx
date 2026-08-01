@@ -88,12 +88,13 @@ export default async function ClientDetailPage({
     (project) => project.proposals,
   );
 
-  const totalRevenue = invoices
-    .filter((invoice) => invoice.paid)
-    .reduce(
-      (total, invoice) => total + invoice.amount,
-      0,
-    );
+  const totalRevenue = invoices.reduce(
+    (total, invoice) =>
+      invoice.paid
+        ? total + invoice.amount
+        : total,
+    0,
+  );
 
   const lastProject = client.clientProjects[0];
 
@@ -169,7 +170,16 @@ export default async function ClientDetailPage({
           />
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-2">
+        <section
+          aria-labelledby="client-health-heading"
+          className="grid gap-6 xl:grid-cols-2"
+        >
+          <h2
+            id="client-health-heading"
+            className="sr-only"
+          >
+            Client health
+          </h2>
           <ClientHealthCard
             score={clientIntelligence.health.score}
             reasons={
@@ -192,56 +202,66 @@ export default async function ClientDetailPage({
           }
         />
 
-        <CommandCard
-          eyebrow="Relationship"
-          title="Client Notes"
-          subtitle="Private internal notes for this client."
-        >
-          <p className="leading-7 text-foreground/80">
-            {client.notes || "No notes available."}
-          </p>
-        </CommandCard>
+        <section aria-labelledby="projects-heading">
+          <h2
+            id="projects-heading"
+            className="sr-only"
+          >
+            Client projects
+          </h2>
 
-        <CommandCard
-          eyebrow="History"
-          title="Projects"
-          subtitle="Client project history"
-        >
-          {client.clientProjects.length === 0 ? (
-            <ExecutiveEmptyState
-              title="No projects yet"
-              description="Projects associated with this client will appear here with their invoices, messages, and proposals."
-              action={
-                userCanManageClients ? (
-                  <Link
-                    href="/projects/new"
-                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-primary bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90"
+          <CommandCard
+            eyebrow="History"
+            title="Projects"
+            subtitle="Client project history"
+          >
+            <p className="leading-7 text-foreground/80">
+              {client.notes ||
+                "No internal notes yet. Use this space to capture client preferences, important conversations, or follow-up reminders."}
+            </p>
+          </CommandCard>
+
+          <CommandCard
+            eyebrow="History"
+            title="Projects"
+            subtitle="Client project history"
+          >
+            {client.clientProjects.length === 0 ? (
+              <ExecutiveEmptyState
+                title="No projects yet"
+                description="Projects associated with this client will appear here with their invoices, messages, and proposals."
+                action={
+                  userCanManageClients ? (
+                    <Link
+                      href="/projects/new"
+                      className="inline-flex min-h-11 items-center justify-center rounded-full border border-primary bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90"
+                    >
+                      Create Project
+                    </Link>
+                  ) : undefined
+                }
+                className="min-h-[240px]"
+              />
+            ) : (
+              <div className="space-y-3">
+                {client.clientProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="rounded-2xl border border-border bg-background p-4 transition hover:border-primary/30"
                   >
-                    Create Project
-                  </Link>
-                ) : undefined
-              }
-              className="min-h-[240px]"
-            />
-          ) : (
-            <div className="space-y-3">
-              {client.clientProjects.map((project) => (
-                <div
-                  key={project.id}
-                  className="rounded-2xl border border-border bg-background p-4 transition hover:border-primary/30"
-                >
-                  <h3 className="font-medium">
-                    {project.name}
-                  </h3>
+                    <h3 className="font-medium">
+                      {project.name}
+                    </h3>
 
-                  <p className="mt-1 text-sm leading-6 text-foreground/60">
-                    {project.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </CommandCard>
+                    <p className="mt-1 text-sm leading-6 text-foreground/60">
+                      {project.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CommandCard>
+        </section>
       </ClientCommandCenter>
     </DashboardShell>
   );

@@ -1,4 +1,4 @@
-import type { SearchResult } from "@/actions/search-actions";
+import type { SearchResult } from "@/lib/services/search/workspace-search-service";
 
 export const workspaceCommands: SearchResult[] = [
   {

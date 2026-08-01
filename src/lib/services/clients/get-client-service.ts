@@ -48,6 +48,28 @@ export interface GetClientServiceDependencies {
   clientRepository: ClientRepository;
 }
 
+function detailFailure(
+  reason: Exclude<GetClientDetailResult, { success: true }>["reason"],
+  message: string,
+): GetClientDetailResult {
+  return {
+    success: false,
+    reason,
+    message,
+  };
+}
+
+function editFailure(
+  reason: Exclude<GetClientForEditResult, { success: true }>["reason"],
+  message: string,
+): GetClientForEditResult {
+  return {
+    success: false,
+    reason,
+    message,
+  };
+}
+
 export function createGetClientDetailService({
   clientRepository,
 }: GetClientServiceDependencies) {
@@ -59,27 +81,21 @@ export function createGetClientDetailService({
     const viewerUserId = request.viewerUserId.trim();
 
     if (!workspaceId) {
-      return {
-        success: false,
-        reason: "INVALID_WORKSPACE",
-        message: "A valid workspace is required.",
-      };
+      return detailFailure(
+        "INVALID_WORKSPACE",
+        "A valid workspace is required.",
+      );
     }
 
     if (!clientId) {
-      return {
-        success: false,
-        reason: "INVALID_CLIENT",
-        message: "A valid client is required.",
-      };
+      return detailFailure("INVALID_CLIENT", "A valid client is required.");
     }
 
     if (!request.canManageClients && clientId !== viewerUserId) {
-      return {
-        success: false,
-        reason: "FORBIDDEN",
-        message: "You do not have permission to view this client.",
-      };
+      return detailFailure(
+        "FORBIDDEN",
+        "You do not have permission to view this client.",
+      );
     }
 
     const client = await clientRepository.findDetail({
@@ -88,11 +104,10 @@ export function createGetClientDetailService({
     });
 
     if (!client) {
-      return {
-        success: false,
-        reason: "CLIENT_NOT_FOUND",
-        message: "The client does not exist in this workspace.",
-      };
+      return detailFailure(
+        "CLIENT_NOT_FOUND",
+        "The client does not exist in this workspace.",
+      );
     }
 
     return {
@@ -112,19 +127,11 @@ export function createGetClientForEditService({
     const clientId = request.clientId.trim();
 
     if (!workspaceId) {
-      return {
-        success: false,
-        reason: "INVALID_WORKSPACE",
-        message: "A valid workspace is required.",
-      };
+      return editFailure("INVALID_WORKSPACE", "A valid workspace is required.");
     }
 
     if (!clientId) {
-      return {
-        success: false,
-        reason: "INVALID_CLIENT",
-        message: "A valid client is required.",
-      };
+      return editFailure("INVALID_CLIENT", "A valid client is required.");
     }
 
     const client = await clientRepository.findForEdit({
@@ -133,11 +140,10 @@ export function createGetClientForEditService({
     });
 
     if (!client) {
-      return {
-        success: false,
-        reason: "CLIENT_NOT_FOUND",
-        message: "The client does not exist in this workspace.",
-      };
+      return editFailure(
+        "CLIENT_NOT_FOUND",
+        "The client does not exist in this workspace.",
+      );
     }
 
     return {

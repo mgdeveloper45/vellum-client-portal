@@ -1,13 +1,18 @@
 import Link from "next/link";
+
 import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-shell";
 
-export default function PaymentSuccessPage({
-    searchParams,
-}: {
-    searchParams: {
+type PaymentSuccessPageProps = {
+    searchParams: Promise<{
         invoice?: string;
-    };
-}) {
+    }>;
+};
+
+export default async function PaymentSuccessPage({
+    searchParams,
+}: PaymentSuccessPageProps) {
+    const { invoice } = await searchParams;
+
     return (
         <BrandedDashboardShell>
             <div className="rounded-3xl border border-border bg-card p-8">
@@ -25,7 +30,7 @@ export default function PaymentSuccessPage({
                         Back to invoices
                     </Link>
 
-                    {searchParams.invoice && (
+                    {invoice && (
                         <Link
                             href="/dashboard"
                             className="rounded-full border border-border px-5 py-3 text-sm font-medium"

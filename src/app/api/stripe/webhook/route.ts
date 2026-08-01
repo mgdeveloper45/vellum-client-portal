@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 
 import { logger } from "@/lib/logger";
+import { prisma } from "@/lib/prisma";
 import { createRequestId } from "@/lib/request-id";
 import { runWithRequestContext } from "@/lib/request-context";
 import { processStripeWebhookService } from "@/lib/services/billing/composition/stripe-webhook-services";
@@ -12,6 +13,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request): Promise<NextResponse> {
+  const requestStart = performance.now();
+
+  console.log("🔥 Stripe webhook received");
+
   const requestHeaders = await headers();
   const requestId = requestHeaders.get("x-request-id") ?? createRequestId();
 
@@ -72,6 +77,8 @@ export async function POST(request: Request): Promise<NextResponse> {
         const body = await request.text();
 
         event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+
+        console.log(`✅ Stripe Event: ${event.type}`);
       } catch (error) {
         logger.warn("Stripe webhook signature verification failed", {
           component: "stripe-webhook",
@@ -97,14 +104,23 @@ export async function POST(request: Request): Promise<NextResponse> {
       }
 
       try {
+        const processingStart = performance.now();
+
         const result = await processStripeWebhookService.execute(event);
 
-        logger.info("Stripe webhook acknowledged", {
+        const processingMs = Math.round(performance.now() - processingStart);
+
+        logger.info("Stripe webhook processed", {
           component: "stripe-webhook",
           stripeEventId: event.id,
           stripeEventType: event.type,
           processingStatus: result.status,
+          processingMs,
         });
+
+        console.log(
+          `✅ Webhook processed in ${processingMs}ms (${event.type})`,
+        );
 
         return NextResponse.json(
           {
@@ -132,6 +148,8 @@ export async function POST(request: Request): Promise<NextResponse> {
               : "Unknown Stripe processing error",
         });
 
+        console.error(error);
+
         return NextResponse.json(
           {
             received: false,
@@ -146,6 +164,17 @@ export async function POST(request: Request): Promise<NextResponse> {
             },
           },
         );
+      } finally {
+        const totalMs = Math.round(performance.now() - requestStart);
+
+        console.log(`🏁 Webhook finished in ${totalMs}ms`);
+
+        // Optional: log active DB connections while debugging.
+        try {
+          await prisma.$queryRaw`SELECT 1`;
+        } catch {
+          // Ignore.
+        }
       }
     },
   );

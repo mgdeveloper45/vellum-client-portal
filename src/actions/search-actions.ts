@@ -5,7 +5,6 @@ import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-wo
 import { workspaceSearchService } from "@/lib/services/search/composition/search-services";
 import type { SearchResult } from "@/lib/services/search/workspace-search-service";
 
-export type { SearchResult };
 
 export async function searchWorkspaceAction(
   query: string,

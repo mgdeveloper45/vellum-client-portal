@@ -1,15 +1,9 @@
-import Link from "next/link";
-import { formatStatus } from "@/lib/utils";
+import { ProjectFiles } from "./detail/project-files";
+import { ProjectHeader } from "./detail/project-header";
+import { ProjectTimeline } from "./detail/project-timeline";
+import { ProjectOverview } from "./detail/project-overview";
+import { ProjectMilestones } from "./detail/project-milestones";
 import { createMessageAction } from "@/actions/message-actions";
-import {
-    createProjectFileAction,
-    deleteProjectFileAction,
-} from "@/actions/file-actions";
-import {
-    createMilestoneAction,
-    cycleMilestoneStatusAction,
-    deleteMilestoneAction,
-} from "@/actions/milestone-actions";
 import {
     createProposalAction,
     deleteProposalAction,
@@ -38,282 +32,38 @@ export function ProjectDetailContent({
 }: ProjectDetailContentProps) {
     return (
         <DashboardShell>
-            <Link
-                href="/projects"
-                className="text-sm text-accent"
-            >
-                ← Back to Projects
-            </Link>
+            <ProjectHeader
+                name={project.name}
+                description={project.description}
+            />
 
             <div className="mt-6 rounded-2xl border border-border bg-card p-8">
-                <h1 className="text-4xl font-light">
-                    {project.name}
-                </h1>
+                <ProjectOverview
+                    clientName={`${project.client.firstName} ${project.client.lastName}`}
+                    status={project.status}
+                />
 
-                <p className="mt-4 text-foreground/70">
-                    {project.description}
-                </p>
+                <ProjectTimeline
+                    items={timelineItems}
+                />
 
-                <div className="mt-8 grid gap-6 md:grid-cols-2">
-                    <div>
-                        <h2 className="font-medium">
-                            Client
-                        </h2>
+                <ProjectFiles
+                    projectId={project.id}
+                    projectFiles={projectFiles}
+                    canManageProject={canManageProject}
+                />
 
-                        <p className="mt-2 text-foreground/70">
-                            {project.client.firstName}{" "}
-                            {project.client.lastName}
-                        </p>
-                    </div>
+                <ProjectFiles
+                    projectId={project.id}
+                    projectFiles={projectFiles}
+                    canManageProject={canManageProject}
+                />
 
-                    <div>
-                        <h2 className="font-medium">
-                            Status
-                        </h2>
-
-                        <p className="mt-2 text-foreground/70">
-                            {formatStatus(project.status)}
-                        </p>
-                    </div>
-                </div>
-
-                <section className="mt-10">
-                    <h2 className="text-xl font-medium">
-                        Activity Timeline
-                    </h2>
-
-                    <div className="mt-4 grid gap-3">
-                        {timelineItems.map((item) => (
-                            <div
-                                key={`${item.type}-${item.id}`}
-                                className="rounded-xl border border-border p-4"
-                            >
-                                <div className="flex items-center justify-between gap-4">
-                                    <p className="font-medium">
-                                        {item.title}
-                                    </p>
-
-                                    <span className="text-xs text-accent">
-                                        {item.type}
-                                    </span>
-                                </div>
-
-                                <p className="mt-2 text-sm text-foreground/70">
-                                    {item.detail}
-                                </p>
-
-                                <p className="mt-3 text-xs text-foreground/50">
-                                    {item.date.toLocaleDateString()}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                <section className="mt-10">
-                    <h2 className="text-xl font-medium">
-                        Files
-                    </h2>
-
-                    {canManageProject && (
-                        <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-                            <form
-                                action={createProjectFileAction}
-                                className="space-y-3"
-                                encType="multipart/form-data"
-                            >
-                                <input
-                                    type="hidden"
-                                    name="projectId"
-                                    value={project.id}
-                                />
-
-                                <input
-                                    name="file"
-                                    type="file"
-                                    required
-                                    className="w-full rounded-lg border border-border bg-background px-4 py-3"
-                                />
-
-                                <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
-                                    Upload File
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    <div className="mt-4 grid gap-3">
-                        {projectFiles.map((file) => (
-                            <div
-                                key={file.id}
-                                className="rounded-xl border border-border p-4 transition hover:border-accent"
-                            >
-                                <p className="font-medium">
-                                    {file.name}
-                                </p>
-
-                                <p className="mt-1 text-sm text-foreground/60">
-                                    {file.fileType}
-                                </p>
-
-                                <a
-                                    href={file.downloadUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="mt-2 block text-xs text-accent"
-                                >
-                                    Open file
-                                </a>
-
-                                {canManageProject && (
-                                    <form
-                                        action={deleteProjectFileAction}
-                                        className="mt-3"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="fileId"
-                                            value={file.id}
-                                        />
-
-                                        <input
-                                            type="hidden"
-                                            name="projectId"
-                                            value={project.id}
-                                        />
-
-                                        <button
-                                            aria-label={`Delete file ${file.name}`}
-                                            className="text-xs text-red-400"
-                                        >
-                                            Delete File
-                                        </button>
-                                    </form>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                <section className="mt-10">
-                    <h2 className="text-xl font-medium">
-                        Milestones
-                    </h2>
-
-                    {canManageProject && (
-                        <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-                            <form
-                                action={createMilestoneAction}
-                                className="space-y-3"
-                            >
-                                <input
-                                    type="hidden"
-                                    name="projectId"
-                                    value={project.id}
-                                />
-
-                                <input
-                                    name="title"
-                                    required
-                                    placeholder="Milestone title"
-                                    className="w-full rounded-lg border border-border bg-background px-4 py-3"
-                                />
-
-                                <input
-                                    name="dueDate"
-                                    type="date"
-                                    className="w-full rounded-lg border border-border bg-background px-4 py-3"
-                                />
-
-                                <button className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
-                                    Create Milestone
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    <div className="mt-4 grid gap-3">
-                        {project.milestones.map(
-                            (milestone) => (
-                                <div
-                                    key={milestone.id}
-                                    className="rounded-xl border border-border p-4"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="font-medium">
-                                            {milestone.title}
-                                        </h3>
-
-                                        {canManageProject ? (
-                                            <form
-                                                action={
-                                                    cycleMilestoneStatusAction
-                                                }
-                                            >
-                                                <input
-                                                    type="hidden"
-                                                    name="milestoneId"
-                                                    value={milestone.id}
-                                                />
-
-                                                <input
-                                                    type="hidden"
-                                                    name="projectId"
-                                                    value={project.id}
-                                                />
-
-                                                <button className="text-sm text-accent">
-                                                    {formatStatus(
-                                                        milestone.status,
-                                                    )}
-                                                </button>
-                                            </form>
-                                        ) : (
-                                            <span className="text-sm text-foreground/70">
-                                                {formatStatus(
-                                                    milestone.status,
-                                                )}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {milestone.dueDate && (
-                                        <p className="mt-2 text-sm text-foreground/60">
-                                            Due{" "}
-                                            {milestone.dueDate.toLocaleDateString()}
-                                        </p>
-                                    )}
-
-                                    {canManageProject && (
-                                        <form
-                                            action={deleteMilestoneAction}
-                                            className="mt-3"
-                                        >
-                                            <input
-                                                type="hidden"
-                                                name="milestoneId"
-                                                value={milestone.id}
-                                            />
-
-                                            <input
-                                                type="hidden"
-                                                name="projectId"
-                                                value={project.id}
-                                            />
-
-                                            <button
-                                                aria-label={`Delete milestone ${milestone.title}`}
-                                                className="text-xs text-red-400"
-                                            >
-                                                Delete Milestone
-                                            </button>
-                                        </form>
-                                    )}
-                                </div>
-                            ),
-                        )}
-                    </div>
-                </section>
+                <ProjectMilestones
+                    projectId={project.id}
+                    milestones={project.milestones}
+                    canManageProject={canManageProject}
+                />
 
                 <section className="mt-10">
                     <h2 className="text-xl font-medium">

@@ -99,9 +99,14 @@ export const prismaClientRepository: ClientRepository = {
               },
             },
           },
-          orderBy: {
-            createdAt: "desc",
-          },
+          orderBy: [
+            {
+              createdAt: "desc",
+            },
+            {
+              id: "asc",
+            },
+          ],
         },
       },
     });

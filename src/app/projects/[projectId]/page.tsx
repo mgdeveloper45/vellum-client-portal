@@ -1,6 +1,9 @@
+import Link from "next/link";
+
 import { auth } from "@/auth";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { ProjectDetailContent } from "@/components/projects/project-detail-content";
+import { ExecutiveEmptyState } from "@/components/ui/executive-empty-state";
 import { canManageProjects } from "@/lib/permissions";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import { buildProjectDetail } from "@/lib/services/projects/composition/project-services";
@@ -45,9 +48,19 @@ export default async function ProjectDetailPage({
   if (!projectDetail) {
     return (
       <DashboardShell>
-        <h1 className="text-2xl font-light">
-          Project not found
-        </h1>
+        <ExecutiveEmptyState
+          title="Project not found"
+          description="This project doesn't exist or you don't have permission to view it."
+          action={
+            <Link
+              href="/projects"
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-primary bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90"
+            >
+              Back to Projects
+            </Link>
+          }
+          className="min-h-[420px]"
+        />
       </DashboardShell>
     );
   }

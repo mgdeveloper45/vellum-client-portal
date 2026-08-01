@@ -138,19 +138,46 @@ export class ProcessStripeWebhookService {
     });
   }
 
-  private async processInvoicePayment(invoiceId: string): Promise<void> {
-    const invoice = await this.repository.markInvoicePaid(invoiceId);
+ private async processInvoicePayment(invoiceId: string): Promise<void> {
+  const markPaidStart = performance.now();
 
-    if (!invoice) {
-      throw new Error(`Invoice ${invoiceId} was not found.`);
-    }
+  const invoice = await this.repository.markInvoicePaid(invoiceId);
 
-    await this.repository.createInvoicePaidNotification({
-      userId: invoice.ownerId,
-      projectId: invoice.projectId,
-      projectName: invoice.projectName,
-      amount: invoice.amount,
-    });
+  logger.info("Invoice database update completed", {
+    component: "stripe-webhook",
+    invoiceId,
+    durationMs: Math.round(performance.now() - markPaidStart),
+  });
+
+  if (!invoice) {
+    throw new Error(`Invoice ${invoiceId} was not found.`);
+  }
+
+  const notificationStart = performance.now();
+
+  await this.repository.createInvoicePaidNotification({
+    userId: invoice.ownerId,
+    projectId: invoice.projectId,
+    projectName: invoice.projectName,
+    amount: invoice.amount,
+  });
+
+  logger.info("Invoice notification created", {
+    component: "stripe-webhook",
+    invoiceId: invoice.invoiceId,
+    durationMs: Math.round(performance.now() - notificationStart),
+  });
+
+  logger.info("Invoice payment processed", {
+    component: "stripe-webhook",
+    invoiceId: invoice.invoiceId,
+    projectId: invoice.projectId,
+    amount: invoice.amount,
+  });
+
+  // Send the receipt after the webhook work has completed.
+  setImmediate(async () => {
+    const emailStart = performance.now();
 
     try {
       await sendInvoiceReceipt({
@@ -161,23 +188,25 @@ export class ProcessStripeWebhookService {
         amount: invoice.amount,
         invoiceId: invoice.invoiceId,
       });
+
+      logger.info("Invoice receipt email sent", {
+        component: "stripe-webhook",
+        invoiceId: invoice.invoiceId,
+        durationMs: Math.round(performance.now() - emailStart),
+      });
     } catch (error) {
       logger.error("Invoice receipt email failed", {
         component: "stripe-webhook",
         invoiceId: invoice.invoiceId,
         errorName: error instanceof Error ? error.name : "UnknownError",
         errorMessage:
-          error instanceof Error ? error.message : "Unknown email error",
+          error instanceof Error
+            ? error.message
+            : "Unknown email error",
       });
     }
-
-    logger.info("Invoice payment processed", {
-      component: "stripe-webhook",
-      invoiceId: invoice.invoiceId,
-      projectId: invoice.projectId,
-      amount: invoice.amount,
-    });
-  }
+  });
+}
 
   private async processSubscriptionUpdated(
     subscription: Stripe.Subscription,
