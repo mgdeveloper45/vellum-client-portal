@@ -1,4 +1,4 @@
-import type { ClientRepository } from "./client-repository";
+import type { ClientRepository, ClientStatus } from "./client-repository";
 
 export interface UpdateClientRequest {
   workspaceId: string;
@@ -7,6 +7,7 @@ export interface UpdateClientRequest {
   lastName: string;
   email: string;
   notes: string;
+  clientStatus: ClientStatus;
   isBlacklisted: boolean;
 }
 
@@ -75,6 +76,7 @@ export function createUpdateClientService({
       lastName: request.lastName.trim(),
       email,
       notes: request.notes.trim(),
+      clientStatus: request.clientStatus,
       isBlacklisted: request.isBlacklisted,
     });
 

@@ -34,6 +34,7 @@ export async function createClientAction(formData: FormData) {
     lastName: formData.get("lastName"),
     email: formData.get("email"),
     notes: formData.get("notes"),
+    clientStatus: formData.get("clientStatus") || "LEAD",
   });
 
   const workspaceId =
@@ -55,6 +56,7 @@ export async function createClientAction(formData: FormData) {
     lastName: input.lastName,
     email: input.email,
     notes: input.notes,
+    clientStatus: input.clientStatus,
   });
 
   if (!result.success) {
@@ -84,13 +86,14 @@ export async function updateClientAction(formData: FormData) {
   }
 
   const input = updateClientSchema.parse({
-    clientId: formData.get("clientId"),
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
-    email: formData.get("email"),
-    notes: formData.get("notes"),
-    isBlacklisted: formData.get("isBlacklisted") === "on",
-  });
+  clientId: formData.get("clientId"),
+  firstName: formData.get("firstName"),
+  lastName: formData.get("lastName"),
+  email: formData.get("email"),
+  notes: formData.get("notes"),
+  clientStatus: formData.get("clientStatus"),
+  isBlacklisted: formData.get("isBlacklisted") === "on",
+});
 
   const workspaceId =
     await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
@@ -102,14 +105,15 @@ export async function updateClientAction(formData: FormData) {
   }
 
   const result = await updateClientService({
-    workspaceId,
-    clientId: input.clientId,
-    firstName: input.firstName,
-    lastName: input.lastName,
-    email: input.email,
-    notes: input.notes,
-    isBlacklisted: input.isBlacklisted,
-  });
+  workspaceId,
+  clientId: input.clientId,
+  firstName: input.firstName,
+  lastName: input.lastName,
+  email: input.email,
+  notes: input.notes,
+  clientStatus: input.clientStatus,
+  isBlacklisted: input.isBlacklisted,
+});
 
   if (!result.success) {
     return;

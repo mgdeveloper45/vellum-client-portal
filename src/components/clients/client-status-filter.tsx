@@ -1,17 +1,13 @@
 import { formatClientStatus } from "@/lib/client-status";
 import type { ClientStatus } from "@/lib/services/clients/client-repository";
+import { CLIENT_STATUS_OPTIONS } from "@/lib/client-status-options";
 
-const statuses: (ClientStatus | "ALL")[] = [
+const statuses = [
     "ALL",
-    "LEAD",
-    "WAITLIST",
-    "CONSULTATION",
-    "DEPOSIT_PENDING",
-    "ACTIVE",
-    "COMPLETED",
-    "ARCHIVED",
-    "BANNED",
-];
+    ...CLIENT_STATUS_OPTIONS.map(
+        (option) => option.value,
+    ),
+] as const;
 
 type Props = {
     selected: ClientStatus | "ALL";

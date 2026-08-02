@@ -23,10 +23,8 @@ export const prismaClientRepository: ClientRepository = {
         workspaceId,
         role: "CLIENT",
         ...(clientId
-          ? {
-              id: clientId,
-            }
-          : {}),
+          ? { id: clientId }
+          : {}),  
       },
       select: {
         id: true,
@@ -172,7 +170,7 @@ export const prismaClientRepository: ClientRepository = {
         notes: input.notes,
         password: input.password,
         role: "CLIENT",
-        clientStatus: "LEAD"
+        clientStatus: input.clientStatus,
       },
       select: {
         id: true,
@@ -192,6 +190,7 @@ export const prismaClientRepository: ClientRepository = {
         lastName: input.lastName,
         email: input.email,
         notes: input.notes,
+        clientStatus: input.clientStatus,
         isBlacklisted: input.isBlacklisted,
       },
     });

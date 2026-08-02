@@ -1,31 +1,15 @@
 import type { ClientStatus } from "@/lib/services/clients/client-repository";
 
-export function formatClientStatus(status: ClientStatus): string {
-    switch (status) {
-        case "LEAD":
-            return "Lead";
+import { CLIENT_STATUS_OPTIONS } from "./client-status-options";
 
-        case "WAITLIST":
-            return "Waitlist";
-
-        case "CONSULTATION":
-            return "Consultation";
-
-        case "DEPOSIT_PENDING":
-            return "Deposit Pending";
-
-        case "ACTIVE":
-            return "Active";
-
-        case "COMPLETED":
-            return "Completed";
-
-        case "ARCHIVED":
-            return "Archived";
-
-        case "BANNED":
-            return "Banned";
-    }
+export function formatClientStatus(
+    status: ClientStatus,
+): string {
+    return (
+        CLIENT_STATUS_OPTIONS.find(
+            (option) => option.value === status,
+        )?.label ?? status
+    );
 }
 
 export function getClientStatusVariant(

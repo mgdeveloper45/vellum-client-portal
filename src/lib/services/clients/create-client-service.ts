@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import type { ClientRepository } from "./client-repository";
+import type { ClientRepository, ClientStatus } from "./client-repository";
 
 export interface CreateClientRequest {
   workspaceId: string;
@@ -7,6 +7,7 @@ export interface CreateClientRequest {
   lastName: string;
   email: string;
   notes: string;
+  clientStatus: ClientStatus;
 }
 
 export type CreateClientResult =
@@ -16,8 +17,7 @@ export type CreateClientResult =
     }
   | {
       success: false;
-      reason:
-        "INVALID_WORKSPACE" | "EMAIL_ALREADY_EXISTS";
+      reason: "INVALID_WORKSPACE" | "EMAIL_ALREADY_EXISTS";
       message: string;
     };
 
@@ -54,7 +54,7 @@ export function createCreateClientService({
       };
     }
 
-const passwordHash = await bcrypt.hash("password123", 10);
+    const passwordHash = await bcrypt.hash("password123", 10);
 
     const client = await clientRepository.create({
       workspaceId,
@@ -63,6 +63,7 @@ const passwordHash = await bcrypt.hash("password123", 10);
       email,
       notes: request.notes.trim(),
       password: passwordHash,
+      clientStatus: request.clientStatus,
     });
 
     return {

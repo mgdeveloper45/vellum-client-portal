@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { CLIENT_STATUS_OPTIONS } from "@/lib/client-status-options";
 import {
   deleteClientAction,
   updateClientAction,
@@ -95,6 +96,31 @@ export default async function EditClientPage({
           defaultValue={client.notes || ""}
           className="min-h-32 w-full rounded-lg border border-border bg-background px-4 py-3"
         />
+
+        <div className="space-y-2">
+          <label
+            htmlFor="clientStatus"
+            className="block text-sm font-medium"
+          >
+            Client Status
+          </label>
+
+          <select
+            id="clientStatus"
+            name="clientStatus"
+            defaultValue={client.clientStatus}
+            className="w-full rounded-lg border border-border bg-background px-4 py-3"
+          >
+            {CLIENT_STATUS_OPTIONS.map((option) => (
+              <option
+                key={option.value}
+                value={option.value}
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <label className="flex items-center gap-3 text-sm">
           <input
