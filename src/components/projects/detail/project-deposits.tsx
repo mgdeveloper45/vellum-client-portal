@@ -1,5 +1,7 @@
-import { formatMoney } from "@/lib/money";
+import { markDepositPaidAction } from "@/actions/deposit-actions";
 import { DepositStatusBadge } from "@/components/deposits/deposit-status-badge";
+import { formatMoney } from "@/lib/money";
+
 import type {
     DepositSummaryRecord,
 } from "@/lib/services/deposits/deposit-repository";
@@ -30,9 +32,7 @@ export function ProjectDeposits({
                         >
                             <div className="flex items-center justify-between">
                                 <p className="font-medium">
-                                    {formatMoney(
-                                        deposit.amount,
-                                    )}
+                                    {formatMoney(deposit.amount)}
                                 </p>
 
                                 <DepositStatusBadge
@@ -46,6 +46,40 @@ export function ProjectDeposits({
                                     {deposit.dueDate.toLocaleDateString()}
                                 </p>
                             )}
+
+                            {deposit.paidAt && (
+                                <p className="mt-2 text-xs text-green-600">
+                                    Paid{" "}
+                                    {deposit.paidAt.toLocaleDateString()}
+                                </p>
+                            )}
+
+                            {(deposit.status === "REQUESTED" ||
+                                deposit.status === "PARTIALLY_PAID") && (
+                                    <form
+                                        action={markDepositPaidAction}
+                                        className="mt-4"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="depositId"
+                                            value={deposit.id}
+                                        />
+
+                                        <input
+                                            type="hidden"
+                                            name="projectId"
+                                            value={deposit.projectId}
+                                        />
+
+                                        <button
+                                            type="submit"
+                                            className="rounded-full bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700"
+                                        >
+                                            Mark Paid
+                                        </button>
+                                    </form>
+                                )}
                         </div>
                     ))
                 )}

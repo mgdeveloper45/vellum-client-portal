@@ -170,35 +170,61 @@ model Proposal {
 }
 
 model Deposit {
-  id          String        @id @default(cuid())
+  id             String         @id @default(cuid())
 
-  amount      Decimal       @db.Decimal(10,2)
+  amount         Decimal        @db.Decimal(10,2)
 
-  status      DepositStatus @default(REQUESTED)
+  status         DepositStatus  @default(REQUESTED)
 
   paymentMethod  PaymentMethod?
 
-  dueDate     DateTime?
+  dueDate        DateTime?
 
-  requestedAt DateTime      @default(now())
+  requestedAt    DateTime       @default(now())
 
-  paidAt      DateTime?
+  paidAt         DateTime?
 
-  notes       String?
+  notes          String?
 
-  projectId   String
+  projectId      String
 
-  createdAt   DateTime      @default(now())
+  createdAt      DateTime       @default(now())
 
-  updatedAt   DateTime      @updatedAt
+  updatedAt      DateTime       @updatedAt
 
-  project      Project @relation(fields: [projectId], references: [id])
+  project         Project          @relation(fields: [projectId], references: [id])
+
+  payments        DepositPayment[]
 
   @@index([projectId])
 
   @@index([status])
 
   @@index([createdAt])
+}
+
+model DepositPayment {
+  id             String         @id @default(cuid())
+
+  depositId      String
+
+  amount         Decimal        @db.Decimal(10,2)
+
+  paymentMethod  PaymentMethod
+
+  receivedAt     DateTime       @default(now())
+
+  notes          String?
+
+  createdAt      DateTime       @default(now())
+
+  updatedAt      DateTime       @updatedAt
+
+  deposit         Deposit @relation(fields: [depositId], references: [id])
+
+  @@index([depositId])
+
+  @@index([receivedAt])
 }
 
 model Invoice {

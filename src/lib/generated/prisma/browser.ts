@@ -73,6 +73,11 @@ export type Proposal = Prisma.ProposalModel
  */
 export type Deposit = Prisma.DepositModel
 /**
+ * Model DepositPayment
+ * 
+ */
+export type DepositPayment = Prisma.DepositPaymentModel
+/**
  * Model Invoice
  * 
  */

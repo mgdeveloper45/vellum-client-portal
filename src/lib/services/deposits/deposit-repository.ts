@@ -1,4 +1,3 @@
-
 export type DepositStatus =
   "REQUESTED" | "PARTIALLY_PAID" | "PAID" | "REFUNDED" | "CANCELLED";
 
@@ -49,12 +48,43 @@ export interface UpdateDepositRecordInput {
   paidAt: Date | null;
 }
 
+export interface FindDepositInput {
+  workspaceId: string;
+  depositId: string;
+}
+
+export interface DepositEditRecord {
+  id: string;
+
+  projectId: string;
+
+  amount: number;
+
+  status: DepositStatus;
+
+  dueDate: Date | null;
+
+  notes: string;
+
+  paymentMethod: PaymentMethod | null;
+
+  paidAt: Date | null;
+}
+export interface MarkDepositPaidInput {
+  workspaceId: string;
+
+  depositId: string;
+}
 export interface DepositRepository {
   create(input: CreateDepositRecordInput): Promise<{
     id: string;
   }>;
 
   update(input: UpdateDepositRecordInput): Promise<boolean>;
+
+  markPaid(input: MarkDepositPaidInput): Promise<boolean>;
+
+  findForEdit(input: FindDepositInput): Promise<DepositEditRecord | null>;
 
   listByProject(projectId: string): Promise<DepositSummaryRecord[]>;
 }

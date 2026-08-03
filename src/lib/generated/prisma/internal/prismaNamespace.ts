@@ -395,6 +395,7 @@ export const ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   Proposal: 'Proposal',
   Deposit: 'Deposit',
+  DepositPayment: 'DepositPayment',
   Invoice: 'Invoice',
   Workspace: 'Workspace',
   WorkspaceInvitation: 'WorkspaceInvitation',
@@ -422,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "deposit" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "stripeWebhookEvent" | "service" | "booking" | "businessHour" | "blackoutDate" | "staffTimeOff" | "executiveBriefCache" | "bookingRule"
+    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "deposit" | "depositPayment" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "stripeWebhookEvent" | "service" | "booking" | "businessHour" | "blackoutDate" | "staffTimeOff" | "executiveBriefCache" | "bookingRule"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1237,6 +1238,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DepositCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DepositCountAggregateOutputType> | number
+        }
+      }
+    }
+    DepositPayment: {
+      payload: Prisma.$DepositPaymentPayload<ExtArgs>
+      fields: Prisma.DepositPaymentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DepositPaymentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DepositPaymentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload>
+        }
+        findFirst: {
+          args: Prisma.DepositPaymentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DepositPaymentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload>
+        }
+        findMany: {
+          args: Prisma.DepositPaymentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload>[]
+        }
+        create: {
+          args: Prisma.DepositPaymentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload>
+        }
+        createMany: {
+          args: Prisma.DepositPaymentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DepositPaymentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload>[]
+        }
+        delete: {
+          args: Prisma.DepositPaymentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload>
+        }
+        update: {
+          args: Prisma.DepositPaymentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload>
+        }
+        deleteMany: {
+          args: Prisma.DepositPaymentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DepositPaymentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DepositPaymentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload>[]
+        }
+        upsert: {
+          args: Prisma.DepositPaymentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPaymentPayload>
+        }
+        aggregate: {
+          args: Prisma.DepositPaymentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDepositPayment>
+        }
+        groupBy: {
+          args: Prisma.DepositPaymentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepositPaymentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DepositPaymentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepositPaymentCountAggregateOutputType> | number
         }
       }
     }
@@ -2316,6 +2391,20 @@ export const DepositScalarFieldEnum = {
 export type DepositScalarFieldEnum = (typeof DepositScalarFieldEnum)[keyof typeof DepositScalarFieldEnum]
 
 
+export const DepositPaymentScalarFieldEnum = {
+  id: 'id',
+  depositId: 'depositId',
+  amount: 'amount',
+  paymentMethod: 'paymentMethod',
+  receivedAt: 'receivedAt',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DepositPaymentScalarFieldEnum = (typeof DepositPaymentScalarFieldEnum)[keyof typeof DepositPaymentScalarFieldEnum]
+
+
 export const InvoiceScalarFieldEnum = {
   id: 'id',
   amount: 'amount',
@@ -2893,6 +2982,7 @@ export type GlobalOmitConfig = {
   passwordResetToken?: Prisma.PasswordResetTokenOmit
   proposal?: Prisma.ProposalOmit
   deposit?: Prisma.DepositOmit
+  depositPayment?: Prisma.DepositPaymentOmit
   invoice?: Prisma.InvoiceOmit
   workspace?: Prisma.WorkspaceOmit
   workspaceInvitation?: Prisma.WorkspaceInvitationOmit

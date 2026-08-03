@@ -2,8 +2,11 @@ import { prisma } from "../../prisma";
 
 import type {
   CreateDepositRecordInput,
+  DepositEditRecord,
   DepositRepository,
   DepositSummaryRecord,
+  FindDepositInput,
+  MarkDepositPaidInput,
   UpdateDepositRecordInput,
 } from "./deposit-repository";
 
@@ -39,6 +42,61 @@ export const prismaDepositRepository: DepositRepository = {
     });
 
     return result.count > 0;
+  },
+
+  async markPaid(input: MarkDepositPaidInput): Promise<boolean> {
+    const result = await prisma.deposit.updateMany({
+      where: {
+        id: input.depositId,
+        project: {
+          workspaceId: input.workspaceId,
+        },
+      },
+      data: {
+        status: "PAID",
+        paidAt: new Date(),
+      },
+    });
+
+    return result.count > 0;
+  },
+
+  async findForEdit(
+    input: FindDepositInput,
+  ): Promise<DepositEditRecord | null> {
+    const deposit = await prisma.deposit.findFirst({
+      where: {
+        id: input.depositId,
+        project: {
+          workspaceId: input.workspaceId,
+        },
+      },
+      select: {
+        id: true,
+        projectId: true,
+        amount: true,
+        status: true,
+        dueDate: true,
+        notes: true,
+        paymentMethod: true,
+        paidAt: true,
+      },
+    });
+
+    if (!deposit) {
+      return null;
+    }
+
+    return {
+      id: deposit.id,
+      projectId: deposit.projectId,
+      amount: Number(deposit.amount),
+      status: deposit.status,
+      dueDate: deposit.dueDate,
+      notes: deposit.notes ?? "",
+      paymentMethod: deposit.paymentMethod,
+      paidAt: deposit.paidAt,
+    };
   },
 
   async listByProject(projectId: string): Promise<DepositSummaryRecord[]> {
