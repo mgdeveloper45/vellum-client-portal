@@ -10,10 +10,9 @@ import {
     useState,
     useTransition,
 } from "react";
-import {
-    searchWorkspaceAction,
-    type SearchResult,
-} from "@/actions/search-actions";
+import { searchWorkspaceAction } from "@/actions/search-actions";
+
+import type { SearchResult } from "@/lib/services/search/workspace-search-service";
 
 export function WorkspaceSearch() {
     const [query, setQuery] = useState("");

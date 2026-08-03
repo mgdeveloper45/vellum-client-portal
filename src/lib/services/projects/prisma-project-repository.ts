@@ -46,70 +46,110 @@ export const prismaProjectRepository: ProjectRepository = {
     });
   },
 
-  async findDetail(
-    input: FindProjectForViewerInput,
-  ): Promise<ProjectDetailRecord | null> {
-    return prisma.project.findFirst({
-      where: {
-        id: input.projectId,
-        workspaceId: input.workspaceId,
-        ...(input.clientId
-          ? {
-              clientId: input.clientId,
-            }
-          : {}),
+ async findDetail(
+  input: FindProjectForViewerInput,
+): Promise<ProjectDetailRecord | null> {
+  const project = await prisma.project.findFirst({
+    where: {
+      id: input.projectId,
+      workspaceId: input.workspaceId,
+      ...(input.clientId
+        ? {
+            clientId: input.clientId,
+          }
+        : {}),
+    },
+    include: {
+      client: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
       },
-      include: {
-        client: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
 
-        milestones: {
-          orderBy: {
-            createdAt: "desc",
-          },
+      milestones: {
+        orderBy: {
+          createdAt: "desc",
         },
+      },
 
-        invoices: {
-          orderBy: {
-            createdAt: "desc",
-          },
+      invoices: {
+        orderBy: {
+          createdAt: "desc",
         },
+      },
 
-        proposals: {
-          orderBy: {
-            createdAt: "desc",
-          },
+      deposits: {
+        orderBy: {
+          requestedAt: "desc",
         },
-
-        files: {
-          orderBy: {
-            createdAt: "desc",
-          },
+        select: {
+          id: true,
+          amount: true,
+          status: true,
+          projectId: true,
+          dueDate: true,
+          requestedAt: true,
+          paidAt: true,
         },
+      },
 
-        messages: {
-          include: {
-            sender: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                role: true,
-              },
+      proposals: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+
+      files: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+
+      messages: {
+        include: {
+          sender: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              role: true,
             },
           },
-          orderBy: {
-            createdAt: "desc",
-          },
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       },
-    });
-  },
+    },
+  });
+
+  if (!project) {
+    return null;
+  }
+
+  return {
+    ...project,
+
+    invoices: project.invoices.map((invoice) => ({
+      id: invoice.id,
+      amount: Number(invoice.amount),
+      paid: invoice.paid,
+      createdAt: invoice.createdAt,
+    })),
+
+    deposits: project.deposits.map((deposit) => ({
+      id: deposit.id,
+      amount: Number(deposit.amount),
+      status: deposit.status,
+      projectId: deposit.projectId,
+      dueDate: deposit.dueDate,
+      requestedAt: deposit.requestedAt,
+      paidAt: deposit.paidAt,
+    })),
+  };
+},
 
   async findForEdit(
     input: FindProjectInput,

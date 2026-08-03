@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+
 import type { CheckoutInvoice, PaymentRepository } from "./payment-repository";
 
 export class PrismaPaymentRepository implements PaymentRepository {
@@ -6,7 +7,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
     invoiceId: string;
     workspaceId: string;
   }): Promise<CheckoutInvoice | null> {
-    return prisma.invoice.findFirst({
+    const invoice = await prisma.invoice.findFirst({
       where: {
         id: input.invoiceId,
         paid: false,
@@ -24,6 +25,15 @@ export class PrismaPaymentRepository implements PaymentRepository {
         },
       },
     });
+
+    if (!invoice) {
+      return null;
+    }
+
+    return {
+      ...invoice,
+      amount: invoice.amount.toNumber(),
+    };
   }
 }
 

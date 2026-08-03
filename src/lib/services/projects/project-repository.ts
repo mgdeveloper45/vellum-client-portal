@@ -1,3 +1,5 @@
+import type { DepositSummaryRecord } from "@/lib/services/deposits/deposit-repository";
+
 export type ProjectStatus = "PLANNING" | "ACTIVE" | "REVIEW" | "COMPLETED";
 
 export interface ProjectPersonRecord {
@@ -87,6 +89,8 @@ export interface ProjectDetailRecord {
       role: string;
     };
   }[];
+
+  deposits: DepositSummaryRecord[];
 }
 
 export interface ProjectDependencyCounts {

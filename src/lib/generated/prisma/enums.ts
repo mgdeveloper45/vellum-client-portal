@@ -90,3 +90,26 @@ export const ClientStatus = {
 } as const
 
 export type ClientStatus = (typeof ClientStatus)[keyof typeof ClientStatus]
+
+
+export const DepositStatus = {
+  REQUESTED: 'REQUESTED',
+  PARTIALLY_PAID: 'PARTIALLY_PAID',
+  PAID: 'PAID',
+  REFUNDED: 'REFUNDED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type DepositStatus = (typeof DepositStatus)[keyof typeof DepositStatus]
+
+
+export const PaymentMethod = {
+  CASH: 'CASH',
+  CHECK: 'CHECK',
+  ACH: 'ACH',
+  CREDIT_CARD: 'CREDIT_CARD',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  OTHER: 'OTHER'
+} as const
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]

@@ -59,7 +59,7 @@ export default async function AIInvoiceReminderPage({
     clientName,
     businessName,
     projectName: invoice.project.name,
-    amount: invoice.amount,
+    amount: Number(invoice.amount),
     invoiceId: invoice.id,
   });
 

@@ -61,6 +61,7 @@ export const ModelName = {
   Message: 'Message',
   PasswordResetToken: 'PasswordResetToken',
   Proposal: 'Proposal',
+  Deposit: 'Deposit',
   Invoice: 'Invoice',
   Workspace: 'Workspace',
   WorkspaceInvitation: 'WorkspaceInvitation',
@@ -221,6 +222,23 @@ export const ProposalScalarFieldEnum = {
 } as const
 
 export type ProposalScalarFieldEnum = (typeof ProposalScalarFieldEnum)[keyof typeof ProposalScalarFieldEnum]
+
+
+export const DepositScalarFieldEnum = {
+  id: 'id',
+  amount: 'amount',
+  status: 'status',
+  paymentMethod: 'paymentMethod',
+  dueDate: 'dueDate',
+  requestedAt: 'requestedAt',
+  paidAt: 'paidAt',
+  notes: 'notes',
+  projectId: 'projectId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DepositScalarFieldEnum = (typeof DepositScalarFieldEnum)[keyof typeof DepositScalarFieldEnum]
 
 
 export const InvoiceScalarFieldEnum = {

@@ -70,6 +70,8 @@ export default async function ProjectDetailPage({
       project={projectDetail.project}
       timelineItems={projectDetail.timelineItems}
       projectFiles={projectDetail.projectFiles}
+      deposits={projectDetail.deposits}
+      financialSummary={projectDetail.financialSummary}
       canManageProject={userCanManageProjects}
     />
   );

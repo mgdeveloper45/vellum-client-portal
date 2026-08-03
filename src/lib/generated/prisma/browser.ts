@@ -68,6 +68,11 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
  */
 export type Proposal = Prisma.ProposalModel
 /**
+ * Model Deposit
+ * 
+ */
+export type Deposit = Prisma.DepositModel
+/**
  * Model Invoice
  * 
  */

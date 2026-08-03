@@ -104,11 +104,16 @@ export async function getWorkspaceAIContext({
   ]);
 
   return {
-    activeProjects,
-    todaysBookings,
-    upcomingBookings,
-    unpaidInvoices,
-    unreadNotifications,
-    recentMessages,
-  };
+  activeProjects,
+  todaysBookings,
+  upcomingBookings,
+
+  unpaidInvoices: unpaidInvoices.map((invoice) => ({
+    ...invoice,
+    amount: Number(invoice.amount),
+  })),
+
+  unreadNotifications,
+  recentMessages,
+};
 }

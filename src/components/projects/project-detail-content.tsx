@@ -6,6 +6,9 @@ import { ProjectInvoices } from "./detail/project-invoices";
 import { ProjectOverview } from "./detail/project-overview";
 import { ProjectProposals } from "./detail/project-proposals";
 import { ProjectMilestones } from "./detail/project-milestones";
+import { ProjectDeposits } from "./detail/project-deposits";
+import { ProjectFinancialSummary } from "./detail/project-financial-summary";
+import { RequestDepositForm } from "./detail/request-deposit-form";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import type { ProjectDetailViewModel } from "@/lib/services/projects/project-detail-builder";
 
@@ -13,6 +16,9 @@ type ProjectDetailContentProps = {
     project: ProjectDetailViewModel["project"];
     timelineItems: ProjectDetailViewModel["timelineItems"];
     projectFiles: ProjectDetailViewModel["projectFiles"];
+    deposits: ProjectDetailViewModel["deposits"];
+    financialSummary:
+    ProjectDetailViewModel["financialSummary"];
     canManageProject: boolean;
 };
 
@@ -20,6 +26,8 @@ export function ProjectDetailContent({
     project,
     timelineItems,
     projectFiles,
+    deposits,
+    financialSummary,
     canManageProject,
 }: ProjectDetailContentProps) {
     return (
@@ -35,14 +43,12 @@ export function ProjectDetailContent({
                     status={project.status}
                 />
 
-                <ProjectTimeline
-                    items={timelineItems}
+                <ProjectFinancialSummary
+                    {...financialSummary}
                 />
 
-                <ProjectFiles
-                    projectId={project.id}
-                    projectFiles={projectFiles}
-                    canManageProject={canManageProject}
+                <ProjectTimeline
+                    items={timelineItems}
                 />
 
                 <ProjectFiles
@@ -55,6 +61,16 @@ export function ProjectDetailContent({
                     projectId={project.id}
                     milestones={project.milestones}
                     canManageProject={canManageProject}
+                />
+
+                {canManageProject && (
+                    <RequestDepositForm
+                        projectId={project.id}
+                    />
+                )}
+
+                <ProjectDeposits
+                    deposits={deposits}
                 />
 
                 <ProjectMessages
@@ -73,6 +89,7 @@ export function ProjectDetailContent({
                     proposals={project.proposals}
                     canManageProject={canManageProject}
                 />
+
             </div>
         </DashboardShell>
     );

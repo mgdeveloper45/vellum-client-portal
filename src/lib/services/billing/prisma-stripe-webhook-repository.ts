@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+
 import type {
   PaidInvoiceReceiptDetails,
   StripeWebhookRepository,
@@ -20,11 +21,6 @@ export class PrismaStripeWebhookRepository implements StripeWebhookRepository {
       return true;
     }
 
-    /*
-     * A prior attempt may have failed after Stripe delivered the event.
-     * Atomically reclaim only FAILED events. The status condition prevents
-     * concurrent retries from both acquiring the same event.
-     */
     const reclaimed = await prisma.stripeWebhookEvent.updateMany({
       where: {
         id: eventId,
@@ -119,7 +115,7 @@ export class PrismaStripeWebhookRepository implements StripeWebhookRepository {
 
       return {
         invoiceId: invoice.id,
-        amount: invoice.amount,
+        amount: invoice.amount.toNumber(),
         projectId: invoice.projectId,
         projectName: invoice.project.name,
         ownerId: invoice.project.ownerId,

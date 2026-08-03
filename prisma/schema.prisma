@@ -36,20 +36,26 @@ model Project {
   id          String        @id @default(cuid())
   name        String
   description String
+
   status      ProjectStatus
+
   ownerId     String
   clientId    String
   workspaceId String?
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  deposits    Deposit[]
   invoices    Invoice[]
   messages    Message[]
   milestones  Milestone[]
+  files       ProjectFile[]
+  proposals   Proposal[]
+
   client      User          @relation("ClientProjects", fields: [clientId], references: [id])
   owner       User          @relation("OwnedProjects", fields: [ownerId], references: [id])
   workspace   Workspace?    @relation(fields: [workspaceId], references: [id])
-  files       ProjectFile[]
-  proposals   Proposal[]
 
   @@index([workspaceId])
   @@index([ownerId])
@@ -163,13 +169,46 @@ model Proposal {
   @@index([approved])
 }
 
+model Deposit {
+  id          String        @id @default(cuid())
+
+  amount      Decimal       @db.Decimal(10,2)
+
+  status      DepositStatus @default(REQUESTED)
+
+  paymentMethod  PaymentMethod?
+
+  dueDate     DateTime?
+
+  requestedAt DateTime      @default(now())
+
+  paidAt      DateTime?
+
+  notes       String?
+
+  projectId   String
+
+  createdAt   DateTime      @default(now())
+
+  updatedAt   DateTime      @updatedAt
+
+  project      Project @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+
+  @@index([status])
+
+  @@index([createdAt])
+}
+
 model Invoice {
-  id        String   @id @default(cuid())
-  amount    Float
-  paid      Boolean  @default(false)
+  id        String    @id @default(cuid())
+  amount    Decimal   @db.Decimal(10,2)
+  paid      Boolean   @default(false)
+  
   projectId String
-  createdAt DateTime @default(now())
-  project   Project  @relation(fields: [projectId], references: [id])
+  createdAt DateTime  @default(now())
+  project   Project   @relation(fields: [projectId], references: [id])
 
   @@index([projectId])
   @@index([paid])
@@ -441,4 +480,21 @@ enum ClientStatus {
   COMPLETED
   ARCHIVED
   BANNED
+}
+
+enum DepositStatus {
+  REQUESTED
+  PARTIALLY_PAID
+  PAID
+  REFUNDED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CHECK
+  ACH
+  CREDIT_CARD
+  BANK_TRANSFER
+  OTHER
 }

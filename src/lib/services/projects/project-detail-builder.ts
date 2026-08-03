@@ -1,6 +1,9 @@
 import { getR2DownloadUrl } from "@/lib/r2";
 import { formatStatus } from "@/lib/utils";
-
+import { formatMoney } from "@/lib/money";
+import {
+  buildProjectFinancialSummary,
+} from "./project-financial-summary";
 import type {
   ProjectDetailRecord,
   ProjectRepository,
@@ -35,6 +38,13 @@ export interface ProjectDetailViewModel {
   project: ProjectDetailRecord;
   timelineItems: ProjectTimelineItem[];
   projectFiles: ProjectFileViewModel[];
+  deposits: ProjectDetailRecord["deposits"];
+
+  financialSummary: {
+    depositTotal: number;
+    invoiceTotal: number;
+    outstandingBalance: number;
+  };
 }
 
 interface ProjectDetailBuilderDependencies {
@@ -74,7 +84,7 @@ export function createProjectDetailBuilder({
         id: invoice.id,
         type: "Invoice" as const,
         title: invoice.paid ? "Invoice paid" : "Invoice created",
-        detail: `$${invoice.amount.toLocaleString()}`,
+        detail: formatMoney(invoice.amount),
         date: invoice.createdAt,
       })),
 
@@ -106,6 +116,10 @@ export function createProjectDetailBuilder({
       project,
       timelineItems,
       projectFiles,
+      deposits: project.deposits,
+
+      financialSummary: 
+        buildProjectFinancialSummary(project),
     };
   };
 }

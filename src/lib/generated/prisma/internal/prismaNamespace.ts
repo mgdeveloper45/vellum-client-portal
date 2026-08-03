@@ -394,6 +394,7 @@ export const ModelName = {
   Message: 'Message',
   PasswordResetToken: 'PasswordResetToken',
   Proposal: 'Proposal',
+  Deposit: 'Deposit',
   Invoice: 'Invoice',
   Workspace: 'Workspace',
   WorkspaceInvitation: 'WorkspaceInvitation',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "stripeWebhookEvent" | "service" | "booking" | "businessHour" | "blackoutDate" | "staffTimeOff" | "executiveBriefCache" | "bookingRule"
+    modelProps: "user" | "project" | "apiKey" | "notification" | "auditLog" | "projectFile" | "milestone" | "message" | "passwordResetToken" | "proposal" | "deposit" | "invoice" | "workspace" | "workspaceInvitation" | "subscription" | "stripeWebhookEvent" | "service" | "booking" | "businessHour" | "blackoutDate" | "staffTimeOff" | "executiveBriefCache" | "bookingRule"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1162,6 +1163,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProposalCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProposalCountAggregateOutputType> | number
+        }
+      }
+    }
+    Deposit: {
+      payload: Prisma.$DepositPayload<ExtArgs>
+      fields: Prisma.DepositFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DepositFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DepositFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload>
+        }
+        findFirst: {
+          args: Prisma.DepositFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DepositFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload>
+        }
+        findMany: {
+          args: Prisma.DepositFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload>[]
+        }
+        create: {
+          args: Prisma.DepositCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload>
+        }
+        createMany: {
+          args: Prisma.DepositCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DepositCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload>[]
+        }
+        delete: {
+          args: Prisma.DepositDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload>
+        }
+        update: {
+          args: Prisma.DepositUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload>
+        }
+        deleteMany: {
+          args: Prisma.DepositDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DepositUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DepositUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload>[]
+        }
+        upsert: {
+          args: Prisma.DepositUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepositPayload>
+        }
+        aggregate: {
+          args: Prisma.DepositAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDeposit>
+        }
+        groupBy: {
+          args: Prisma.DepositGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepositGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DepositCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepositCountAggregateOutputType> | number
         }
       }
     }
@@ -2224,6 +2299,23 @@ export const ProposalScalarFieldEnum = {
 export type ProposalScalarFieldEnum = (typeof ProposalScalarFieldEnum)[keyof typeof ProposalScalarFieldEnum]
 
 
+export const DepositScalarFieldEnum = {
+  id: 'id',
+  amount: 'amount',
+  status: 'status',
+  paymentMethod: 'paymentMethod',
+  dueDate: 'dueDate',
+  requestedAt: 'requestedAt',
+  paidAt: 'paidAt',
+  notes: 'notes',
+  projectId: 'projectId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DepositScalarFieldEnum = (typeof DepositScalarFieldEnum)[keyof typeof DepositScalarFieldEnum]
+
+
 export const InvoiceScalarFieldEnum = {
   id: 'id',
   amount: 'amount',
@@ -2556,16 +2648,44 @@ export type ListEnumMilestoneStatusFieldRefInput<$PrismaModel> = FieldRefInputTy
 
 
 /**
- * Reference to a field of type 'Float'
+ * Reference to a field of type 'Decimal'
  */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
     
 
 
 /**
- * Reference to a field of type 'Float[]'
+ * Reference to a field of type 'Decimal[]'
  */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DepositStatus'
+ */
+export type EnumDepositStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DepositStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DepositStatus[]'
+ */
+export type ListEnumDepositStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DepositStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentMethod'
+ */
+export type EnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentMethod[]'
+ */
+export type ListEnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod[]'>
     
 
 
@@ -2636,6 +2756,20 @@ export type EnumExecutiveBriefModeFieldRefInput<$PrismaModel> = FieldRefInputTyp
  * Reference to a field of type 'ExecutiveBriefMode[]'
  */
 export type ListEnumExecutiveBriefModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExecutiveBriefMode[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -2758,6 +2892,7 @@ export type GlobalOmitConfig = {
   message?: Prisma.MessageOmit
   passwordResetToken?: Prisma.PasswordResetTokenOmit
   proposal?: Prisma.ProposalOmit
+  deposit?: Prisma.DepositOmit
   invoice?: Prisma.InvoiceOmit
   workspace?: Prisma.WorkspaceOmit
   workspaceInvitation?: Prisma.WorkspaceInvitationOmit

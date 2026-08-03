@@ -127,19 +127,24 @@ function buildCapacityDays({
 export function buildDashboardForecasts({
   data,
 }: DashboardForecastBuilderInput): DashboardForecastResult {
-  const revenueCollected = data.totalRevenue._sum.amount ?? 0;
+  const revenueCollected = Number(
+  data.totalRevenue._sum.amount ?? 0,
+);
 
-  const revenueOutstanding =
-    data.outstandingRevenue._sum.amount ?? 0;
+const revenueOutstanding = Number(
+  data.outstandingRevenue._sum.amount ?? 0,
+);
 
-  const previousPeriodRevenue =
-    data.previousPeriodRevenue._sum.amount ?? 0;
+const previousPeriodRevenue = Number(
+  data.previousPeriodRevenue._sum.amount ?? 0,
+);
 
-  const upcomingBookingRevenue =
-    data.upcomingBookingsForForecast.reduce(
-      (total, booking) => total + booking.service.price,
-      0,
-    );
+const upcomingBookingRevenue =
+  data.upcomingBookingsForForecast.reduce(
+    (total, booking) =>
+      total + Number(booking.service.price),
+    0,
+  );
 
   const averageServiceDuration =
     calculateAverageServiceDuration(data.activeServices);

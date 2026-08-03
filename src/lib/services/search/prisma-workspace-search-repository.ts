@@ -183,12 +183,21 @@ export const prismaWorkspaceSearchRepository: WorkspaceSearchRepository = {
     ]);
 
     return {
-      clients,
-      projects,
-      bookings,
-      invoices,
-      messages,
-      services,
-    };
+  clients,
+  projects,
+  bookings,
+
+  invoices: invoices.map((invoice) => ({
+    ...invoice,
+    amount: invoice.amount.toNumber(),
+  })),
+
+  messages,
+
+  services: services.map((service) => ({
+    ...service,
+    price: service.price,
+  })),
+};
   },
 };

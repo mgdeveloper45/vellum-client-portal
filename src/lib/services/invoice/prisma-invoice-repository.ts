@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+
 import type {
   InvoiceListRecord,
   InvoiceMutationRecord,
@@ -6,7 +7,9 @@ import type {
   InvoiceRepository,
 } from "./invoice-repository";
 
-export class PrismaInvoiceRepository implements InvoiceRepository {
+export class PrismaInvoiceRepository
+  implements InvoiceRepository
+{
   async projectExistsInWorkspace(input: {
     projectId: string;
     workspaceId: string;
@@ -28,7 +31,7 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
     projectId: string;
     amount: number;
   }): Promise<InvoiceMutationRecord> {
-    return prisma.invoice.create({
+    const invoice = await prisma.invoice.create({
       data: {
         projectId: input.projectId,
         amount: input.amount,
@@ -41,6 +44,11 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
         paid: true,
       },
     });
+
+    return {
+      ...invoice,
+      amount: invoice.amount.toNumber(),
+    };
   }
 
   async findInvoiceForMutation(input: {
@@ -48,7 +56,7 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
     projectId: string;
     workspaceId: string;
   }): Promise<InvoiceMutationRecord | null> {
-    return prisma.invoice.findFirst({
+    const invoice = await prisma.invoice.findFirst({
       where: {
         id: input.invoiceId,
         projectId: input.projectId,
@@ -63,13 +71,22 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
         paid: true,
       },
     });
+
+    if (!invoice) {
+      return null;
+    }
+
+    return {
+      ...invoice,
+      amount: invoice.amount.toNumber(),
+    };
   }
 
   async updateInvoicePaid(input: {
     invoiceId: string;
     paid: boolean;
   }): Promise<InvoiceMutationRecord> {
-    return prisma.invoice.update({
+    const invoice = await prisma.invoice.update({
       where: {
         id: input.invoiceId,
       },
@@ -83,9 +100,16 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
         paid: true,
       },
     });
+
+    return {
+      ...invoice,
+      amount: invoice.amount.toNumber(),
+    };
   }
 
-  async deleteInvoice(invoiceId: string): Promise<void> {
+  async deleteInvoice(
+    invoiceId: string,
+  ): Promise<void> {
     await prisma.invoice.delete({
       where: {
         id: invoiceId,
@@ -97,7 +121,7 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
     workspaceId: string;
     clientId?: string;
   }): Promise<InvoiceListRecord[]> {
-    return prisma.invoice.findMany({
+    const invoices = await prisma.invoice.findMany({
       where: {
         project: {
           workspaceId: input.workspaceId,
@@ -131,13 +155,18 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
         createdAt: "desc",
       },
     });
+
+    return invoices.map((invoice) => ({
+      ...invoice,
+      amount: invoice.amount.toNumber(),
+    }));
   }
 
   async findInvoiceForPdf(input: {
     invoiceId: string;
     workspaceId: string;
   }): Promise<InvoicePdfRecord | null> {
-    return prisma.invoice.findFirst({
+    const invoice = await prisma.invoice.findFirst({
       where: {
         id: input.invoiceId,
         project: {
@@ -169,7 +198,17 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
         },
       },
     });
+
+    if (!invoice) {
+      return null;
+    }
+
+    return {
+      ...invoice,
+      amount: invoice.amount.toNumber(),
+    };
   }
 }
 
-export const prismaInvoiceRepository = new PrismaInvoiceRepository();
+export const prismaInvoiceRepository =
+  new PrismaInvoiceRepository();
