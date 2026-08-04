@@ -1,5 +1,7 @@
 import { getR2DownloadUrl } from "@/lib/r2";
-
+import {
+  prismaDepositPaymentRepository,
+} from "@/lib/services/deposit-payments/prisma-deposit-payment-repository";
 import { createCreateProjectService } from "../create-project-service";
 import { createDeleteProjectService } from "../delete-project-service";
 import {
@@ -35,7 +37,14 @@ export const listProjectClientsService = createListProjectClientsService(
   prismaProjectRepository,
 );
 
-export const buildProjectDetail = createProjectDetailBuilder({
-  projectRepository: prismaProjectRepository,
-  getDownloadUrl: getR2DownloadUrl,
-});
+export const buildProjectDetail =
+  createProjectDetailBuilder({
+    projectRepository:
+      prismaProjectRepository,
+
+    depositPaymentRepository:
+      prismaDepositPaymentRepository,
+
+    getDownloadUrl:
+      getR2DownloadUrl,
+  });

@@ -1,89 +1,97 @@
-import { markDepositPaidAction } from "@/actions/deposit-actions";
+import { DepositPaymentHistory } from "@/components/deposits/deposit-payment-history";
 import { DepositStatusBadge } from "@/components/deposits/deposit-status-badge";
 import { formatMoney } from "@/lib/money";
-
 import type {
-    DepositSummaryRecord,
-} from "@/lib/services/deposits/deposit-repository";
+  DepositViewModel,
+} from "@/lib/services/deposit-payments/deposit-view-model";
+import { RecordDepositPaymentDialog } from "@/components/deposits/record-deposit-payment-dialog";
 
 type ProjectDepositsProps = {
-    deposits: DepositSummaryRecord[];
+  deposits: DepositViewModel[];
 };
 
 export function ProjectDeposits({
-    deposits,
+  deposits,
 }: ProjectDepositsProps) {
-    return (
-        <section className="mt-10">
-            <h2 className="text-xl font-medium">
-                Deposits
-            </h2>
+  return (
+    <section className="mt-10">
+      <h2 className="text-xl font-medium">
+        Deposits
+      </h2>
 
-            <div className="mt-4 grid gap-3">
-                {deposits.length === 0 ? (
-                    <p className="text-sm text-foreground/60">
-                        No deposits requested yet.
-                    </p>
-                ) : (
-                    deposits.map((deposit) => (
-                        <div
-                            key={deposit.id}
-                            className="rounded-xl border border-border p-4"
-                        >
-                            <div className="flex items-center justify-between">
-                                <p className="font-medium">
-                                    {formatMoney(deposit.amount)}
-                                </p>
+      <div className="mt-4 grid gap-4">
+        {deposits.length === 0 ? (
+          <p className="text-sm text-foreground/60">
+            No deposits requested yet.
+          </p>
+        ) : (
+          deposits.map((deposit) => (
+            <div
+              key={deposit.id}
+              className="rounded-xl border border-border p-5"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-lg font-semibold">
+                  {formatMoney(deposit.amount)}
+                </p>
 
-                                <DepositStatusBadge
-                                    status={deposit.status}
-                                />
-                            </div>
+                <DepositStatusBadge
+                  status={deposit.financialSummary.status}
+                />
+              </div>
 
-                            {deposit.dueDate && (
-                                <p className="mt-2 text-xs text-foreground/60">
-                                    Due{" "}
-                                    {deposit.dueDate.toLocaleDateString()}
-                                </p>
-                            )}
+              {deposit.dueDate && (
+                <p className="mt-2 text-xs text-foreground/60">
+                  Due{" "}
+                  {deposit.dueDate.toLocaleDateString()}
+                </p>
+              )}
 
-                            {deposit.paidAt && (
-                                <p className="mt-2 text-xs text-green-600">
-                                    Paid{" "}
-                                    {deposit.paidAt.toLocaleDateString()}
-                                </p>
-                            )}
+              <div className="mt-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Total Paid</span>
 
-                            {(deposit.status === "REQUESTED" ||
-                                deposit.status === "PARTIALLY_PAID") && (
-                                    <form
-                                        action={markDepositPaidAction}
-                                        className="mt-4"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="depositId"
-                                            value={deposit.id}
-                                        />
+                  <span className="font-medium">
+                    {formatMoney(
+                      deposit.financialSummary.totalPaid,
+                    )}
+                  </span>
+                </div>
 
-                                        <input
-                                            type="hidden"
-                                            name="projectId"
-                                            value={deposit.projectId}
-                                        />
+                <div className="flex justify-between">
+                  <span>Remaining</span>
 
-                                        <button
-                                            type="submit"
-                                            className="rounded-full bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700"
-                                        >
-                                            Mark Paid
-                                        </button>
-                                    </form>
-                                )}
-                        </div>
-                    ))
-                )}
+                  <span className="font-medium">
+                    {formatMoney(
+                      deposit.financialSummary.remainingBalance,
+                    )}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span>Paid</span>
+
+                  <span className="font-medium">
+                    {deposit.financialSummary.percentPaid}%
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <DepositPaymentHistory
+                  payments={deposit.payments}
+                />
+
+                <div className="mt-5">
+                  <RecordDepositPaymentDialog
+                    depositId={deposit.id}
+                  />
+                </div>
+              </div>
             </div>
-        </section>
-    );
+          ))
+        )}
+      </div>
+    </section>
+  );
 }

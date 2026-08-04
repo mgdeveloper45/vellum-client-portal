@@ -4,6 +4,13 @@ export type DepositStatus =
 export type PaymentMethod =
   "CASH" | "CHECK" | "ACH" | "CREDIT_CARD" | "BANK_TRANSFER" | "OTHER";
 
+export interface DepositFinancialRecord {
+  id: string;
+
+  amount: number;
+
+  status: DepositStatus;
+}
 export interface DepositSummaryRecord {
   id: string;
 
@@ -79,6 +86,12 @@ export interface DepositRepository {
   create(input: CreateDepositRecordInput): Promise<{
     id: string;
   }>;
+
+  findFinancialRecord(
+    depositId: string,
+  ): Promise<DepositFinancialRecord | null>;
+
+  updateStatus(depositId: string, status: DepositStatus): Promise<boolean>;
 
   update(input: UpdateDepositRecordInput): Promise<boolean>;
 

@@ -3,6 +3,8 @@ import type {
   DepositPaymentRepository,
   PaymentMethod,
 } from "./deposit-payment-repository";
+import { buildDepositFinancialSummary } from "./financial-engine";
+import type { DepositRepository } from "@/lib/services/deposits/deposit-repository";
 
 export interface RecordDepositPaymentRequest {
   depositId: string;
@@ -27,10 +29,13 @@ export type RecordDepositPaymentResult =
     };
 
 interface RecordDepositPaymentServiceDependencies {
+  depositRepository: DepositRepository;
+
   depositPaymentRepository: DepositPaymentRepository;
 }
 
 export function createRecordDepositPaymentService({
+  depositRepository,
   depositPaymentRepository,
 }: RecordDepositPaymentServiceDependencies) {
   return async function recordDepositPayment(
@@ -60,6 +65,25 @@ export function createRecordDepositPaymentService({
       paymentMethod: request.paymentMethod,
       notes: request.notes.trim(),
     });
+
+    const deposit = await depositRepository.findFinancialRecord(depositId);
+
+    if (!deposit) {
+      return {
+        success: false,
+        reason: "NOT_FOUND",
+        message: "Deposit not found.",
+      };
+    }
+
+    const payments = await depositPaymentRepository.listByDeposit(depositId);
+
+    const financialSummary = buildDepositFinancialSummary({
+      depositAmount: deposit.amount,
+      payments,
+    });
+
+    await depositRepository.updateStatus(depositId, financialSummary.status);
 
     return {
       success: true,

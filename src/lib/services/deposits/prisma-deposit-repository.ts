@@ -2,6 +2,8 @@ import { prisma } from "../../prisma";
 
 import type {
   CreateDepositRecordInput,
+  DepositFinancialRecord,
+  DepositStatus,
   DepositEditRecord,
   DepositRepository,
   DepositSummaryRecord,
@@ -98,6 +100,48 @@ export const prismaDepositRepository: DepositRepository = {
       paidAt: deposit.paidAt,
     };
   },
+
+  async findFinancialRecord(
+    depositId: string,
+  ): Promise<DepositFinancialRecord | null> {
+    const deposit = await prisma.deposit.findUnique({
+      where: {
+        id: depositId,
+      },
+      select: {
+        id: true,
+        amount: true,
+        status: true,
+      },
+    });
+
+    if (!deposit) {
+      return null;
+    }
+
+    return {
+      id: deposit.id,
+      amount: Number(deposit.amount),
+      status: deposit.status,
+    };
+  },
+
+async updateStatus(
+  depositId: string,
+  status: DepositStatus,
+): Promise<boolean> {
+  const result =
+    await prisma.deposit.updateMany({
+      where: {
+        id: depositId,
+      },
+      data: {
+        status,
+      },
+    });
+
+  return result.count > 0;
+},
 
   async listByProject(projectId: string): Promise<DepositSummaryRecord[]> {
     const deposits = await prisma.deposit.findMany({

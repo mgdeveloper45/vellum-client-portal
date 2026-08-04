@@ -4,6 +4,8 @@ import type {
   DepositPaymentRecord,
   DepositPaymentRepository,
   RecordDepositPaymentInput,
+  DepositPaymentEditRecord,
+  UpdateDepositPaymentInput,
 } from "./deposit-payment-repository";
 
 export const prismaDepositPaymentRepository: DepositPaymentRepository = {
@@ -39,5 +41,65 @@ export const prismaDepositPaymentRepository: DepositPaymentRepository = {
       receivedAt: payment.receivedAt,
       notes: payment.notes ?? "",
     }));
+  },
+
+  async listByProject(projectId: string): Promise<DepositPaymentRecord[]> {
+    const payments = await prisma.depositPayment.findMany({
+      where: {
+        deposit: {
+          projectId,
+        },
+      },
+      orderBy: {
+        receivedAt: "desc",
+      },
+    });
+
+    return payments.map((payment) => ({
+      id: payment.id,
+      depositId: payment.depositId,
+      amount: Number(payment.amount),
+      paymentMethod: payment.paymentMethod,
+      receivedAt: payment.receivedAt,
+      notes: payment.notes ?? "",
+    }));
+  },
+
+  async findForEdit(
+    paymentId: string,
+  ): Promise<DepositPaymentEditRecord | null> {
+    const payment = await prisma.depositPayment.findUnique({
+      where: {
+        id: paymentId,
+      },
+    });
+
+    if (!payment) {
+      return null;
+    }
+
+    return {
+      id: payment.id,
+      depositId: payment.depositId,
+      amount: Number(payment.amount),
+      paymentMethod: payment.paymentMethod,
+      receivedAt: payment.receivedAt,
+      notes: payment.notes ?? "",
+    };
+  },
+
+  async update(input: UpdateDepositPaymentInput): Promise<boolean> {
+    const result = await prisma.depositPayment.updateMany({
+      where: {
+        id: input.paymentId,
+      },
+      data: {
+        amount: input.amount,
+        paymentMethod: input.paymentMethod,
+        notes: input.notes,
+      },
+    });
+
+    return result.count > 0;
   },
 };

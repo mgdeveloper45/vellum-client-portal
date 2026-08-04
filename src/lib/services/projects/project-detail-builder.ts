@@ -1,13 +1,15 @@
 import { getR2DownloadUrl } from "@/lib/r2";
 import { formatStatus } from "@/lib/utils";
 import { formatMoney } from "@/lib/money";
-import {
-  buildProjectFinancialSummary,
-} from "./project-financial-summary";
 import type {
   ProjectDetailRecord,
   ProjectRepository,
 } from "./project-repository";
+import { buildDepositViewModel } from "@/lib/services/deposit-payments/deposit-view-model-builder";
+
+import type { DepositPaymentRepository } from "@/lib/services/deposit-payments/deposit-payment-repository";
+
+import type { DepositViewModel } from "@/lib/services/deposit-payments/deposit-view-model";
 
 export interface BuildProjectDetailRequest {
   workspaceId: string;
@@ -38,7 +40,7 @@ export interface ProjectDetailViewModel {
   project: ProjectDetailRecord;
   timelineItems: ProjectTimelineItem[];
   projectFiles: ProjectFileViewModel[];
-  deposits: ProjectDetailRecord["deposits"];
+  depositViewModels: DepositViewModel[];
 
   financialSummary: {
     depositTotal: number;
@@ -49,11 +51,13 @@ export interface ProjectDetailViewModel {
 
 interface ProjectDetailBuilderDependencies {
   projectRepository: ProjectRepository;
+  depositPaymentRepository: DepositPaymentRepository;
   getDownloadUrl: (objectKey: string) => Promise<string>;
 }
 
 export function createProjectDetailBuilder({
   projectRepository,
+  depositPaymentRepository,
   getDownloadUrl,
 }: ProjectDetailBuilderDependencies) {
   return async function buildProjectDetail(
@@ -112,14 +116,57 @@ export function createProjectDetailBuilder({
       })),
     );
 
+    const depositPayments = await depositPaymentRepository.listByProject(
+      project.id,
+    );
+
+    const paymentsByDepositId = new Map<string, typeof depositPayments>();
+
+    for (const payment of depositPayments) {
+      const existingPayments = paymentsByDepositId.get(payment.depositId) ?? [];
+
+      existingPayments.push(payment);
+
+      paymentsByDepositId.set(payment.depositId, existingPayments);
+    }
+
+    const depositViewModels = project.deposits.map((deposit) =>
+      buildDepositViewModel({
+        deposit,
+        payments: paymentsByDepositId.get(deposit.id) ?? [],
+      }),
+    );
+
+    const depositTotal = depositViewModels.reduce(
+      (sum, deposit) => sum + deposit.amount,
+      0,
+    );
+
+    const invoiceTotal = project.invoices.reduce(
+      (sum, invoice) => sum + Number(invoice.amount),
+      0,
+    );
+
+    const outstandingBalance =
+      depositViewModels.reduce(
+        (sum, deposit) => sum + deposit.financialSummary.remainingBalance,
+        0,
+      ) +
+      project.invoices
+        .filter((invoice) => !invoice.paid)
+        .reduce((sum, invoice) => sum + Number(invoice.amount), 0);
+
     return {
       project,
       timelineItems,
       projectFiles,
-      deposits: project.deposits,
+      depositViewModels,
 
-      financialSummary: 
-        buildProjectFinancialSummary(project),
+      financialSummary: {
+        depositTotal,
+        invoiceTotal,
+        outstandingBalance,
+      },
     };
   };
 }

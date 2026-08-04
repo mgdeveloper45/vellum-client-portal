@@ -16,9 +16,8 @@ type ProjectDetailContentProps = {
     project: ProjectDetailViewModel["project"];
     timelineItems: ProjectDetailViewModel["timelineItems"];
     projectFiles: ProjectDetailViewModel["projectFiles"];
-    deposits: ProjectDetailViewModel["deposits"];
-    financialSummary:
-    ProjectDetailViewModel["financialSummary"];
+    depositViewModels: ProjectDetailViewModel["depositViewModels"];
+    financialSummary: ProjectDetailViewModel["financialSummary"];
     canManageProject: boolean;
 };
 
@@ -26,7 +25,7 @@ export function ProjectDetailContent({
     project,
     timelineItems,
     projectFiles,
-    deposits,
+    depositViewModels,
     financialSummary,
     canManageProject,
 }: ProjectDetailContentProps) {
@@ -70,7 +69,7 @@ export function ProjectDetailContent({
                 )}
 
                 <ProjectDeposits
-                    deposits={deposits}
+                    deposits={depositViewModels}
                 />
 
                 <ProjectMessages
