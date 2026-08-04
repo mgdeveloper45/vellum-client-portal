@@ -1,0 +1,7 @@
+export type WorkflowEvent =
+  | "DEPOSIT_PAID"
+  | "INVOICE_PAID"
+  | "BOOKING_CREATED"
+  | "BOOKING_CANCELLED"
+  | "PROJECT_COMPLETED"
+  | "PROPOSAL_APPROVED";

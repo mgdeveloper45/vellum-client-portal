@@ -85,6 +85,10 @@ export function createRecordDepositPaymentService({
 
     await depositRepository.updateStatus(depositId, financialSummary.status);
 
+    // TODO:
+    // When financialSummary.status becomes "PAID",
+    // publish a DEPOSIT_PAID workflow event.
+
     return {
       success: true,
       paymentId: payment.id,

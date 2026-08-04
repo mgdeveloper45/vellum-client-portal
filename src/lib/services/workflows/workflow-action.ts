@@ -1,0 +1,7 @@
+export type WorkflowAction =
+  | "SEND_NOTIFICATION"
+  | "SEND_EMAIL"
+  | "CREATE_INVOICE"
+  | "ACTIVATE_CLIENT"
+  | "UPDATE_PROJECT"
+  | "AI_SUMMARY";

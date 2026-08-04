@@ -6,9 +6,7 @@ import type {
   ProjectRepository,
 } from "./project-repository";
 import { buildDepositViewModel } from "@/lib/services/deposit-payments/deposit-view-model-builder";
-
 import type { DepositPaymentRepository } from "@/lib/services/deposit-payments/deposit-payment-repository";
-
 import type { DepositViewModel } from "@/lib/services/deposit-payments/deposit-view-model";
 
 export interface BuildProjectDetailRequest {
@@ -20,7 +18,8 @@ export interface BuildProjectDetailRequest {
 
 export interface ProjectTimelineItem {
   id: string;
-  type: "Message" | "Invoice" | "Proposal" | "Milestone";
+  type:
+    "Message" | "Invoice" | "Proposal" | "Milestone" | "Deposit" | "Payment";
   title: string;
   detail: string;
   date: Date;
@@ -75,6 +74,32 @@ export function createProjectDetailBuilder({
       return null;
     }
 
+    const depositViewModels = project.deposits.map((deposit) =>
+      buildDepositViewModel({
+        deposit,
+        payments: paymentsByDepositId.get(deposit.id) ?? [],
+      }),
+    );
+
+    const depositTotal = depositViewModels.reduce(
+      (sum, deposit) => sum + deposit.amount,
+      0,
+    );
+
+    const invoiceTotal = project.invoices.reduce(
+      (sum, invoice) => sum + Number(invoice.amount),
+      0,
+    );
+
+    const outstandingBalance =
+      depositViewModels.reduce(
+        (sum, deposit) => sum + deposit.financialSummary.remainingBalance,
+        0,
+      ) +
+      project.invoices
+        .filter((invoice) => !invoice.paid)
+        .reduce((sum, invoice) => sum + Number(invoice.amount), 0);
+
     const timelineItems: ProjectTimelineItem[] = [
       ...project.messages.map((message) => ({
         id: message.id,
@@ -91,6 +116,24 @@ export function createProjectDetailBuilder({
         detail: formatMoney(invoice.amount),
         date: invoice.createdAt,
       })),
+
+      ...depositViewModels.map((deposit) => ({
+        id: `deposit-${deposit.id}`,
+        type: "Deposit" as const,
+        title: "Deposit requested",
+        detail: formatMoney(deposit.amount),
+        date: deposit.requestedAt,
+      })),
+
+      ...depositViewModels.flatMap((deposit) =>
+        deposit.payments.map((payment) => ({
+          id: `payment-${payment.id}`,
+          type: "Payment" as const,
+          title: "Payment received",
+          detail: `${formatMoney(payment.amount)} • ${payment.paymentMethod.replaceAll("_", " ")}`,
+          date: payment.receivedAt,
+        })),
+      ),
 
       ...project.proposals.map((proposal) => ({
         id: proposal.id,
@@ -129,32 +172,6 @@ export function createProjectDetailBuilder({
 
       paymentsByDepositId.set(payment.depositId, existingPayments);
     }
-
-    const depositViewModels = project.deposits.map((deposit) =>
-      buildDepositViewModel({
-        deposit,
-        payments: paymentsByDepositId.get(deposit.id) ?? [],
-      }),
-    );
-
-    const depositTotal = depositViewModels.reduce(
-      (sum, deposit) => sum + deposit.amount,
-      0,
-    );
-
-    const invoiceTotal = project.invoices.reduce(
-      (sum, invoice) => sum + Number(invoice.amount),
-      0,
-    );
-
-    const outstandingBalance =
-      depositViewModels.reduce(
-        (sum, deposit) => sum + deposit.financialSummary.remainingBalance,
-        0,
-      ) +
-      project.invoices
-        .filter((invoice) => !invoice.paid)
-        .reduce((sum, invoice) => sum + Number(invoice.amount), 0);
 
     return {
       project,
