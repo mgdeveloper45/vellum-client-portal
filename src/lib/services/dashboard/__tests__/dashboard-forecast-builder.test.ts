@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
-
 import type { DashboardQueryResult } from "@/lib/queries/dashboard/get-dashboard-query";
-
 import { buildDashboardForecasts } from "../dashboard-forecast-builder";
 import { createDashboardQuery } from "./fixtures";
 
@@ -217,5 +215,68 @@ describe("buildDashboardForecasts", () => {
     expect(result.workspaceCapacity.days.map((day) => day.bookings)).toEqual(
       bookingTrendCounts,
     );
+  });
+
+  it("returns zero revenue values when aggregates are null", () => {
+    const result = buildDashboardForecasts({
+      data: createDashboardQuery({
+        totalRevenue: {
+          _sum: {
+            amount: null,
+          },
+        },
+
+        outstandingRevenue: {
+          _sum: {
+            amount: null,
+          },
+        },
+
+        previousPeriodRevenue: {
+          _sum: {
+            amount: null,
+          },
+        },
+      }),
+    });
+
+    expect(result.revenueCollected).toBe(0);
+
+    expect(result.revenueOutstanding).toBe(0);
+
+    expect(result.previousPeriodRevenue).toBe(0);
+  });
+
+  it("passes workspace bookings into the booking forecast", () => {
+    const result = buildDashboardForecasts({
+      data: createDashboardQuery({
+        bookingTrendCounts: [6, 5, 4, 3, 2, 1, 0],
+      }),
+    });
+
+    expect(result.bookingForecast.utilizationToday).toBeGreaterThan(0);
+
+    expect(result.bookingForecast.utilizationWeek).toBeGreaterThan(0);
+  });
+
+  it("propagates booking cancellation risk", () => {
+    const result = buildDashboardForecasts({
+      data: createDashboardQuery({
+        cancellationsLastThirtyDays: 25,
+        totalBookingsLastThirtyDays: 30,
+      }),
+    });
+
+    expect(result.bookingForecast.risk).toBe("HIGH");
+  });
+
+  it("propagates constrained workspace capacity", () => {
+    const result = buildDashboardForecasts({
+      data: createDashboardQuery({
+        bookingTrendCounts: [8, 8, 8, 8, 8, 8, 8],
+      }),
+    });
+
+    expect(result.workspaceCapacity.constrained).toBe(true);
   });
 });

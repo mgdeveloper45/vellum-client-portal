@@ -98,6 +98,7 @@ describe("createClientService", () => {
       lastName: " Gillespie ",
       email: " Marcus@Example.com ",
       notes: " Important client ",
+      clientStatus: "ACTIVE",
     });
 
     expect(result).toEqual({
@@ -135,6 +136,7 @@ describe("createClientService", () => {
       lastName: "Gillespie",
       email: "marcus@example.com",
       notes: "",
+      clientStatus: "ACTIVE",
     });
 
     expect(result).toEqual({
@@ -163,6 +165,7 @@ describe("updateClientService", () => {
       email: "Marcus@Example.com",
       notes: "Updated",
       isBlacklisted: true,
+      clientStatus: "ACTIVE",
     });
 
     expect(result).toEqual({
@@ -190,6 +193,7 @@ describe("updateClientService", () => {
       email: "marcus@example.com",
       notes: "",
       isBlacklisted: false,
+      clientStatus: "ACTIVE",
     });
 
     expect(result).toEqual({
@@ -342,6 +346,7 @@ describe("getClient services", () => {
       email: "marcus@example.com",
       notes: null,
       isBlacklisted: false,
+      clientStatus: "ACTIVE",
     };
 
     const service = createGetClientForEditService({

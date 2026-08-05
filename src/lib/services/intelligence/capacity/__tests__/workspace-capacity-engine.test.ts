@@ -195,4 +195,97 @@ describe("buildWorkspaceCapacity", () => {
 
     expect(capacity.today.utilizationRate).toBe(100);
   });
+
+  it("returns MEDIUM risk when the workspace has no capacity", () => {
+    const result = buildWorkspaceCapacity({
+      todayLabel: "Mon",
+      tomorrowLabel: "Tue",
+      days: [],
+    });
+
+    expect(result.weeklyCapacity).toBe(0);
+    expect(result.risk).toBe("MEDIUM");
+    expect(result.today.utilizationRate).toBe(0);
+    expect(result.tomorrow.utilizationRate).toBe(0);
+  });
+
+  it("detects a constrained schedule", () => {
+    const result = buildWorkspaceCapacity({
+      todayLabel: "Mon",
+      tomorrowLabel: "Tue",
+      days: [
+        { label: "Mon", capacity: 10, bookings: 10 },
+        { label: "Tue", capacity: 10, bookings: 9 },
+      ],
+    });
+
+    expect(result.constrained).toBe(true);
+    expect(result.summary).toContain("approaching full capacity");
+    expect(result.recommendation).toContain("staffing");
+  });
+
+  it("identifies the highest utilization day", () => {
+    const result = buildWorkspaceCapacity({
+      todayLabel: "Mon",
+      tomorrowLabel: "Tue",
+      days: [
+        { label: "Mon", capacity: 10, bookings: 6 },
+        { label: "Tue", capacity: 10, bookings: 10 },
+        { label: "Wed", capacity: 10, bookings: 4 },
+      ],
+    });
+
+    expect(result.highestUtilizationDay?.label).toBe("Tue");
+    expect(result.highestUtilizationDay?.utilizationRate).toBe(100);
+  });
+
+  it("identifies the lowest utilization day", () => {
+    const result = buildWorkspaceCapacity({
+      todayLabel: "Mon",
+      tomorrowLabel: "Tue",
+      days: [
+        { label: "Mon", capacity: 10, bookings: 6 },
+        { label: "Tue", capacity: 10, bookings: 2 },
+        { label: "Wed", capacity: 10, bookings: 8 },
+      ],
+    });
+
+    expect(result.lowestUtilizationDay?.label).toBe("Tue");
+    expect(result.lowestUtilizationDay?.openSlots).toBe(8);
+  });
+
+  it("calculates estimated open revenue", () => {
+    const result = buildWorkspaceCapacity({
+      todayLabel: "Mon",
+      tomorrowLabel: "Tue",
+      days: [
+        {
+          label: "Mon",
+          capacity: 10,
+          bookings: 5,
+          averageBookingValue: 100,
+        },
+      ],
+    });
+
+    expect(result.estimatedOpenRevenue).toBe(500);
+  });
+
+  it("normalizes negative capacity and bookings", () => {
+    const result = buildWorkspaceCapacity({
+      todayLabel: "Mon",
+      tomorrowLabel: "Tue",
+      days: [
+        {
+          label: "Mon",
+          capacity: -10,
+          bookings: -5,
+        },
+      ],
+    });
+
+    expect(result.weeklyCapacity).toBe(0);
+    expect(result.weeklyBookings).toBe(0);
+    expect(result.weeklyOpenSlots).toBe(0);
+  });
 });

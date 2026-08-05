@@ -1,4 +1,5 @@
 import type { DashboardQueryResult } from "@/lib/queries/dashboard/get-dashboard-query";
+import { Decimal } from '@prisma/client-runtime-utils';
 
 const DAY_LABELS = [
   "Today",
@@ -69,19 +70,19 @@ export function createDashboardQueryResult(
 
     totalRevenue: {
       _sum: {
-        amount: 18_000,
+        amount: new Decimal(18_000),
       },
     },
 
     outstandingRevenue: {
       _sum: {
-        amount: 3_000,
+        amount: new Decimal(3_000),
       },
     },
 
     previousPeriodRevenue: {
       _sum: {
-        amount: 15_000,
+        amount: new Decimal(15_000),
       },
     },
 
@@ -156,7 +157,7 @@ export function createAtRiskDashboardQueryResult() {
 
     outstandingRevenue: {
       _sum: {
-        amount: 25000,
+        amount: new Decimal(25_000),
       },
     },
 
@@ -178,19 +179,19 @@ export function createEmptyDashboardQueryResult() {
 
     totalRevenue: {
       _sum: {
-        amount: 0,
+        amount: new Decimal(0),
       },
     },
 
     outstandingRevenue: {
       _sum: {
-        amount: 0,
+        amount: new Decimal(0),
       },
     },
 
     previousPeriodRevenue: {
       _sum: {
-        amount: 0,
+        amount: new Decimal(0),
       },
     },
 

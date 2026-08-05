@@ -82,4 +82,89 @@ describe("buildRevenueForecast", () => {
 
     expect(forecast.confidence).toBeLessThanOrEqual(95);
   });
+
+  it("handles businesses with no invoice history", () => {
+    const forecast = buildRevenueForecast(
+      createInput({
+        revenueCollected: 0,
+        outstandingRevenue: 0,
+        overdueRevenue: 0,
+        paidInvoices: 0,
+        totalInvoices: 0,
+        upcomingBookingRevenue: 0,
+        previousPeriodRevenue: 0,
+      }),
+    );
+
+    expect(forecast.projectedRevenue).toBe(0);
+    expect(forecast.expectedCollections).toBe(0);
+    expect(forecast.revenueAtRisk).toBe(0);
+    expect(forecast.trend).toBe("STABLE");
+  });
+
+  it("identifies downward revenue movement", () => {
+    const forecast = buildRevenueForecast(
+      createInput({
+        revenueCollected: 8000,
+        previousPeriodRevenue: 10000,
+        outstandingRevenue: 0,
+        upcomingBookingRevenue: 0,
+      }),
+    );
+
+    expect(forecast.trend).toBe("DOWN");
+  });
+
+  it("identifies stable revenue movement", () => {
+    const forecast = buildRevenueForecast(
+      createInput({
+        revenueCollected: 9900,
+        previousPeriodRevenue: 10000,
+        outstandingRevenue: 0,
+        upcomingBookingRevenue: 0,
+      }),
+    );
+
+    expect(forecast.trend).toBe("STABLE");
+  });
+
+  it("reduces expected collections when invoices become overdue", () => {
+    const healthy = buildRevenueForecast(
+      createInput({
+        outstandingRevenue: 10000,
+        overdueRevenue: 0,
+      }),
+    );
+
+    const overdue = buildRevenueForecast(
+      createInput({
+        outstandingRevenue: 10000,
+        overdueRevenue: 10000,
+      }),
+    );
+
+    expect(overdue.expectedCollections).toBeLessThan(
+      healthy.expectedCollections,
+    );
+
+    expect(overdue.revenueAtRisk).toBeGreaterThan(healthy.revenueAtRisk);
+  });
+
+  it("includes future bookings in projected revenue", () => {
+    const withoutBookings = buildRevenueForecast(
+      createInput({
+        upcomingBookingRevenue: 0,
+      }),
+    );
+
+    const withBookings = buildRevenueForecast(
+      createInput({
+        upcomingBookingRevenue: 5000,
+      }),
+    );
+
+    expect(withBookings.projectedRevenue).toBeGreaterThan(
+      withoutBookings.projectedRevenue,
+    );
+  });
 });

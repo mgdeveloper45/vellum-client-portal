@@ -9,6 +9,12 @@ import type {
 } from "@/lib/services/billing/stripe-webhook-repository";
 import { sendInvoiceReceipt } from "@/lib/services/invoice/email-service";
 
+function flushSetImmediate() {
+  return new Promise<void>((resolve) => {
+    setImmediate(resolve);
+  });
+}
+
 vi.mock("@/lib/services/invoice/email-service", () => ({
   sendInvoiceReceipt: vi.fn(),
 }));
@@ -354,6 +360,7 @@ describe("ProcessStripeWebhookService", () => {
         amount: 2_500,
       },
     ]);
+    await flushSetImmediate();
 
     expect(sendInvoiceReceipt).toHaveBeenCalledOnce();
 
@@ -400,6 +407,9 @@ describe("ProcessStripeWebhookService", () => {
 
     expect(repository.paidInvoiceIds).toHaveLength(1);
     expect(repository.notifications).toHaveLength(1);
+    
+    await flushSetImmediate();
+    
     expect(sendInvoiceReceipt).toHaveBeenCalledTimes(1);
   });
 
