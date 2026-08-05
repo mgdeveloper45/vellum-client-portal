@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("@/lib/services/ai/executive-brief-service", () => ({
+  getOrCreateExecutiveBrief: vi.fn(),
+}));
 import { getOrCreateExecutiveBrief } from "@/lib/services/ai/executive-brief-service";
 import { buildDashboard } from "@/lib/services/dashboard/dashboard-builder";
 import {
@@ -16,15 +19,6 @@ beforeEach(() => {
     mode: "mock",
   });
 });
-
-vi.mock("@/lib/services/ai/executive-brief-service", () => ({
-  getOrCreateExecutiveBrief: vi.fn().mockResolvedValue({
-    narrative: "Executive dashboard summary.",
-    provider: "test",
-    durationMs: 1,
-    mode: "mock",
-  }),
-}));
 
 describe("buildDashboard", () => {
   it("builds a complete dashboard view model", async () => {
