@@ -1,4 +1,4 @@
-import { askAI } from "@/lib/services/ai/ai-service";
+import { askWithPrompt } from "@/lib/services/ai/ai-service";
 
 type DraftInvoiceReminderParams = {
   clientName: string;
@@ -49,5 +49,5 @@ Thank you,
 ${businessName}`;
   }
 
-  return askAI(prompt);
+  return askWithPrompt(prompt);
 }

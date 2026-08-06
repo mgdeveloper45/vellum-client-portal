@@ -1,47 +1,35 @@
-import { openai } from "@/lib/openai";
-import { analyzeWorkspace } from "@/lib/services/ai/business-insights";
+import { createAiProvider } from "./ai-provider-factory";
+import { analyzeWorkspace } from "./business-insights";
+import {
+  buildCopilotPrompt,
+  buildWorkspaceSummaryPrompt,
+} from "./prompt-builder";
 
-export async function askAI(
+import type { BusinessContext } from "./conversation/business-context";
+
+type WorkspaceAIContext = Parameters<typeof analyzeWorkspace>[0];
+
+const provider = createAiProvider();
+
+export async function askWorkspaceAI(
+  context: WorkspaceAIContext,
+): Promise<string> {
+  const prompt = buildWorkspaceSummaryPrompt(context);
+
+  return provider.generateNarrative(prompt);
+}
+
+export async function askWithPrompt(
   prompt: string,
-  context?: Parameters<typeof analyzeWorkspace>[0],
-) {
-  if (process.env.AI_MOCK_MODE === "true") {
-    if (!context) {
-      return "No workspace context available.";
-    }
+): Promise<string> {
+  return provider.generateNarrative(prompt);
+}
 
-    const insights = analyzeWorkspace(context);
+export async function askCopilot(
+  context: BusinessContext,
+  question: string,
+): Promise<string> {
+  const prompt = buildCopilotPrompt(context, question);
 
-    return `📊 Workspace Summary
-
-Active Projects: ${insights.counts.activeProjects}
-Today's Bookings: ${insights.counts.todaysBookings}
-Upcoming Bookings: ${insights.counts.upcomingBookings}
-Unpaid Invoices: ${insights.counts.unpaidInvoices}
-Outstanding Revenue: $${insights.money.unpaidInvoiceTotal.toLocaleString()}
-Unread Notifications: ${insights.counts.unreadNotifications}
-Recent Messages: ${insights.counts.recentMessages}
-
-Highest Priority
-
-${insights.topPriority}
-
-Recommended Actions
-
-${insights.priorities.map((p) => `• ${p}`).join("\n")}
-`;
-  }
-
-  try {
-    const response = await openai.responses.create({
-      model: "gpt-5.5",
-      input: prompt,
-    });
-
-    return response.output_text;
-  } catch (error) {
-    console.error("AI request failed:", error);
-
-    return "AI summary is unavailable right now. Please check your OpenAI API billing/quota and try again.";
-  }
+  return provider.generateNarrative(prompt);
 }

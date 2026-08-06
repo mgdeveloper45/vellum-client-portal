@@ -19,7 +19,10 @@ const ACTION = ["what should i do", "next step", "recommend", "advice"];
 export function classifyConversationIntent(
   question: string,
 ): ConversationIntent {
-  const normalized = question.trim().toLowerCase();
+  const normalized = question
+    .trim()
+    .toLowerCase()
+    .replace(/[?!.,]+$/g, "");
 
   if (
     FOLLOW_UP.some(

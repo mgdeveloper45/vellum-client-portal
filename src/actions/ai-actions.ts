@@ -2,9 +2,9 @@
 
 import { auth } from "@/auth";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
-import { askAI } from "@/lib/services/ai/ai-service";
+import { askWorkspaceAI } from "@/lib/services/ai/ai-service";
 import { getWorkspaceAIContext } from "@/lib/services/ai/workspace-context";
-import { buildWorkspaceSummaryPrompt } from "@/lib/services/ai/prompt-builder";
+
 
 export async function getWorkspaceSummaryAction() {
   const session = await auth();
@@ -27,7 +27,5 @@ export async function getWorkspaceSummaryAction() {
     workspaceId,
   });
 
-  const prompt = buildWorkspaceSummaryPrompt(context);
-
-  return askAI(prompt, context);
+  return askWorkspaceAI(context);
 }
