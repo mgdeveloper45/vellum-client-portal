@@ -1,5 +1,6 @@
 import { analyzeWorkspace } from "@/lib/services/ai/business-insights";
 import type { BusinessContext } from "@/lib/services/ai/conversation/business-context";
+import { buildEvidence } from "@/lib/services/ai/conversation/evidence-builder";
 
 type WorkspaceAIContext = {
   activeProjects: Array<{
@@ -43,9 +44,7 @@ type WorkspaceAIContext = {
   }>;
 };
 
-export function buildWorkspaceSummaryPrompt(
-  context: WorkspaceAIContext,
-) {
+export function buildWorkspaceSummaryPrompt(context: WorkspaceAIContext) {
   const insights = analyzeWorkspace(context);
 
   return `
@@ -91,69 +90,47 @@ export function buildCopilotPrompt(
   context: BusinessContext,
   question: string,
 ): string {
+  const evidence = buildEvidence(context);
+
   return `
 You are Vellum Copilot.
 
 You are an executive advisor helping a business owner.
 
-Only answer using the information provided below.
+You MUST answer using the verified business evidence below.
 
-If the answer cannot be determined from the business context, clearly say so.
+Do NOT invent numbers.
 
-Executive Score
+Do NOT contradict the evidence.
 
-${context.executiveScore}
+If the information is unavailable, clearly state that.
 
-Business Risks
+Verified Business Evidence
 
-Revenue: ${context.revenueRisk}
+${evidence.map(({ label, value }) => `• ${label}: ${value}`).join("\n")}
 
-Bookings: ${context.bookingRisk}
-
-Capacity: ${context.capacityRisk}
-
-Business Metrics
-
-Revenue Collected:
-$${context.revenueCollected.toLocaleString()}
-
-Outstanding Revenue:
-$${context.revenueOutstanding.toLocaleString()}
-
-Previous Period Revenue:
-$${context.previousPeriodRevenue.toLocaleString()}
-
-Upcoming Booking Revenue:
-$${context.upcomingBookingRevenue.toLocaleString()}
-
-Morning Summary
+Morning Brief
 
 ${context.morningBrief}
 
-AI Executive Narrative
+Executive Narrative
 
 ${context.aiNarrative}
 
-Top Recommendation
+Additional Recommendations
 
-${context.topAdvice ?? "None"}
-
-Recommendations
-
-${context.recommendations.map((item) => `- ${item}`).join("\n")}
+${context.recommendations.map((item) => `• ${item}`).join("\n")}
 
 User Question
 
 ${question}
 
-Provide:
+Respond using the following format:
 
-• Direct answer
+Answer
 
-• Supporting reasoning
+Supporting Evidence
 
-• Recommended action
-
-Do not invent business information.
+Recommended Action
 `;
 }

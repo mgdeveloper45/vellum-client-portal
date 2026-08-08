@@ -10,6 +10,9 @@ export interface CreateBookingRecordInput {
   endTime: string;
   serviceId: string;
   workspaceId: string;
+
+  depositRequired: boolean;
+  depositAmount: number;
 }
 
 export interface CreatedBookingRecord {

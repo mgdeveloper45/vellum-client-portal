@@ -1,5 +1,7 @@
 import { getOpenAIClient } from "@/lib/openai";
 import type { AiProvider } from "./ai-provider";
+import type { AiStream } from "./streaming/ai-stream";
+import { TextStream } from "./streaming/text-stream";
 
 export class OpenAiProvider implements AiProvider {
   readonly providerName = "OpenAI";
@@ -31,5 +33,11 @@ export class OpenAiProvider implements AiProvider {
     });
 
     return response.output_text ?? "No executive narrative was generated.";
+  }
+
+  async generateNarrativeStream(prompt: string): Promise<AiStream> {
+    const narrative = await this.generateNarrative(prompt);
+
+    return new TextStream(narrative);
   }
 }

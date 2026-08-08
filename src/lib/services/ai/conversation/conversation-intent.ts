@@ -14,7 +14,28 @@ const COMPARISON = ["compare", "compared", "versus", "vs"];
 
 const EXPANSION = ["tell me more", "more", "expand", "elaborate"];
 
-const ACTION = ["what should i do", "next step", "recommend", "advice"];
+const ACTION = [
+  "what should i do",
+  "next step",
+  "recommend",
+  "advice",
+
+  "draft",
+  "email",
+  "send",
+
+  "create",
+  "schedule",
+  "book",
+
+  "update",
+  "move",
+  "delete",
+
+  "cancel",
+  "remind",
+  "follow up",
+];
 
 export function classifyConversationIntent(
   question: string,
@@ -56,13 +77,17 @@ export function classifyConversationIntent(
     return "EXPANSION";
   }
 
-  if (
-    ACTION.some(
-      (phrase) => normalized === phrase || normalized.startsWith(`${phrase} `),
-    )
-  ) {
-    return "ACTION";
-  }
+if (
+  ACTION.some(
+    (phrase) =>
+      normalized === phrase ||
+      normalized.startsWith(`${phrase} `) ||
+      normalized.includes(` ${phrase} `) ||
+      normalized.endsWith(` ${phrase}`),
+  )
+) {
+  return "ACTION";
+}
 
   return "NEW_QUESTION";
 }

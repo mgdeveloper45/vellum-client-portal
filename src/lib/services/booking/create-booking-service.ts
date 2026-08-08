@@ -105,6 +105,8 @@ export function createCreateBookingService(
       }
 
       try {
+        const deposit = schedulingDecision.deposit;
+
         const booking = await dependencies.bookingRepository.create({
           customerName: request.customerName,
           customerEmail: request.customerEmail,
@@ -115,6 +117,9 @@ export function createCreateBookingService(
           endTime,
           serviceId: request.serviceId,
           workspaceId: request.workspaceId,
+
+          depositRequired: deposit.required,
+          depositAmount: deposit.amount,
         });
 
         return {

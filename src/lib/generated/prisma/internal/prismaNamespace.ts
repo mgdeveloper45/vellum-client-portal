@@ -2500,6 +2500,11 @@ export const BookingScalarFieldEnum = {
   status: 'status',
   serviceId: 'serviceId',
   workspaceId: 'workspaceId',
+  depositRequired: 'depositRequired',
+  depositAmount: 'depositAmount',
+  depositPaid: 'depositPaid',
+  depositPaidAt: 'depositPaidAt',
+  depositPaymentIntentId: 'depositPaymentIntentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   googleCalendarEventId: 'googleCalendarEventId'

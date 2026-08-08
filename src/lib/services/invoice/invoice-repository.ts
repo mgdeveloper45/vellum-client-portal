@@ -21,6 +21,24 @@ export type InvoiceListRecord = {
   };
 };
 
+export type InvoiceCollectionsRecord = {
+  id: string;
+  amount: number;
+  paid: boolean;
+  createdAt: Date;
+
+  project: {
+    id: string;
+    name: string;
+
+    client: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+  };
+};
+
 export type InvoicePdfRecord = {
   id: string;
   amount: number;
