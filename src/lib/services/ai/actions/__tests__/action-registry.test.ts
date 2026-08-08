@@ -23,4 +23,14 @@ describe("ActionRegistry", () => {
 
     expect(registry.resolve("CREATE_BOOKING")).toBeUndefined();
   });
+
+  it("throws when requiring an unknown action", () => {
+  const registry = new ActionRegistry();
+
+  expect(() =>
+    registry.require("CREATE_BOOKING"),
+  ).toThrow(
+    "No AI action registered for 'CREATE_BOOKING'.",
+  );
+});
 });

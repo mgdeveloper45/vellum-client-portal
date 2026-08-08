@@ -11,4 +11,14 @@ export class ActionRegistry {
   resolve(action: AiActionType): AiActionHandler | undefined {
     return this.handlers.get(action);
   }
+
+  require(action: AiActionType): AiActionHandler {
+    const handler = this.handlers.get(action);
+
+    if (!handler) {
+      throw new Error(`No AI action registered for '${action}'.`);
+    }
+
+    return handler;
+  }
 }
