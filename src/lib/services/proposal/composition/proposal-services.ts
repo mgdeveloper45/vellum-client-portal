@@ -3,6 +3,10 @@ import { DeleteProposalService } from "../delete-proposal-service";
 import { GetProposalsService } from "../get-proposals-service";
 import { prismaProposalRepository } from "../prisma-proposal-repository";
 import { ToggleProposalApprovalService } from "../toggle-proposal-approval-service";
+import { GenerateProposalService } from "../ai/generate-proposal-service";
+
+export const generateProposalService =
+  new GenerateProposalService();
 
 export const createProposalService = new CreateProposalService(
   prismaProposalRepository,

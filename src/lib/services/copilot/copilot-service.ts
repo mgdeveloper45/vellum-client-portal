@@ -4,6 +4,7 @@ import { buildConversationPlan } from "./copilot-conversation-planner";
 import { composeCopilotResponses } from "./copilot-response-composer";
 import { mergeCopilotResponses } from "./copilot-response-merger";
 import { routeCopilotQuestion } from "./copilot-question-router";
+import type { AiActionResult } from "@/lib/services/ai/actions/action-types";
 
 export interface CopilotResponse {
   answer: string;
@@ -11,6 +12,8 @@ export interface CopilotResponse {
   evidence: string[];
 
   suggestedActions: string[];
+
+  generatedDocument?: AiActionResult;
 }
 
 export function buildCopilotResponse(

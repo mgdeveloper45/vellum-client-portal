@@ -34,5 +34,7 @@ export function buildExecutiveOverview(
     suggestedActions: responses.flatMap(
       (response) => response.suggestedActions,
     ),
+
+    generatedDocument: undefined,
   };
 }

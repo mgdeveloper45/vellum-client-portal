@@ -10,6 +10,11 @@ describe("executeAction", () => {
     const execute = vi.fn().mockResolvedValue({
       success: true,
       message: "Invoice reminder drafted.",
+      title: "Invoice Reminder",
+      content: "Draft email body.",
+      metadata: {
+        action: "EMAIL",
+      },
     });
 
     registry.register("EMAIL", {
@@ -31,6 +36,17 @@ describe("executeAction", () => {
     expect(result).toEqual({
       success: true,
       message: "Invoice reminder drafted.",
+      title: "Invoice Reminder",
+      content: "Draft email body.",
+      metadata: {
+        action: "EMAIL",
+      },
+    });
+
+    expect(result.title).toBe("Invoice Reminder");
+    expect(result.content).toContain("Draft");
+    expect(result.metadata).toEqual({
+      action: "EMAIL",
     });
   });
 
@@ -40,6 +56,11 @@ describe("executeAction", () => {
     const execute = vi.fn().mockResolvedValue({
       success: true,
       message: "Booking created.",
+      title: "Booking Confirmation",
+      content: "Booking confirmation email.",
+      metadata: {
+        action: "BOOKING",
+      },
     });
 
     registry.register("BOOKING", {
@@ -59,6 +80,10 @@ describe("executeAction", () => {
     expect(execute).toHaveBeenCalledTimes(1);
 
     expect(result.success).toBe(true);
+    expect(result.title).toBe("Booking Confirmation");
+    expect(result.metadata).toEqual({
+      action: "BOOKING",
+    });
   });
 
   it("executes a task action", async () => {
@@ -67,6 +92,11 @@ describe("executeAction", () => {
     const execute = vi.fn().mockResolvedValue({
       success: true,
       message: "Task created.",
+      title: "Follow-up Task",
+      content: "Call client tomorrow.",
+      metadata: {
+        action: "TASK",
+      },
     });
 
     registry.register("TASK", {
@@ -86,6 +116,10 @@ describe("executeAction", () => {
     expect(execute).toHaveBeenCalledTimes(1);
 
     expect(result.success).toBe(true);
+    expect(result.title).toBe("Follow-up Task");
+    expect(result.metadata).toEqual({
+      action: "TASK",
+    });
   });
 
   it("returns a failure when no executable action exists", async () => {
