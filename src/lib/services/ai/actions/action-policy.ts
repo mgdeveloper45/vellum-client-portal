@@ -1,19 +1,20 @@
 import type { AiActionType } from "./action";
 
-export type ActionExecutionPolicy = "AUTOMATIC" | "CONFIRMATION_REQUIRED";
+export type ActionPolicy = "AUTOMATIC" | "CONFIRMATION_REQUIRED";
 
-export function getActionPolicy(action: AiActionType): ActionExecutionPolicy {
-  switch (action) {
-    case "DRAFT_EMAIL":
-      return "AUTOMATIC";
-
+export function getActionPolicy(type: AiActionType): ActionPolicy {
+  switch (type) {
     case "NONE":
       return "AUTOMATIC";
 
     case "CREATE_TASK":
+      return "AUTOMATIC";
+
+    case "DRAFT_EMAIL":
+      return "AUTOMATIC";
+
     case "CREATE_BOOKING":
     case "UPDATE_PROJECT":
-    case "CREATE_INVOICE":
       return "CONFIRMATION_REQUIRED";
   }
 }

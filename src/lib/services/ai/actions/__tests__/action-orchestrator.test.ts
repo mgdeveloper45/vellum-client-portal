@@ -7,7 +7,7 @@ describe("orchestrateAction", () => {
   it("executes automatic actions", async () => {
     const registry = new ActionRegistry();
 
-    registry.register("DRAFT_EMAIL", {
+    registry.register("EMAIL", {
       execute: async () => ({
         success: true,
         message: "Email drafted.",
@@ -27,11 +27,16 @@ describe("orchestrateAction", () => {
   it("requires confirmation for bookings", async () => {
     const registry = new ActionRegistry();
 
-    const result = await orchestrateAction("Schedule a booking.", registry);
+    const result = await orchestrateAction(
+      "Schedule a booking.",
+      registry,
+    );
 
     expect(result.success).toBe(false);
 
-    expect(result.message).toContain("Confirmation required");
+    expect(result.message).toContain(
+      "Confirmation required",
+    );
   });
 
   it("returns a failure when no handler exists", async () => {
@@ -44,6 +49,8 @@ describe("orchestrateAction", () => {
 
     expect(result.success).toBe(false);
 
-    expect(result.message).toContain("No handler");
+    expect(result.message).toContain(
+      "No handler",
+    );
   });
 });

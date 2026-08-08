@@ -6,12 +6,19 @@ export async function executeAction(
   action: AiAction,
   registry: ActionRegistry,
 ): Promise<AiActionResult> {
-  const handler = registry.resolve(action.type);
+  if (!action.executor) {
+    return {
+      success: false,
+      message: "No executable action was planned.",
+    };
+  }
+
+  const handler = registry.resolve(action.executor);
 
   if (!handler) {
     return {
       success: false,
-      message: `No handler registered for ${action.type}.`,
+      message: `No handler registered for ${action.executor}.`,
     };
   }
 

@@ -13,24 +13,37 @@ describe("ActionRegistry", () => {
       }),
     };
 
-    registry.register("CREATE_TASK", handler);
+    registry.register("TASK", handler);
 
-    expect(registry.resolve("CREATE_TASK")).toBe(handler);
+    expect(registry.resolve("TASK")).toBe(handler);
   });
 
-  it("returns undefined for unknown actions", () => {
+  it("returns undefined for unknown executors", () => {
     const registry = new ActionRegistry();
 
-    expect(registry.resolve("CREATE_BOOKING")).toBeUndefined();
+    expect(registry.resolve("BOOKING")).toBeUndefined();
   });
 
-  it("throws when requiring an unknown action", () => {
-  const registry = new ActionRegistry();
+  it("requires a registered handler", () => {
+    const registry = new ActionRegistry();
 
-  expect(() =>
-    registry.require("CREATE_BOOKING"),
-  ).toThrow(
-    "No AI action registered for 'CREATE_BOOKING'.",
-  );
-});
+    const handler = {
+      execute: async () => ({
+        success: true,
+        message: "Executed",
+      }),
+    };
+
+    registry.register("EMAIL", handler);
+
+    expect(registry.require("EMAIL")).toBe(handler);
+  });
+
+  it("throws when requiring an unknown executor", () => {
+    const registry = new ActionRegistry();
+
+    expect(() => registry.require("PROJECT")).toThrow(
+      "No AI action handler registered for 'PROJECT'.",
+    );
+  });
 });

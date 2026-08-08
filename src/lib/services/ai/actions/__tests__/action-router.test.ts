@@ -18,7 +18,10 @@ describe("routeAiAction", () => {
   });
 
   it("routes invoice actions", () => {
-    expect(routeAiAction("Create an invoice").type).toBe("CREATE_INVOICE");
+    const action = routeAiAction("Create an invoice");
+
+    expect(action.type).toBe("DRAFT_EMAIL");
+    expect(action.executor).toBe("EMAIL");
   });
 
   it("returns NONE for informational questions", () => {

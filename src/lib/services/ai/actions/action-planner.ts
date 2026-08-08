@@ -7,42 +7,47 @@ export function buildActionPlan(
   intent: ConversationIntent,
   topic: CopilotTopic,
 ): AiAction {
-  if (intent === "ACTION") {
-    switch (topic) {
-      case "INVOICES":
-        return {
-          type: "DRAFT_EMAIL",
-          confidence: 95,
-          explanation: "The user is requesting an action related to invoices.",
-        };
-
-      case "BOOKINGS":
-        return {
-          type: "CREATE_BOOKING",
-          confidence: 95,
-          explanation: "The user is requesting a booking action.",
-        };
-
-      case "PROJECTS":
-        return {
-          type: "UPDATE_PROJECT",
-          confidence: 90,
-          explanation: "The user is requesting a project update.",
-        };
-
-      default:
-        return {
-          type: "CREATE_TASK",
-          confidence: 75,
-          explanation:
-            "The user requested an action but no specialized executor was selected.",
-        };
-    }
+  if (intent !== "ACTION") {
+    return {
+      type: "NONE",
+      executor: null,
+      confidence: 100,
+      explanation: "No executable action required.",
+    };
   }
 
-  return {
-    type: "NONE",
-    confidence: 100,
-    explanation: "No executable action required.",
-  };
+  switch (topic) {
+    case "INVOICES":
+      return {
+        type: "DRAFT_EMAIL",
+        executor: "EMAIL",
+        confidence: 95,
+        explanation: "The user is requesting an action related to invoices.",
+      };
+
+    case "BOOKINGS":
+      return {
+        type: "CREATE_BOOKING",
+        executor: "BOOKING",
+        confidence: 95,
+        explanation: "The user is requesting a booking action.",
+      };
+
+    case "PROJECTS":
+      return {
+        type: "UPDATE_PROJECT",
+        executor: "PROJECT",
+        confidence: 90,
+        explanation: "The user is requesting a project update.",
+      };
+
+    default:
+      return {
+        type: "CREATE_TASK",
+        executor: "TASK",
+        confidence: 75,
+        explanation:
+          "The user requested an action but no specialized executor was selected.",
+      };
+  }
 }

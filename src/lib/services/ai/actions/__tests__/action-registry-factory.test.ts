@@ -23,23 +23,22 @@ describe("createActionRegistry", () => {
       createBooking,
     });
 
-    expect(registry.resolve("DRAFT_EMAIL")).toBe(draftEmail);
+    expect(registry.resolve("EMAIL")).toBe(draftEmail);
 
-    expect(registry.resolve("CREATE_BOOKING")).toBe(createBooking);
+    expect(registry.resolve("BOOKING")).toBe(createBooking);
   });
 
   it("does not register handlers that were not provided", () => {
     const registry = createActionRegistry();
 
-    expect(registry.resolve("DRAFT_EMAIL")).toBeUndefined();
+    expect(registry.resolve("EMAIL")).toBeUndefined();
 
-    expect(registry.resolve("CREATE_TASK")).toBeUndefined();
+    expect(registry.resolve("TASK")).toBeUndefined();
 
-    expect(registry.resolve("CREATE_BOOKING")).toBeUndefined();
+    expect(registry.resolve("BOOKING")).toBeUndefined();
 
-    expect(registry.resolve("UPDATE_PROJECT")).toBeUndefined();
+    expect(registry.resolve("PROJECT")).toBeUndefined();
 
-    expect(registry.resolve("CREATE_INVOICE")).toBeUndefined();
   });
 
   it("registers every supported handler", () => {
@@ -54,24 +53,21 @@ describe("createActionRegistry", () => {
     const createTask = handler();
     const createBooking = handler();
     const updateProject = handler();
-    const createInvoice = handler();
 
     const registry = createActionRegistry({
       draftEmail,
       createTask,
       createBooking,
       updateProject,
-      createInvoice,
     });
 
-    expect(registry.resolve("DRAFT_EMAIL")).toBe(draftEmail);
+    expect(registry.resolve("EMAIL")).toBe(draftEmail);
 
-    expect(registry.resolve("CREATE_TASK")).toBe(createTask);
+    expect(registry.resolve("TASK")).toBe(createTask);
 
-    expect(registry.resolve("CREATE_BOOKING")).toBe(createBooking);
+    expect(registry.resolve("BOOKING")).toBe(createBooking);
 
-    expect(registry.resolve("UPDATE_PROJECT")).toBe(updateProject);
+    expect(registry.resolve("PROJECT")).toBe(updateProject);
 
-    expect(registry.resolve("CREATE_INVOICE")).toBe(createInvoice);
   });
 });

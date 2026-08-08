@@ -1,4 +1,5 @@
 import { askWithPrompt } from "@/lib/services/ai/ai-service";
+import { buildInvoiceReminderPrompt } from "./prompts/email-prompt-builder";
 
 type DraftInvoiceReminderParams = {
   clientName: string;
@@ -15,22 +16,13 @@ export async function draftInvoiceReminderEmail({
   invoiceId,
   businessName,
 }: DraftInvoiceReminderParams) {
-  const prompt = `
-You are Vellum AI.
-
-Draft a polite, professional invoice reminder email.
-
-Details:
-Client: ${clientName}
-Business: ${businessName}
-Project: ${projectName}
-Invoice ID: ${invoiceId}
-Amount Due: $${amount.toLocaleString()}
-
-Return only:
-Subject:
-Email:
-`;
+  const prompt = buildInvoiceReminderPrompt({
+    clientName,
+    businessName,
+    projectName,
+    invoiceId,
+    amount,
+  });
 
   if (process.env.AI_MOCK_MODE === "true") {
     return `Subject:

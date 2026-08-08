@@ -6,7 +6,6 @@ export interface ActionRegistryHandlers {
   createTask?: AiActionHandler;
   createBooking?: AiActionHandler;
   updateProject?: AiActionHandler;
-  createInvoice?: AiActionHandler;
 }
 
 export function createActionRegistry(
@@ -15,23 +14,19 @@ export function createActionRegistry(
   const registry = new ActionRegistry();
 
   if (handlers.draftEmail) {
-    registry.register("DRAFT_EMAIL", handlers.draftEmail);
+    registry.register("EMAIL", handlers.draftEmail);
   }
 
   if (handlers.createTask) {
-    registry.register("CREATE_TASK", handlers.createTask);
+    registry.register("TASK", handlers.createTask);
   }
 
   if (handlers.createBooking) {
-    registry.register("CREATE_BOOKING", handlers.createBooking);
+    registry.register("BOOKING", handlers.createBooking);
   }
 
   if (handlers.updateProject) {
-    registry.register("UPDATE_PROJECT", handlers.updateProject);
-  }
-
-  if (handlers.createInvoice) {
-    registry.register("CREATE_INVOICE", handlers.createInvoice);
+    registry.register("PROJECT", handlers.updateProject);
   }
 
   return registry;

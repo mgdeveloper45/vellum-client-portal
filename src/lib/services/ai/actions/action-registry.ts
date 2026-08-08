@@ -1,22 +1,22 @@
-import type { AiActionType } from "./action";
+import type { AiActionExecutor } from "./action";
 import type { AiActionHandler } from "./action-handler";
 
 export class ActionRegistry {
-  private readonly handlers = new Map<AiActionType, AiActionHandler>();
+  private readonly handlers = new Map<AiActionExecutor, AiActionHandler>();
 
-  register(action: AiActionType, handler: AiActionHandler): void {
-    this.handlers.set(action, handler);
+  register(executor: AiActionExecutor, handler: AiActionHandler): void {
+    this.handlers.set(executor, handler);
   }
 
-  resolve(action: AiActionType): AiActionHandler | undefined {
-    return this.handlers.get(action);
+  resolve(executor: AiActionExecutor): AiActionHandler | undefined {
+    return this.handlers.get(executor);
   }
 
-  require(action: AiActionType): AiActionHandler {
-    const handler = this.handlers.get(action);
+  require(executor: AiActionExecutor): AiActionHandler {
+    const handler = this.handlers.get(executor);
 
     if (!handler) {
-      throw new Error(`No AI action registered for '${action}'.`);
+      throw new Error(`No AI action handler registered for '${executor}'.`);
     }
 
     return handler;

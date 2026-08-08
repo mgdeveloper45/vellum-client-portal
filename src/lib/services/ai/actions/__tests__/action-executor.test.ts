@@ -12,13 +12,14 @@ describe("executeAction", () => {
       message: "Invoice reminder drafted.",
     });
 
-    registry.register("DRAFT_EMAIL", {
+    registry.register("EMAIL", {
       execute,
     });
 
     const result = await executeAction(
       {
         type: "DRAFT_EMAIL",
+        executor: "EMAIL",
         confidence: 95,
         explanation: "",
       },
@@ -41,13 +42,14 @@ describe("executeAction", () => {
       message: "Booking created.",
     });
 
-    registry.register("CREATE_BOOKING", {
+    registry.register("BOOKING", {
       execute,
     });
 
     const result = await executeAction(
       {
         type: "CREATE_BOOKING",
+        executor: "BOOKING",
         confidence: 90,
         explanation: "",
       },
@@ -67,13 +69,14 @@ describe("executeAction", () => {
       message: "Task created.",
     });
 
-    registry.register("CREATE_TASK", {
+    registry.register("TASK", {
       execute,
     });
 
     const result = await executeAction(
       {
         type: "CREATE_TASK",
+        executor: "TASK",
         confidence: 90,
         explanation: "",
       },
@@ -85,12 +88,13 @@ describe("executeAction", () => {
     expect(result.success).toBe(true);
   });
 
-  it("returns a failure when no handler is registered", async () => {
+  it("returns a failure when no executable action exists", async () => {
     const registry = new ActionRegistry();
 
     const result = await executeAction(
       {
         type: "NONE",
+        executor: null,
         confidence: 100,
         explanation: "",
       },
@@ -99,7 +103,26 @@ describe("executeAction", () => {
 
     expect(result).toEqual({
       success: false,
-      message: "No handler registered for NONE.",
+      message: "No executable action was planned.",
+    });
+  });
+
+  it("returns a failure when no handler is registered", async () => {
+    const registry = new ActionRegistry();
+
+    const result = await executeAction(
+      {
+        type: "DRAFT_EMAIL",
+        executor: "EMAIL",
+        confidence: 95,
+        explanation: "",
+      },
+      registry,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      message: "No handler registered for EMAIL.",
     });
   });
 });

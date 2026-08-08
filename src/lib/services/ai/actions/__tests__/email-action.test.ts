@@ -1,7 +1,16 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
-import { generateEmailAction } from "../email-action";
 import { askWithPrompt } from "../../ai-service";
+
+import {
+  generateEmailAction,
+} from "../email-action";
 
 vi.mock("../../ai-service", () => ({
   askWithPrompt: vi.fn(),
@@ -10,19 +19,33 @@ vi.mock("../../ai-service", () => ({
 beforeEach(() => {
   vi.resetAllMocks();
 
-  vi.mocked(askWithPrompt).mockResolvedValue("Generated email.");
+  vi.mocked(
+    askWithPrompt,
+  ).mockResolvedValue(
+    "Generated email body.",
+  );
 });
 
 describe("generateEmailAction", () => {
-  it("returns generated email content", async () => {
-    const result = await generateEmailAction({
-      title: "Invoice Reminder",
-      prompt: "Generate reminder",
-    });
+  it("creates an email action", async () => {
+    const result =
+      await generateEmailAction({
+        title: "Invoice Reminder",
 
-    expect(result).toEqual({
-      title: "Invoice Reminder",
-      content: "Generated email.",
-    });
+        prompt:
+          "Generate reminder",
+      });
+
+    expect(result.type)
+      .toBe("EMAIL");
+
+    expect(result.title)
+      .toBe("Invoice Reminder");
+
+    expect(result.content)
+      .toBe("Generated email body.");
+
+    expect(result.preview.length)
+      .toBeGreaterThan(0);
   });
 });
