@@ -7,6 +7,7 @@ import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-wo
 import {
   createProposalService,
   deleteProposalService,
+  generateProposalService,
   toggleProposalApprovalService,
 } from "@/lib/services/proposal/composition/proposal-services";
 import {
@@ -14,6 +15,71 @@ import {
   proposalMutationSchema,
 } from "@/lib/validation/proposal";
 import { redirect } from "next/navigation";
+
+export interface GenerateProposalDraftInput {
+  clientName: string;
+  businessName: string;
+  projectName: string;
+  projectDescription: string;
+  estimatedPrice: number;
+  estimatedTimeline: string;
+}
+
+export type GenerateProposalDraftResult =
+  | {
+      success: true;
+      content: string;
+    }
+  | {
+      success: false;
+      error: string;
+    };
+
+export async function generateProposalDraftAction(
+  input: GenerateProposalDraftInput,
+): Promise<GenerateProposalDraftResult> {
+  const session = await auth();
+
+  if (!session?.user || !canManageProposals(session.user.role)) {
+    return {
+      success: false,
+      error: "Unauthorized.",
+    };
+  }
+
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
+
+  if (!workspaceId) {
+    return {
+      success: false,
+      error: "Workspace not found.",
+    };
+  }
+
+  try {
+    const content = await generateProposalService.generate({
+      clientName: input.clientName,
+      businessName: input.businessName,
+      projectName: input.projectName,
+      projectDescription: input.projectDescription,
+      estimatedPrice: input.estimatedPrice,
+      estimatedTimeline: input.estimatedTimeline,
+    });
+
+    return {
+      success: true,
+      content,
+    };
+  } catch {
+    return {
+      success: false,
+      error: "Unable to generate proposal.",
+    };
+  }
+}
 
 export async function createProposalAction(formData: FormData) {
   const session = await auth();
