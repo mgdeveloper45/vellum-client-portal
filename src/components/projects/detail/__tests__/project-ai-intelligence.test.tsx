@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { runProjectCopilotAction } from "@/actions/project-copilot-actions";
 
 import {
   fireEvent,
@@ -32,6 +33,14 @@ const generateSummaryMock = vi.mocked(
 
 const generateStatusMock = vi.mocked(
   generateProjectStatusAction,
+);
+
+vi.mock("@/actions/project-copilot-actions", () => ({
+  runProjectCopilotAction: vi.fn(),
+}));
+
+const projectCopilotMock = vi.mocked(
+  runProjectCopilotAction,
 );
 
 describe("ProjectAiIntelligence", () => {
@@ -244,4 +253,122 @@ describe("ProjectAiIntelligence", () => {
       screen.queryByRole("alert"),
     ).toBeNull();
   });
+
+  it("runs a project-aware copilot command", async () => {
+  projectCopilotMock.mockResolvedValue({
+    success: true,
+    content: "The project is progressing well.",
+  });
+
+  render(
+    <ProjectAiIntelligence projectId="project-1" />,
+  );
+
+  fireEvent.change(
+    screen.getByLabelText(
+      "Ask Vellum about this project",
+    ),
+    {
+      target: {
+        value:
+          "Give me an executive summary of this project",
+      },
+    },
+  );
+
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Ask",
+    }),
+  );
+
+  await waitFor(() => {
+    expect(
+      projectCopilotMock,
+    ).toHaveBeenCalledWith({
+      projectId: "project-1",
+      query:
+        "Give me an executive summary of this project",
+    });
+  });
+
+  expect(
+    await screen.findByText(
+      "The project is progressing well.",
+    ),
+  ).toBeTruthy();
+
+  expect(
+    screen.getByText("Vellum AI"),
+  ).toBeTruthy();
+});
+
+it("clears the copilot input after a successful command", async () => {
+  projectCopilotMock.mockResolvedValue({
+    success: true,
+    content: "Project status generated.",
+  });
+
+  render(
+    <ProjectAiIntelligence projectId="project-1" />,
+  );
+
+  const input = screen.getByLabelText(
+    "Ask Vellum about this project",
+  ) as HTMLInputElement;
+
+  fireEvent.change(input, {
+    target: {
+      value: "Check the status of this project",
+    },
+  });
+
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Ask",
+    }),
+  );
+
+  await screen.findByText(
+    "Project status generated.",
+  );
+
+  expect(input.value).toBe("");
+});
+
+it("shows a project copilot error", async () => {
+  projectCopilotMock.mockResolvedValue({
+    success: false,
+    error:
+      "Use the proposal generator below to provide pricing, timeline, and project details.",
+  });
+
+  render(
+    <ProjectAiIntelligence projectId="project-1" />,
+  );
+
+  fireEvent.change(
+    screen.getByLabelText(
+      "Ask Vellum about this project",
+    ),
+    {
+      target: {
+        value: "Create proposal for this project",
+      },
+    },
+  );
+
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Ask",
+    }),
+  );
+
+  const alert =
+    await screen.findByRole("alert");
+
+  expect(alert.textContent).toContain(
+    "Use the proposal generator below",
+  );
+});
 });

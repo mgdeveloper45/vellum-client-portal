@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { runProjectCopilotAction } from "@/actions/project-copilot-actions";
 import {
     generateProjectStatusAction,
     generateProjectSummaryAction,
@@ -11,20 +12,34 @@ type ProjectAiIntelligenceProps = {
     projectId: string;
 };
 
-type ActiveGeneration = "SUMMARY" | "STATUS" | null;
+type ActiveGeneration =
+    | "SUMMARY"
+    | "STATUS"
+    | "COPILOT"
+    | null;
+
+type ResultType =
+    | "SUMMARY"
+    | "STATUS"
+    | "COPILOT"
+    | null;
 
 export function ProjectAiIntelligence({
     projectId,
 }: ProjectAiIntelligenceProps) {
     const [content, setContent] = useState("");
-    const [resultType, setResultType] = useState<
-        "SUMMARY" | "STATUS" | null
-    >(null);
+    const [resultType, setResultType] =
+        useState<ResultType>(null);
 
     const [activeGeneration, setActiveGeneration] =
         useState<ActiveGeneration>(null);
 
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(
+        null,
+    );
+
+    const [copilotInput, setCopilotInput] =
+        useState("");
 
     async function handleGenerateSummary() {
         setError(null);
@@ -42,7 +57,9 @@ export function ProjectAiIntelligence({
             setContent(result.content);
             setResultType("SUMMARY");
         } catch {
-            setError("Unable to generate project summary.");
+            setError(
+                "Unable to generate project summary.",
+            );
         } finally {
             setActiveGeneration(null);
         }
@@ -64,13 +81,51 @@ export function ProjectAiIntelligence({
             setContent(result.content);
             setResultType("STATUS");
         } catch {
-            setError("Unable to generate project status.");
+            setError(
+                "Unable to generate project status.",
+            );
         } finally {
             setActiveGeneration(null);
         }
     }
 
-    const isGenerating = activeGeneration !== null;
+    async function handleCopilotCommand() {
+        const query = copilotInput.trim();
+
+        if (!query) {
+            setError("Enter a question or command.");
+            return;
+        }
+
+        setError(null);
+        setActiveGeneration("COPILOT");
+
+        try {
+            const result =
+                await runProjectCopilotAction({
+                    projectId,
+                    query,
+                });
+
+            if (!result.success) {
+                setError(result.error);
+                return;
+            }
+
+            setContent(result.content);
+            setResultType("COPILOT");
+            setCopilotInput("");
+        } catch {
+            setError(
+                "Unable to process the project command.",
+            );
+        } finally {
+            setActiveGeneration(null);
+        }
+    }
+
+    const isGenerating =
+        activeGeneration !== null;
 
     return (
         <section className="mt-8 border-t border-border pt-8">
@@ -80,9 +135,10 @@ export function ProjectAiIntelligence({
                 </h2>
 
                 <p className="mt-1 text-sm text-foreground/60">
-                    Generate an executive summary or assess the
-                    current health of this project using its latest
-                    milestones and financial data.
+                    Generate an executive summary, assess
+                    project health, or ask Vellum about this
+                    project using its latest milestones and
+                    financial data.
                 </p>
             </div>
 
@@ -110,6 +166,55 @@ export function ProjectAiIntelligence({
                 </button>
             </div>
 
+            <div className="mt-6">
+                <label
+                    htmlFor={`project-copilot-${projectId}`}
+                    className="text-sm font-medium"
+                >
+                    Ask Vellum about this project
+                </label>
+
+                <p className="mt-1 text-xs text-foreground/50">
+                    Try asking for an executive summary,
+                    project status, or proposal.
+                </p>
+
+                <div className="mt-3 flex flex-col gap-3 md:flex-row">
+                    <input
+                        id={`project-copilot-${projectId}`}
+                        value={copilotInput}
+                        onChange={(event) =>
+                            setCopilotInput(event.target.value)
+                        }
+                        onKeyDown={(event) => {
+                            if (
+                                event.key === "Enter" &&
+                                !isGenerating
+                            ) {
+                                handleCopilotCommand();
+                            }
+                        }}
+                        disabled={isGenerating}
+                        placeholder="Try: Give me an executive summary of this project"
+                        className="flex-1 rounded-full border border-border bg-background px-5 py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+
+                    <button
+                        type="button"
+                        onClick={handleCopilotCommand}
+                        disabled={
+                            isGenerating ||
+                            !copilotInput.trim()
+                        }
+                        className="workspace-accent-button rounded-full px-5 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {activeGeneration === "COPILOT"
+                            ? "Thinking..."
+                            : "Ask"}
+                    </button>
+                </div>
+            </div>
+
             {error && (
                 <p
                     role="alert"
@@ -124,7 +229,9 @@ export function ProjectAiIntelligence({
                     <p className="text-xs font-medium uppercase tracking-wide text-foreground/50">
                         {resultType === "SUMMARY"
                             ? "Executive Summary"
-                            : "Project Status"}
+                            : resultType === "STATUS"
+                                ? "Project Status"
+                                : "Vellum AI"}
                     </p>
 
                     <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-foreground/80">
