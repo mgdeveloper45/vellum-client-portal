@@ -6,11 +6,9 @@ import {
 } from "./project-status-prompt-builder";
 
 export class GenerateProjectStatusService {
-  async generate(
-    params: ProjectStatusPromptParams,
-  ): Promise<string> {
-    const prompt = buildProjectStatusPrompt(params);
-
-    return askWithPrompt(prompt);
+  async generate(params: ProjectStatusPromptParams): Promise<string> {
+    return askWithPrompt(buildProjectStatusPrompt(params));
   }
 }
+
+export const generateProjectStatusService = new GenerateProjectStatusService();

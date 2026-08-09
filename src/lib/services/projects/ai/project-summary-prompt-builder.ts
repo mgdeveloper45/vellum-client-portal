@@ -1,24 +1,30 @@
 export interface ProjectSummaryPromptParams {
   projectName: string;
   clientName: string;
-  completedTasks: string[];
-  outstandingTasks: string[];
-  budgetUsed: number;
-  budgetRemaining: number;
+  projectDescription: string;
+  projectStatus: string;
+  completedMilestones: string[];
+  outstandingMilestones: string[];
+  totalInvoiced: number;
+  totalPaid: number;
+  outstandingAmount: number;
   risks: string[];
 }
 
 export function buildProjectSummaryPrompt({
   projectName,
   clientName,
-  completedTasks,
-  outstandingTasks,
-  budgetUsed,
-  budgetRemaining,
+  projectDescription,
+  projectStatus,
+  completedMilestones,
+  outstandingMilestones,
+  totalInvoiced,
+  totalPaid,
+  outstandingAmount,
   risks,
 }: ProjectSummaryPromptParams): string {
   return `
-You are an experienced project director preparing an executive summary.
+You are an experienced project director preparing a concise executive project summary.
 
 Project
 ${projectName}
@@ -26,35 +32,53 @@ ${projectName}
 Client
 ${clientName}
 
-Completed Work
-${completedTasks.length > 0
-    ? completedTasks.map(task => `• ${task}`).join("\n")
-    : "None"}
+Description
+${projectDescription || "No project description provided."}
 
-Outstanding Work
-${outstandingTasks.length > 0
-    ? outstandingTasks.map(task => `• ${task}`).join("\n")
-    : "None"}
+Current Status
+${projectStatus}
 
-Budget Used
-$${budgetUsed.toLocaleString()}
+Completed Milestones
+${
+  completedMilestones.length > 0
+    ? completedMilestones.map((milestone) => `• ${milestone}`).join("\n")
+    : "None"
+}
 
-Budget Remaining
-$${budgetRemaining.toLocaleString()}
+Outstanding Milestones
+${
+  outstandingMilestones.length > 0
+    ? outstandingMilestones.map((milestone) => `• ${milestone}`).join("\n")
+    : "None"
+}
 
-Risks
-${risks.length > 0
-    ? risks.map(risk => `• ${risk}`).join("\n")
-    : "No major risks"}
+Total Invoiced
+$${totalInvoiced.toLocaleString()}
 
-Create an executive summary with the following sections:
+Total Paid
+$${totalPaid.toLocaleString()}
+
+Outstanding Amount
+$${outstandingAmount.toLocaleString()}
+
+Known Risks
+${
+  risks.length > 0
+    ? risks.map((risk) => `• ${risk}`).join("\n")
+    : "No major risks identified."
+}
+
+Create an executive summary using these sections:
 
 1. Overall Health
 2. Progress
-3. Budget
+3. Financial Position
 4. Risks
 5. Recommendations
 
-Return only the summary.
-`;
+Be concise, professional, and factual.
+Do not invent project information that is not provided above.
+
+Return only the executive summary.
+`.trim();
 }

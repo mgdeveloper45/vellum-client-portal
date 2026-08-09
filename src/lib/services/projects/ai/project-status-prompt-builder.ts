@@ -1,56 +1,62 @@
 export interface ProjectStatusPromptParams {
   projectName: string;
-  clientName: string;
-  currentStatus: string;
-  completedTasks: string[];
-  upcomingTasks: string[];
-  risks: string[];
+  projectStatus: string;
+  completedMilestones: number;
+  totalMilestones: number;
+  totalInvoiced: number;
+  outstandingAmount: number;
+  overdueMilestones: string[];
 }
 
 export function buildProjectStatusPrompt({
   projectName,
-  clientName,
-  currentStatus,
-  completedTasks,
-  upcomingTasks,
-  risks,
+  projectStatus,
+  completedMilestones,
+  totalMilestones,
+  totalInvoiced,
+  outstandingAmount,
+  overdueMilestones,
 }: ProjectStatusPromptParams): string {
   return `
-You are preparing a professional client project update.
-
-Client
-${clientName}
+You are an experienced project operations manager evaluating project health.
 
 Project
 ${projectName}
 
 Current Status
-${currentStatus}
+${projectStatus}
 
-Completed Work
-${completedTasks.length > 0
-    ? completedTasks.map(task => `• ${task}`).join("\n")
-    : "None"}
+Milestone Progress
+${completedMilestones} of ${totalMilestones} milestones completed
 
-Upcoming Work
-${upcomingTasks.length > 0
-    ? upcomingTasks.map(task => `• ${task}`).join("\n")
-    : "None"}
+Total Invoiced
+$${totalInvoiced.toLocaleString()}
 
-Risks
-${risks.length > 0
-    ? risks.map(risk => `• ${risk}`).join("\n")
-    : "No known risks"}
+Outstanding Invoice Amount
+$${outstandingAmount.toLocaleString()}
 
-Write a friendly, professional client update including:
+Overdue Milestones
+${
+  overdueMilestones.length > 0
+    ? overdueMilestones.map((milestone) => `• ${milestone}`).join("\n")
+    : "None"
+}
 
-1. Greeting
-2. Progress Summary
-3. Completed Work
-4. Upcoming Work
-5. Risks (only if applicable)
-6. Closing
+Evaluate the current project status.
 
-Return only the email.
-`;
+Use these sections:
+
+1. Health Assessment
+2. Schedule
+3. Financial Status
+4. Attention Required
+5. Next Step
+
+Base the assessment only on the supplied project information.
+Do not invent missing facts.
+
+Keep the response concise and actionable.
+
+Return only the project status assessment.
+`.trim();
 }

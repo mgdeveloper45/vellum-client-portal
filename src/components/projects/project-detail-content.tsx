@@ -7,6 +7,7 @@ import { ProjectOverview } from "./detail/project-overview";
 import { ProjectProposals } from "./detail/project-proposals";
 import { ProjectMilestones } from "./detail/project-milestones";
 import { ProjectDeposits } from "./detail/project-deposits";
+import { ProjectAiIntelligence } from "./detail/project-ai-intelligence";
 import { ProjectFinancialSummary } from "./detail/project-financial-summary";
 import { RequestDepositForm } from "./detail/request-deposit-form";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
@@ -45,6 +46,12 @@ export function ProjectDetailContent({
                 <ProjectFinancialSummary
                     {...financialSummary}
                 />
+
+                {canManageProject && (
+                    <ProjectAiIntelligence
+                        projectId={project.id}
+                    />
+                )}
 
                 <ProjectTimeline
                     items={timelineItems}
