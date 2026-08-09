@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { runAICommandAction } from "@/actions/ai-command-actions";
+import {
+    runAICommandAction,
+    type AICommandResult,
+} from "@/actions/ai-command-actions";
 
 export function AICommandCenter() {
     const [input, setInput] = useState("");
-    const [result, setResult] = useState("");
+    const [result, setResult] =
+        useState<AICommandResult | null>(null);
     const [isPending, startTransition] = useTransition();
 
     function handleRunCommand() {
@@ -71,11 +75,47 @@ export function AICommandCenter() {
                 </button>
             </div>
 
-            {result && (
+            {result?.type === "ANSWER" && (
                 <div className="mt-6 rounded-2xl border border-border bg-background p-5">
                     <pre className="whitespace-pre-wrap text-sm leading-6 text-foreground/80">
-                        {result}
+                        {result.message}
                     </pre>
+                </div>
+            )}
+
+            {result?.type === "CONFIRMATION" && (
+                <div className="mt-6 rounded-2xl border border-border bg-background p-5">
+                    <p className="text-sm font-medium">
+                        Confirmation required
+                    </p>
+
+                    <p className="mt-2 text-sm leading-6 text-foreground/70">
+                        {result.message}
+                    </p>
+
+                    <div className="mt-5 flex flex-wrap gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setResult(null)}
+                            className="rounded-full border border-border px-5 py-2 text-sm font-medium"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setResult({
+                                    type: "ANSWER",
+                                    message:
+                                        "This action is ready for execution, but automatic execution is not enabled yet.",
+                                });
+                            }}
+                            className="workspace-accent-button rounded-full px-5 py-2 text-sm font-medium"
+                        >
+                            Confirm
+                        </button>
+                    </div>
                 </div>
             )}
         </section>

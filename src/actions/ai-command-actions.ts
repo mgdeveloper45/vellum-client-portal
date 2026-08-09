@@ -1,28 +1,61 @@
 "use server";
-
+import type { AiActionType } from "@/lib/services/ai/actions/action";
 import { requireDashboardUser } from "@/lib/dashboard/dashboard-loader";
 import { getDashboardQuery } from "@/lib/queries/dashboard/get-dashboard-query";
 import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
+import { planCopilotAction } from "@/lib/services/ai/actions/copilot-action-planner-service";
 import { buildCopilotResponse } from "@/lib/services/copilot/copilot-service";
 import { buildDashboard } from "@/lib/services/dashboard/dashboard-builder";
 
-export async function runAICommandAction(input: string): Promise<string> {
+export type AICommandResult =
+  | {
+      type: "ANSWER";
+      message: string;
+    }
+  | {
+      type: "CONFIRMATION";
+      action: AiActionType;
+      message: string;
+    };
+
+export async function runAICommandAction(
+  input: string,
+): Promise<AICommandResult> {
   const query = input.trim();
 
   if (!query) {
-    return "Enter a question or command.";
+    return {
+      type: "ANSWER",
+      message: "Enter a question or command.",
+    };
   }
 
   const user = await requireDashboardUser();
 
   if (!user) {
-    return "Please sign in.";
+    return {
+      type: "ANSWER",
+      message: "Please sign in.",
+    };
   }
 
   const workspaceId = await getCurrentUserWorkspaceQuery(user.id);
 
   if (!workspaceId) {
-    return "Workspace not found.";
+    return {
+      type: "ANSWER",
+      message: "Workspace not found.",
+    };
+  }
+
+  const actionPlan = planCopilotAction(query);
+
+  if (actionPlan.handled) {
+    return {
+      type: "CONFIRMATION",
+      action: actionPlan.action,
+      message: actionPlan.message,
+    };
   }
 
   const dashboardData = await getDashboardQuery({
@@ -37,7 +70,10 @@ export async function runAICommandAction(input: string): Promise<string> {
 
   const response = buildCopilotResponse(dashboard, query);
 
-  return formatCopilotResponse(response);
+  return {
+    type: "ANSWER",
+    message: formatCopilotResponse(response),
+  };
 }
 
 function formatCopilotResponse(
