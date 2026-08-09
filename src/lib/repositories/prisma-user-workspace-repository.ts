@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import type { UserWorkspaceRepository } from "./user-workspace-repository";
+
+import type {
+  UserWorkspaceRepository,
+  WorkspaceBusinessContext,
+} from "./user-workspace-repository";
 
 export class PrismaUserWorkspaceRepository implements UserWorkspaceRepository {
   async findWorkspaceIdByUserId(userId: string): Promise<string | null> {
@@ -13,6 +17,27 @@ export class PrismaUserWorkspaceRepository implements UserWorkspaceRepository {
     });
 
     return user?.workspaceId ?? null;
+  }
+
+  async findWorkspaceBusinessContextByUserId(
+    userId: string,
+  ): Promise<WorkspaceBusinessContext | null> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        workspace: {
+          select: {
+            id: true,
+            name: true,
+            companyName: true,
+          },
+        },
+      },
+    });
+
+    return user?.workspace ?? null;
   }
 }
 

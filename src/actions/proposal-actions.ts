@@ -29,6 +29,7 @@ export interface GenerateProposalDraftInput {
 export type GenerateProposalDraftResult =
   | {
       success: true;
+      title: string;
       content: string;
     }
   | {
@@ -64,17 +65,19 @@ export async function generateProposalDraftAction(
     };
   }
 
-  const workspaceId =
-    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
-      session.user.id,
-    );
+  const workspace =
+  await prismaUserWorkspaceRepository.findWorkspaceBusinessContextByUserId(
+    session.user.id,
+  );
 
-  if (!workspaceId) {
-    return {
-      success: false,
-      error: "Workspace not found.",
-    };
-  }
+if (!workspace) {
+  return {
+    success: false,
+    error: "Workspace not found.",
+  };
+}
+
+const workspaceId = workspace.id;
 
   const project = await getProjectAiContextService.execute({
     workspaceId,
@@ -91,7 +94,7 @@ export async function generateProposalDraftAction(
   try {
     const content = await generateProposalService.generate({
       clientName: `${project.client.firstName} ${project.client.lastName}`,
-      businessName: "Vellum",
+      businessName: workspace.companyName ?? workspace.name,
       projectName: project.name,
       projectDescription: input.projectDescription,
       estimatedPrice: input.estimatedPrice,
@@ -100,6 +103,7 @@ export async function generateProposalDraftAction(
 
     return {
       success: true,
+      title: `${project.name} Proposal`,
       content,
     };
   } catch {
@@ -108,6 +112,49 @@ export async function generateProposalDraftAction(
       error: "Unable to generate proposal.",
     };
   }
+}
+
+export async function createProposalAction(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user || !canManageProposals(session.user.role)) {
+    return;
+  }
+
+  const input = createProposalSchema.parse({
+    projectId: formData.get("projectId"),
+  });
+
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
+
+  if (!workspaceId) {
+    return;
+  }
+
+  const result = await createProposalService.execute({
+    projectId: input.projectId,
+    workspaceId,
+  });
+
+  if (!result.success) {
+    return;
+  }
+
+  await createAuditLog({
+    action: "PROPOSAL_CREATED",
+    entity: "PROPOSAL",
+    entityId: result.proposal.id,
+    userId: session.user.id,
+    metadata: {
+      projectId: result.proposal.projectId,
+      approved: result.proposal.approved,
+    },
+  });
+
+  redirect(`/projects/${result.proposal.projectId}`);
 }
 
 export async function saveProposalDraftAction(
@@ -181,49 +228,6 @@ export async function saveProposalDraftAction(
     success: true,
     proposalId: result.proposal.id,
   };
-}
-
-export async function createProposalAction(formData: FormData) {
-  const session = await auth();
-
-  if (!session?.user || !canManageProposals(session.user.role)) {
-    return;
-  }
-
-  const input = createProposalSchema.parse({
-    projectId: formData.get("projectId"),
-  });
-
-  const workspaceId =
-    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
-      session.user.id,
-    );
-
-  if (!workspaceId) {
-    return;
-  }
-
-  const result = await createProposalService.execute({
-    projectId: input.projectId,
-    workspaceId,
-  });
-
-  if (!result.success) {
-    return;
-  }
-
-  await createAuditLog({
-    action: "PROPOSAL_CREATED",
-    entity: "PROPOSAL",
-    entityId: result.proposal.id,
-    userId: session.user.id,
-    metadata: {
-      projectId: result.proposal.projectId,
-      approved: result.proposal.approved,
-    },
-  });
-
-  redirect(`/projects/${result.proposal.projectId}`);
 }
 
 export async function toggleProposalApprovalAction(formData: FormData) {

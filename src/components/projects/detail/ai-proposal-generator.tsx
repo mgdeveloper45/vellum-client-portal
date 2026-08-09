@@ -27,8 +27,12 @@ export function AiProposalGenerator({
     const [draft, setDraft] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [hasSaved, setHasSaved] = useState(false);
+
 
     async function handleGenerate() {
+        setHasSaved(false);
+        setSaveMessage(null);
         setError(null);
         setIsGenerating(true);
 
@@ -67,7 +71,7 @@ export function AiProposalGenerator({
             }
 
             setDraft(result.content);
-            setTitle("Project Proposal");
+            setTitle(result.title);
             setSaveMessage(null);
 
         } catch {
@@ -108,9 +112,10 @@ export function AiProposalGenerator({
                 return;
             }
 
+            setHasSaved(true);
             setSaveMessage("Proposal saved.");
-
             router.refresh();
+
         } catch {
             setError("Unable to save proposal.");
         } finally {
@@ -259,10 +264,14 @@ export function AiProposalGenerator({
                             <button
                                 type="button"
                                 onClick={handleSave}
-                                disabled={isSaving}
+                                disabled={isSaving || hasSaved}
                                 className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                {isSaving ? "Saving..." : "Save Proposal"}
+                                {isSaving
+                                    ? "Saving..."
+                                    : hasSaved
+                                        ? "Saved"
+                                        : "Save Proposal"}
                             </button>
 
                             {saveMessage && (
