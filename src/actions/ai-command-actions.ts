@@ -1,86 +1,64 @@
 "use server";
 
-import { auth } from "@/auth";
-import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
-import { routeCommand } from "@/lib/services/ai/command-router";
-import { getWorkspaceAIContext } from "@/lib/services/ai/workspace-context";
-import { analyzeWorkspace } from "@/lib/services/ai/business-insights";
+import { requireDashboardUser } from "@/lib/dashboard/dashboard-loader";
+import { getDashboardQuery } from "@/lib/queries/dashboard/get-dashboard-query";
+import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
+import { buildCopilotResponse } from "@/lib/services/copilot/copilot-service";
+import { buildDashboard } from "@/lib/services/dashboard/dashboard-builder";
 
-export async function runAICommandAction(input: string) {
-  const session = await auth();
+export async function runAICommandAction(input: string): Promise<string> {
+  const query = input.trim();
 
-  if (!session?.user) {
+  if (!query) {
+    return "Enter a question or command.";
+  }
+
+  const user = await requireDashboardUser();
+
+  if (!user) {
     return "Please sign in.";
   }
 
-  const workspaceId =
-    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
-      session.user.id,
-    );
+  const workspaceId = await getCurrentUserWorkspaceQuery(user.id);
 
   if (!workspaceId) {
     return "Workspace not found.";
   }
 
-  const context = await getWorkspaceAIContext({
-    userId: session.user.id,
+  const dashboardData = await getDashboardQuery({
+    userId: user.id,
+    userRole: user.role,
     workspaceId,
   });
 
-  const command = routeCommand(input);
-  const insights = analyzeWorkspace(context);
+  const dashboard = await buildDashboard({
+    data: dashboardData,
+  });
 
-  if (command === "workspace-summary") {
-    return `Workspace Summary
+  const response = buildCopilotResponse(dashboard, query);
 
-Active projects: ${insights.counts.activeProjects}
-Today's bookings: ${insights.counts.todaysBookings}
-Upcoming bookings: ${insights.counts.upcomingBookings}
-Unpaid invoices: ${insights.counts.unpaidInvoices}
-Outstanding revenue: $${insights.money.unpaidInvoiceTotal.toLocaleString()}
+  return formatCopilotResponse(response);
+}
 
-Top priority:
-${insights.topPriority}`;
+function formatCopilotResponse(
+  response: ReturnType<typeof buildCopilotResponse>,
+): string {
+  const sections = [response.answer];
+
+  if (response.evidence.length > 0) {
+    sections.push(
+      ["Evidence", ...response.evidence.map((item) => `• ${item}`)].join("\n"),
+    );
   }
 
-  if (command === "unpaid-invoices") {
-    if (context.unpaidInvoices.length === 0) {
-      return "No unpaid invoices found.";
-    }
-
-    return context.unpaidInvoices
-      .map(
-        (invoice) =>
-          `${invoice.project.name}: $${invoice.amount.toLocaleString()}`,
-      )
-      .join("\n");
+  if (response.suggestedActions.length > 0) {
+    sections.push(
+      [
+        "Suggested Actions",
+        ...response.suggestedActions.map((action) => `• ${action}`),
+      ].join("\n"),
+    );
   }
 
-  if (command === "todays-bookings") {
-    if (context.todaysBookings.length === 0) {
-      return "No bookings scheduled for today.";
-    }
-
-    return context.todaysBookings
-      .map(
-        (booking) =>
-          `${booking.startTime} — ${booking.customerName} (${booking.service.name})`,
-      )
-      .join("\n");
-  }
-
-  if (command === "recent-messages") {
-    if (context.recentMessages.length === 0) {
-      return "No recent messages found.";
-    }
-
-    return context.recentMessages
-      .map(
-        (message) =>
-          `${message.sender.firstName} ${message.sender.lastName} on ${message.project.name}: ${message.content}`,
-      )
-      .join("\n\n");
-  }
-
-  return "I can help summarize your workspace, show unpaid invoices, today's bookings, or recent messages.";
+  return sections.join("\n\n");
 }

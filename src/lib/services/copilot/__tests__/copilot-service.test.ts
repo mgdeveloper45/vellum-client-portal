@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-
 import { buildDashboard } from "@/lib/services/dashboard/dashboard-builder";
 import { createHealthyDashboardQueryResult } from "@/lib/services/dashboard/__tests__/fixtures";
-
 import { buildCopilotResponse } from "../copilot-service";
 
 vi.mock("@/lib/services/ai/executive-brief-service", () => ({
@@ -205,5 +203,62 @@ describe("buildCopilotResponse", () => {
     const response = buildCopilotResponse(dashboard, "What do you recommend?");
 
     expect(response.answer.length).toBeGreaterThan(0);
+  });
+
+  it("requires project context for a project summary generation intent", async () => {
+    const dashboard = await buildDashboard({
+      data: createHealthyDashboardQueryResult(),
+    });
+
+    const response = buildCopilotResponse(
+      dashboard,
+      "Give me an executive summary of this project",
+    );
+
+    expect(response.answer).toContain("when a project is selected");
+
+    expect(response.evidence).toEqual([]);
+
+    expect(response.suggestedActions).toContain(
+      "Open a project and generate its executive summary.",
+    );
+  });
+
+  it("requires project context for a project status generation intent", async () => {
+    const dashboard = await buildDashboard({
+      data: createHealthyDashboardQueryResult(),
+    });
+
+    const response = buildCopilotResponse(
+      dashboard,
+      "Check the status of this project",
+    );
+
+    expect(response.answer).toContain("when a project is selected");
+
+    expect(response.evidence).toEqual([]);
+
+    expect(response.suggestedActions).toContain(
+      "Open a project and check its current status.",
+    );
+  });
+
+  it("requires project context for proposal generation", async () => {
+    const dashboard = await buildDashboard({
+      data: createHealthyDashboardQueryResult(),
+    });
+
+    const response = buildCopilotResponse(
+      dashboard,
+      "Create proposal for this project",
+    );
+
+    expect(response.answer).toContain("when a project is selected");
+
+    expect(response.evidence).toEqual([]);
+
+    expect(response.suggestedActions).toContain(
+      "Open a project and generate a proposal.",
+    );
   });
 });

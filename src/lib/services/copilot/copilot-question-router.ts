@@ -18,6 +18,20 @@ export function routeCopilotQuestion(query: string): CopilotQuestion {
   const normalized = query.toLowerCase();
 
   if (
+    normalized.includes("project") ||
+    normalized.includes("projects") ||
+    normalized.includes("milestone") ||
+    normalized.includes("milestones") ||
+    normalized.includes("job") ||
+    normalized.includes("jobs")
+  ) {
+    return {
+      topic: "PROJECTS",
+      query,
+    };
+  }
+
+  if (
     normalized.includes("overview") ||
     normalized.includes("business") ||
     normalized.includes("dashboard") ||
@@ -77,20 +91,6 @@ export function routeCopilotQuestion(query: string): CopilotQuestion {
   ) {
     return {
       topic: "CLIENTS",
-      query,
-    };
-  }
-
-  if (
-    normalized.includes("project") ||
-    normalized.includes("projects") ||
-    normalized.includes("milestone") ||
-    normalized.includes("milestones") ||
-    normalized.includes("job") ||
-    normalized.includes("jobs")
-  ) {
-    return {
-      topic: "PROJECTS",
       query,
     };
   }

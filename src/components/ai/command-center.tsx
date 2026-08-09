@@ -9,13 +9,17 @@ export function AICommandCenter() {
     const [isPending, startTransition] = useTransition();
 
     function handleRunCommand() {
-        if (!input.trim()) {
+        const command = input.trim();
+
+        if (!command) {
             return;
         }
 
         startTransition(async () => {
-            const response = await runAICommandAction(input);
+            const response = await runAICommandAction(command);
+
             setResult(response);
+            setInput("");
         });
     }
 
@@ -41,10 +45,11 @@ export function AICommandCenter() {
                             handleRunCommand();
                         }
                     }}
+                    disabled={isPending}
                     aria-label="AI command"
                     aria-describedby="ai-command-help"
                     placeholder="Try: Show unpaid invoices"
-                    className="flex-1 rounded-full border border-border bg-background px-5 py-3 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus:border-foreground/40"
+                    className="flex-1 rounded-full border border-border bg-background px-5 py-3 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60"
                 />
 
                 <p
@@ -59,12 +64,10 @@ export function AICommandCenter() {
                 <button
                     type="button"
                     onClick={handleRunCommand}
-                    disabled={isPending}
-                    className="workspace-accent-button rounded-full px-5 py-3 text-sm font-medium disabled:opacity-60"
+                    disabled={isPending || !input.trim()}
+                    className="workspace-accent-button rounded-full px-5 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                    {isPending
-                        ? "Running..."
-                        : "Run"}
+                    {isPending ? "Running..." : "Run"}
                 </button>
             </div>
 
