@@ -26,46 +26,64 @@ export type AggregateProposal = {
 
 export type ProposalMinAggregateOutputType = {
   id: string | null
+  title: string | null
+  content: string | null
   approved: boolean | null
   projectId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProposalMaxAggregateOutputType = {
   id: string | null
+  title: string | null
+  content: string | null
   approved: boolean | null
   projectId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProposalCountAggregateOutputType = {
   id: number
+  title: number
+  content: number
   approved: number
   projectId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
 export type ProposalMinAggregateInputType = {
   id?: true
+  title?: true
+  content?: true
   approved?: true
   projectId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ProposalMaxAggregateInputType = {
   id?: true
+  title?: true
+  content?: true
   approved?: true
   projectId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ProposalCountAggregateInputType = {
   id?: true
+  title?: true
+  content?: true
   approved?: true
   projectId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -143,9 +161,12 @@ export type ProposalGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type ProposalGroupByOutputType = {
   id: string
+  title: string | null
+  content: string | null
   approved: boolean
   projectId: string
   createdAt: Date
+  updatedAt: Date
   _count: ProposalCountAggregateOutputType | null
   _min: ProposalMinAggregateOutputType | null
   _max: ProposalMaxAggregateOutputType | null
@@ -171,17 +192,23 @@ export type ProposalWhereInput = {
   OR?: Prisma.ProposalWhereInput[]
   NOT?: Prisma.ProposalWhereInput | Prisma.ProposalWhereInput[]
   id?: Prisma.StringFilter<"Proposal"> | string
+  title?: Prisma.StringNullableFilter<"Proposal"> | string | null
+  content?: Prisma.StringNullableFilter<"Proposal"> | string | null
   approved?: Prisma.BoolFilter<"Proposal"> | boolean
   projectId?: Prisma.StringFilter<"Proposal"> | string
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }
 
 export type ProposalOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
+  content?: Prisma.SortOrderInput | Prisma.SortOrder
   approved?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
 }
 
@@ -190,17 +217,23 @@ export type ProposalWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ProposalWhereInput | Prisma.ProposalWhereInput[]
   OR?: Prisma.ProposalWhereInput[]
   NOT?: Prisma.ProposalWhereInput | Prisma.ProposalWhereInput[]
+  title?: Prisma.StringNullableFilter<"Proposal"> | string | null
+  content?: Prisma.StringNullableFilter<"Proposal"> | string | null
   approved?: Prisma.BoolFilter<"Proposal"> | boolean
   projectId?: Prisma.StringFilter<"Proposal"> | string
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }, "id">
 
 export type ProposalOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
+  content?: Prisma.SortOrderInput | Prisma.SortOrder
   approved?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProposalCountOrderByAggregateInput
   _max?: Prisma.ProposalMaxOrderByAggregateInput
   _min?: Prisma.ProposalMinOrderByAggregateInput
@@ -211,57 +244,81 @@ export type ProposalScalarWhereWithAggregatesInput = {
   OR?: Prisma.ProposalScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ProposalScalarWhereWithAggregatesInput | Prisma.ProposalScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Proposal"> | string
+  title?: Prisma.StringNullableWithAggregatesFilter<"Proposal"> | string | null
+  content?: Prisma.StringNullableWithAggregatesFilter<"Proposal"> | string | null
   approved?: Prisma.BoolWithAggregatesFilter<"Proposal"> | boolean
   projectId?: Prisma.StringWithAggregatesFilter<"Proposal"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Proposal"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Proposal"> | Date | string
 }
 
 export type ProposalCreateInput = {
   id?: string
+  title?: string | null
+  content?: string | null
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutProposalsInput
 }
 
 export type ProposalUncheckedCreateInput = {
   id?: string
+  title?: string | null
+  content?: string | null
   approved?: boolean
   projectId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProposalUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutProposalsNestedInput
 }
 
 export type ProposalUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProposalCreateManyInput = {
   id?: string
+  title?: string | null
+  content?: string | null
   approved?: boolean
   projectId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProposalUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProposalUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProposalListRelationFilter = {
@@ -276,23 +333,32 @@ export type ProposalOrderByRelationAggregateInput = {
 
 export type ProposalCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
+  content?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProposalMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
+  content?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProposalMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  title?: Prisma.SortOrder
+  content?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProposalCreateNestedManyWithoutProjectInput = {
@@ -339,14 +405,20 @@ export type ProposalUncheckedUpdateManyWithoutProjectNestedInput = {
 
 export type ProposalCreateWithoutProjectInput = {
   id?: string
+  title?: string | null
+  content?: string | null
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProposalUncheckedCreateWithoutProjectInput = {
   id?: string
+  title?: string | null
+  content?: string | null
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProposalCreateOrConnectWithoutProjectInput = {
@@ -380,69 +452,96 @@ export type ProposalScalarWhereInput = {
   OR?: Prisma.ProposalScalarWhereInput[]
   NOT?: Prisma.ProposalScalarWhereInput | Prisma.ProposalScalarWhereInput[]
   id?: Prisma.StringFilter<"Proposal"> | string
+  title?: Prisma.StringNullableFilter<"Proposal"> | string | null
+  content?: Prisma.StringNullableFilter<"Proposal"> | string | null
   approved?: Prisma.BoolFilter<"Proposal"> | boolean
   projectId?: Prisma.StringFilter<"Proposal"> | string
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
 }
 
 export type ProposalCreateManyProjectInput = {
   id?: string
+  title?: string | null
+  content?: string | null
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProposalUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProposalUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProposalUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
 
 export type ProposalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  title?: boolean
+  content?: boolean
   approved?: boolean
   projectId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["proposal"]>
 
 export type ProposalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  title?: boolean
+  content?: boolean
   approved?: boolean
   projectId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["proposal"]>
 
 export type ProposalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  title?: boolean
+  content?: boolean
   approved?: boolean
   projectId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["proposal"]>
 
 export type ProposalSelectScalar = {
   id?: boolean
+  title?: boolean
+  content?: boolean
   approved?: boolean
   projectId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "approved" | "projectId" | "createdAt", ExtArgs["result"]["proposal"]>
+export type ProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "content" | "approved" | "projectId" | "createdAt" | "updatedAt", ExtArgs["result"]["proposal"]>
 export type ProposalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
@@ -460,9 +559,12 @@ export type $ProposalPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    title: string | null
+    content: string | null
     approved: boolean
     projectId: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["proposal"]>
   composites: {}
 }
@@ -888,9 +990,12 @@ export interface Prisma__ProposalClient<T, Null = never, ExtArgs extends runtime
  */
 export interface ProposalFieldRefs {
   readonly id: Prisma.FieldRef<"Proposal", 'String'>
+  readonly title: Prisma.FieldRef<"Proposal", 'String'>
+  readonly content: Prisma.FieldRef<"Proposal", 'String'>
   readonly approved: Prisma.FieldRef<"Proposal", 'Boolean'>
   readonly projectId: Prisma.FieldRef<"Proposal", 'String'>
   readonly createdAt: Prisma.FieldRef<"Proposal", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Proposal", 'DateTime'>
 }
     
 

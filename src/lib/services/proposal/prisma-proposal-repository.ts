@@ -1,11 +1,15 @@
 import { prisma } from "@/lib/prisma";
+
 import type {
+  CreateProposalRecordInput,
   ProposalListRecord,
   ProposalMutationRecord,
   ProposalRepository,
 } from "./proposal-repository";
 
-export class PrismaProposalRepository implements ProposalRepository {
+export class PrismaProposalRepository
+  implements ProposalRepository
+{
   async projectExistsInWorkspace(input: {
     projectId: string;
     workspaceId: string;
@@ -23,12 +27,14 @@ export class PrismaProposalRepository implements ProposalRepository {
     return Boolean(project);
   }
 
-  async createProposal(input: {
-    projectId: string;
-  }): Promise<ProposalMutationRecord> {
+  async createProposal(
+    input: CreateProposalRecordInput,
+  ): Promise<ProposalMutationRecord> {
     return prisma.proposal.create({
       data: {
         projectId: input.projectId,
+        title: input.title,
+        content: input.content,
         approved: false,
       },
       select: {
@@ -79,7 +85,9 @@ export class PrismaProposalRepository implements ProposalRepository {
     });
   }
 
-  async deleteProposal(proposalId: string): Promise<void> {
+  async deleteProposal(
+    proposalId: string,
+  ): Promise<void> {
     await prisma.proposal.delete({
       where: {
         id: proposalId,
@@ -104,12 +112,17 @@ export class PrismaProposalRepository implements ProposalRepository {
       },
       select: {
         id: true,
+        title: true,
+        content: true,
         approved: true,
         createdAt: true,
+        updatedAt: true,
+
         project: {
           select: {
             id: true,
             name: true,
+
             client: {
               select: {
                 id: true,
@@ -127,4 +140,5 @@ export class PrismaProposalRepository implements ProposalRepository {
   }
 }
 
-export const prismaProposalRepository = new PrismaProposalRepository();
+export const prismaProposalRepository =
+  new PrismaProposalRepository();

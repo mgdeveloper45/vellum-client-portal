@@ -12,6 +12,8 @@ import { createListProjectsService } from "../list-projects-service";
 import { prismaProjectRepository } from "../prisma-project-repository";
 import { createProjectDetailBuilder } from "../project-detail-builder";
 import { createUpdateProjectService } from "../update-project-service";
+import { createGetProjectAiContextService } from "../get-project-ai-context-service";
+
 
 export const createProjectService = createCreateProjectService(
   prismaProjectRepository,
@@ -48,3 +50,8 @@ export const buildProjectDetail =
     getDownloadUrl:
       getR2DownloadUrl,
   });
+
+  export const getProjectAiContextService =
+  createGetProjectAiContextService(
+    prismaProjectRepository,
+  );

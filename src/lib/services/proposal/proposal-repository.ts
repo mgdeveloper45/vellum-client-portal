@@ -6,11 +6,16 @@ export type ProposalMutationRecord = {
 
 export type ProposalListRecord = {
   id: string;
+  title: string | null;
+  content: string | null;
   approved: boolean;
   createdAt: Date;
+  updatedAt: Date;
+
   project: {
     id: string;
     name: string;
+
     client: {
       id: string;
       firstName: string;
@@ -19,13 +24,21 @@ export type ProposalListRecord = {
   };
 };
 
+export interface CreateProposalRecordInput {
+  projectId: string;
+  title?: string;
+  content?: string;
+}
+
 export interface ProposalRepository {
   projectExistsInWorkspace(input: {
     projectId: string;
     workspaceId: string;
   }): Promise<boolean>;
 
-  createProposal(input: { projectId: string }): Promise<ProposalMutationRecord>;
+  createProposal(
+    input: CreateProposalRecordInput,
+  ): Promise<ProposalMutationRecord>;
 
   findProposalForMutation(input: {
     proposalId: string;

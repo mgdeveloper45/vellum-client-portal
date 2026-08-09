@@ -3,7 +3,7 @@ import {
     deleteProposalAction,
     toggleProposalApprovalAction,
 } from "@/actions/proposal-actions";
-
+import { AiProposalGenerator } from "./ai-proposal-generator";
 import type { ProjectDetailViewModel } from "@/lib/services/projects/project-detail-builder";
 
 type ProjectProposalsProps = {
@@ -42,6 +42,10 @@ export function ProjectProposals({
                 </div>
             )}
 
+            {canManageProject && (
+                <AiProposalGenerator projectId={projectId} />
+            )}
+
             <div className="mt-4 grid gap-3">
                 {proposals.map((proposal) => (
                     <div
@@ -49,8 +53,14 @@ export function ProjectProposals({
                         className="rounded-xl border border-border p-4"
                     >
                         <h3 className="font-medium">
-                            Project Proposal
+                            {proposal.title ?? "Project Proposal"}
                         </h3>
+
+                        {proposal.content && (
+                            <div className="mt-3 whitespace-pre-wrap text-sm leading-6 text-foreground/70">
+                                {proposal.content}
+                            </div>
+                        )}
 
                         {canManageProject ? (
                             <form

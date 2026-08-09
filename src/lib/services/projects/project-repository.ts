@@ -1,5 +1,6 @@
 import type { DepositSummaryRecord } from "@/lib/services/deposits/deposit-repository";
 
+
 export type ProjectStatus = "PLANNING" | "ACTIVE" | "REVIEW" | "COMPLETED";
 
 export interface ProjectPersonRecord {
@@ -63,8 +64,11 @@ export interface ProjectDetailRecord {
 
   proposals: {
     id: string;
+    title: string | null;
+    content: string | null;
     approved: boolean;
     createdAt: Date;
+    updatedAt: Date;
   }[];
 
   files: {

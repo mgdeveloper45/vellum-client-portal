@@ -2366,9 +2366,12 @@ export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalar
 
 export const ProposalScalarFieldEnum = {
   id: 'id',
+  title: 'title',
+  content: 'content',
   approved: 'approved',
   projectId: 'projectId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type ProposalScalarFieldEnum = (typeof ProposalScalarFieldEnum)[keyof typeof ProposalScalarFieldEnum]

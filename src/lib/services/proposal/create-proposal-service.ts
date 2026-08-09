@@ -3,6 +3,13 @@ import type {
   ProposalRepository,
 } from "./proposal-repository";
 
+export interface CreateProposalServiceInput {
+  projectId: string;
+  workspaceId: string;
+  title?: string;
+  content?: string;
+}
+
 export type CreateProposalServiceResult =
   | {
       success: true;
@@ -16,10 +23,9 @@ export type CreateProposalServiceResult =
 export class CreateProposalService {
   constructor(private readonly proposalRepository: ProposalRepository) {}
 
-  async execute(input: {
-    projectId: string;
-    workspaceId: string;
-  }): Promise<CreateProposalServiceResult> {
+  async execute(
+    input: CreateProposalServiceInput,
+  ): Promise<CreateProposalServiceResult> {
     const projectExists =
       await this.proposalRepository.projectExistsInWorkspace({
         projectId: input.projectId,
@@ -35,6 +41,8 @@ export class CreateProposalService {
 
     const proposal = await this.proposalRepository.createProposal({
       projectId: input.projectId,
+      title: input.title,
+      content: input.content,
     });
 
     return {

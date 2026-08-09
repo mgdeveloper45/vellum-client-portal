@@ -15,11 +15,12 @@ import {
   proposalMutationSchema,
 } from "@/lib/validation/proposal";
 import { redirect } from "next/navigation";
+import { 
+  getProjectAiContextService, 
+} from "@/lib/services/projects/composition/project-services";
 
 export interface GenerateProposalDraftInput {
-  clientName: string;
-  businessName: string;
-  projectName: string;
+  projectId: string;
   projectDescription: string;
   estimatedPrice: number;
   estimatedTimeline: string;
@@ -29,6 +30,22 @@ export type GenerateProposalDraftResult =
   | {
       success: true;
       content: string;
+    }
+  | {
+      success: false;
+      error: string;
+    };
+
+export interface SaveProposalDraftInput {
+  projectId: string;
+  title: string;
+  content: string;
+}
+
+export type SaveProposalDraftResult =
+  | {
+      success: true;
+      proposalId: string;
     }
   | {
       success: false;
@@ -59,11 +76,23 @@ export async function generateProposalDraftAction(
     };
   }
 
+  const project = await getProjectAiContextService.execute({
+    workspaceId,
+    projectId: input.projectId,
+  });
+
+  if (!project) {
+    return {
+      success: false,
+      error: "Project not found.",
+    };
+  }
+
   try {
     const content = await generateProposalService.generate({
-      clientName: input.clientName,
-      businessName: input.businessName,
-      projectName: input.projectName,
+      clientName: `${project.client.firstName} ${project.client.lastName}`,
+      businessName: "Vellum",
+      projectName: project.name,
       projectDescription: input.projectDescription,
       estimatedPrice: input.estimatedPrice,
       estimatedTimeline: input.estimatedTimeline,
@@ -79,6 +108,79 @@ export async function generateProposalDraftAction(
       error: "Unable to generate proposal.",
     };
   }
+}
+
+export async function saveProposalDraftAction(
+  input: SaveProposalDraftInput,
+): Promise<SaveProposalDraftResult> {
+  const session = await auth();
+
+  if (!session?.user || !canManageProposals(session.user.role)) {
+    return {
+      success: false,
+      error: "Unauthorized.",
+    };
+  }
+
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
+
+  if (!workspaceId) {
+    return {
+      success: false,
+      error: "Workspace not found.",
+    };
+  }
+
+  const title = input.title.trim();
+  const content = input.content.trim();
+
+  if (!title) {
+    return {
+      success: false,
+      error: "Proposal title is required.",
+    };
+  }
+
+  if (!content) {
+    return {
+      success: false,
+      error: "Proposal content is required.",
+    };
+  }
+
+  const result = await createProposalService.execute({
+    projectId: input.projectId,
+    workspaceId,
+    title,
+    content,
+  });
+
+  if (!result.success) {
+    return {
+      success: false,
+      error: "Project not found.",
+    };
+  }
+
+  await createAuditLog({
+    action: "PROPOSAL_CREATED",
+    entity: "PROPOSAL",
+    entityId: result.proposal.id,
+    userId: session.user.id,
+    metadata: {
+      projectId: result.proposal.projectId,
+      approved: result.proposal.approved,
+      source: "AI_DRAFT",
+    },
+  });
+
+  return {
+    success: true,
+    proposalId: result.proposal.id,
+  };
 }
 
 export async function createProposalAction(formData: FormData) {
