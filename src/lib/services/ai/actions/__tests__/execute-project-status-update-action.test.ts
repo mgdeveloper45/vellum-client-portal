@@ -84,6 +84,10 @@ describe("executeProjectStatusUpdateAction", () => {
     expect(result).toEqual({
       success: true,
       message: "Kitchen Remodel was updated to COMPLETED.",
+      metadata: {
+        projectId: "project-1",
+        status: "COMPLETED",
+      },
     });
   });
 

@@ -9,6 +9,10 @@ export type ExecuteProjectStatusUpdateResult =
   | {
       success: true;
       message: string;
+      metadata: {
+        projectId: string;
+        status: ProjectStatus;
+      };
     }
   | {
       success: false;
@@ -37,15 +41,9 @@ const STATUS_PATTERNS: Array<{
   },
 ];
 
-function resolveRequestedStatus(
-  command: string,
-): ProjectStatus | null {
+function resolveRequestedStatus(command: string): ProjectStatus | null {
   for (const candidate of STATUS_PATTERNS) {
-    if (
-      candidate.patterns.some((pattern) =>
-        pattern.test(command),
-      )
-    ) {
+    if (candidate.patterns.some((pattern) => pattern.test(command))) {
       return candidate.status;
     }
   }
@@ -58,15 +56,12 @@ export async function executeProjectStatusUpdateAction(input: {
   userId: string;
   command: string;
 }): Promise<ExecuteProjectStatusUpdateResult> {
-  const requestedStatus = resolveRequestedStatus(
-    input.command,
-  );
+  const requestedStatus = resolveRequestedStatus(input.command);
 
   if (!requestedStatus) {
     return {
       success: false,
-      message:
-        "I need more information before updating the project: status.",
+      message: "I need more information before updating the project: status.",
     };
   }
 
@@ -85,18 +80,14 @@ export async function executeProjectStatusUpdateAction(input: {
 
   const normalizedCommand = input.command.toLowerCase();
 
-  const matchingProjects = projectsResult.projects.filter(
-    (project) =>
-      normalizedCommand.includes(
-        project.name.toLowerCase(),
-      ),
+  const matchingProjects = projectsResult.projects.filter((project) =>
+    normalizedCommand.includes(project.name.toLowerCase()),
   );
 
   if (matchingProjects.length === 0) {
     return {
       success: false,
-      message:
-        "I couldn't determine which project you want to update.",
+      message: "I couldn't determine which project you want to update.",
     };
   }
 
@@ -128,6 +119,10 @@ export async function executeProjectStatusUpdateAction(input: {
     return {
       success: true,
       message: `${project.name} is already ${requestedStatus}.`,
+      metadata: {
+        projectId: project.id,
+        status: requestedStatus,
+      },
     };
   }
 
@@ -151,5 +146,9 @@ export async function executeProjectStatusUpdateAction(input: {
   return {
     success: true,
     message: `${updateResult.project.name} was updated to ${updateResult.project.status}.`,
+    metadata: {
+      projectId: updateResult.project.id,
+      status: updateResult.project.status,
+    },
   };
 }

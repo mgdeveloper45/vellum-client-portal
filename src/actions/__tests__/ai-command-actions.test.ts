@@ -178,7 +178,7 @@ describe("ai-command-actions", () => {
       });
     });
 
-    it("returns missing booking information for an incomplete confirmed booking", async () => {
+    it("returns booking execution metadata after a successful confirmed booking", async () => {
       mockedPlanCopilotAction.mockReturnValue({
         handled: true,
         action: "CREATE_BOOKING",
@@ -187,22 +187,39 @@ describe("ai-command-actions", () => {
       });
 
       mockedExecuteBookingCommand.mockResolvedValue({
-        success: false,
+        success: true,
+        bookingId: "booking-1",
         message:
-          "I need more information before creating the booking: service, client, date, time.",
+          "Booking created for Jordan Smith — Consultation on 2026-08-15 at 10:30.",
+        metadata: {
+          bookingId: "booking-1",
+          serviceId: "service-1",
+          clientId: "client-1",
+          date: "2026-08-15",
+          startTime: "10:30",
+        },
       });
 
-      const result = await confirmAICommandAction("Schedule a booking.");
+      const result = await confirmAICommandAction(
+        "Book Jordan Smith for a consultation on 2026-08-15 at 10:30 AM.",
+      );
 
       expect(mockedExecuteBookingCommand).toHaveBeenCalledWith(
-        "Schedule a booking.",
+        "Book Jordan Smith for a consultation on 2026-08-15 at 10:30 AM.",
         "workspace-1",
       );
 
       expect(result).toEqual({
-        success: false,
+        success: true,
         message:
-          "I need more information before creating the booking: service, client, date, time.",
+          "Booking created for Jordan Smith — Consultation on 2026-08-15 at 10:30.",
+        metadata: {
+          bookingId: "booking-1",
+          serviceId: "service-1",
+          clientId: "client-1",
+          date: "2026-08-15",
+          startTime: "10:30",
+        },
       });
     });
 
@@ -217,6 +234,10 @@ describe("ai-command-actions", () => {
       mockedExecuteProjectStatusUpdateAction.mockResolvedValue({
         success: true,
         message: "Kitchen Remodel was updated to COMPLETED.",
+        metadata: {
+          projectId: "project-1",
+          status: "COMPLETED",
+        },
       });
 
       const result = await confirmAICommandAction(
@@ -232,6 +253,10 @@ describe("ai-command-actions", () => {
       expect(result).toEqual({
         success: true,
         message: "Kitchen Remodel was updated to COMPLETED.",
+        metadata: {
+          projectId: "project-1",
+          status: "COMPLETED",
+        },
       });
     });
 

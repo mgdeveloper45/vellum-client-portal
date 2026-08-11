@@ -1,6 +1,6 @@
 "use server";
 
-import type { AiActionResult } from "@/lib/services/ai/actions/action-types";
+import type { AiGeneratedDocument } from "@/lib/services/ai/actions/action-types";
 import type { AiActionType } from "@/lib/services/ai/actions/action";
 import { requireDashboardUser } from "@/lib/dashboard/dashboard-loader";
 import { getDashboardQuery } from "@/lib/queries/dashboard/get-dashboard-query";
@@ -16,7 +16,8 @@ export type AICommandResult =
   | {
       type: "ANSWER";
       message: string;
-      document?: AiActionResult;
+      document?: AiGeneratedDocument;
+      metadata?: AICommandExecutionMetadata;
     }
   | {
       type: "CONFIRMATION";
@@ -24,6 +25,16 @@ export type AICommandResult =
       message: string;
       command: string;
     };
+
+export interface AICommandExecutionMetadata {
+  bookingId?: string;
+  serviceId?: string;
+  clientId?: string;
+  projectId?: string;
+  date?: string;
+  startTime?: string;
+  status?: string;
+}
 
 export async function runAICommandAction(
   input: string,
@@ -88,7 +99,8 @@ export type ConfirmAICommandResult =
   | {
       success: true;
       message: string;
-      document?: AiActionResult;
+      document?: AiGeneratedDocument;
+      metadata?: AICommandExecutionMetadata;
     }
   | {
       success: false;
@@ -165,15 +177,29 @@ export async function confirmAICommandAction(
     return {
       success: true,
       message: bookingResult.message,
+      metadata: bookingResult.metadata,
     };
   }
 
   if (actionPlan.action === "UPDATE_PROJECT") {
-    return executeProjectStatusUpdateAction({
+    const projectResult = await executeProjectStatusUpdateAction({
       workspaceId,
       userId: user.id,
       command: query,
     });
+
+    if (projectResult.success === false) {
+      return {
+        success: false,
+        message: projectResult.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: projectResult.message,
+      metadata: projectResult.metadata,
+    };
   }
 
   return {

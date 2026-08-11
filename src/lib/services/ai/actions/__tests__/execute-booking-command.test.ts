@@ -1,10 +1,4 @@
-import {
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { listServicesQuery } from "@/lib/queries/services/list-services-query";
 import { prismaClientRepository } from "@/lib/services/clients/prisma-client-repository";
@@ -16,23 +10,17 @@ vi.mock("@/lib/queries/services/list-services-query", () => ({
   listServicesQuery: vi.fn(),
 }));
 
-vi.mock(
-  "@/lib/services/clients/prisma-client-repository",
-  () => ({
-    prismaClientRepository: {
-      findMany: vi.fn(),
-    },
-  }),
-);
+vi.mock("@/lib/services/clients/prisma-client-repository", () => ({
+  prismaClientRepository: {
+    findMany: vi.fn(),
+  },
+}));
 
-vi.mock(
-  "@/lib/services/booking/composition/booking-services",
-  () => ({
-    createBookingService: {
-      execute: vi.fn(),
-    },
-  }),
-);
+vi.mock("@/lib/services/booking/composition/booking-services", () => ({
+  createBookingService: {
+    execute: vi.fn(),
+  },
+}));
 
 describe("executeBookingCommand", () => {
   beforeEach(() => {
@@ -52,9 +40,7 @@ describe("executeBookingCommand", () => {
       },
     ]);
 
-    vi.mocked(
-      prismaClientRepository.findMany,
-    ).mockResolvedValue([
+    vi.mocked(prismaClientRepository.findMany).mockResolvedValue([
       {
         id: "client-1",
         firstName: "Jordan",
@@ -67,9 +53,7 @@ describe("executeBookingCommand", () => {
   });
 
   it("creates a resolved booking", async () => {
-    vi.mocked(
-      createBookingService.execute,
-    ).mockResolvedValue({
+    vi.mocked(createBookingService.execute).mockResolvedValue({
       success: true,
       bookingId: "booking-1",
       reasons: [],
@@ -88,9 +72,15 @@ describe("executeBookingCommand", () => {
 
     expect(result.bookingId).toBe("booking-1");
 
-    expect(
-      createBookingService.execute,
-    ).toHaveBeenCalledWith({
+    expect(result.metadata).toEqual({
+      bookingId: "booking-1",
+      serviceId: "service-1",
+      clientId: "client-1",
+      date: "2026-08-15",
+      startTime: "10:30",
+    });
+
+    expect(createBookingService.execute).toHaveBeenCalledWith({
       workspaceId: "workspace-1",
       serviceId: "service-1",
       customerName: "Jordan Smith",
@@ -101,10 +91,7 @@ describe("executeBookingCommand", () => {
   });
 
   it("refuses execution when information is missing", async () => {
-    const result = await executeBookingCommand(
-      "Book Jordan.",
-      "workspace-1",
-    );
+    const result = await executeBookingCommand("Book Jordan.", "workspace-1");
 
     expect(result.success).toBe(false);
 
@@ -116,15 +103,11 @@ describe("executeBookingCommand", () => {
     expect(result.message).toContain("date");
     expect(result.message).toContain("time");
 
-    expect(
-      createBookingService.execute,
-    ).not.toHaveBeenCalled();
+    expect(createBookingService.execute).not.toHaveBeenCalled();
   });
 
   it("returns scheduling failures without creating a false success", async () => {
-    vi.mocked(
-      createBookingService.execute,
-    ).mockResolvedValue({
+    vi.mocked(createBookingService.execute).mockResolvedValue({
       success: false,
       reasons: ["That time is unavailable."],
     });
@@ -140,8 +123,6 @@ describe("executeBookingCommand", () => {
       throw new Error("Expected booking creation to fail.");
     }
 
-    expect(result.message).toContain(
-      "That time is unavailable.",
-    );
+    expect(result.message).toContain("That time is unavailable.");
   });
 });

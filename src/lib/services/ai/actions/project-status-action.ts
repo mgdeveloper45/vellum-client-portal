@@ -1,7 +1,7 @@
 import { askWithPrompt } from "../ai-service";
 import { buildProjectStatusPrompt } from "../prompts/project-status-prompt-builder";
 
-import type { AiActionResult } from "./action-types";
+import type { AiGeneratedDocument } from "./action-types";
 
 export interface ProjectStatusActionParams {
   projectName: string;
@@ -14,7 +14,7 @@ export interface ProjectStatusActionParams {
 
 export async function generateProjectStatusAction(
   params: ProjectStatusActionParams,
-): Promise<AiActionResult> {
+): Promise<AiGeneratedDocument> {
   const prompt = buildProjectStatusPrompt(params);
 
   const content = await askWithPrompt(prompt);

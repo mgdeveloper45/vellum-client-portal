@@ -9,6 +9,13 @@ export type ExecuteBookingCommandResult =
       success: true;
       bookingId: string;
       message: string;
+      metadata: {
+        bookingId: string;
+        serviceId: string;
+        clientId: string;
+        date: string;
+        startTime: string;
+      };
     }
   | {
       success: false;
@@ -80,5 +87,12 @@ export async function executeBookingCommand(
     success: true,
     bookingId: result.bookingId,
     message: `Booking created for ${resolution.client.firstName} ${resolution.client.lastName} — ${resolution.service.name} on ${resolution.date} at ${resolution.startTime}.`,
+    metadata: {
+      bookingId: result.bookingId,
+      serviceId: resolution.service.id,
+      clientId: resolution.client.id,
+      date: resolution.date,
+      startTime: resolution.startTime,
+    },
   };
 }

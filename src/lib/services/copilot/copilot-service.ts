@@ -1,5 +1,5 @@
 import type { DashboardViewModel } from "@/lib/services/dashboard/dashboard-builder";
-import type { AiActionResult } from "@/lib/services/ai/actions/action-types";
+import type { AiGeneratedDocument } from "@/lib/services/ai/actions/action-types";
 
 import { buildCopilotContext } from "./copilot-context-builder";
 import { buildConversationPlan } from "./copilot-conversation-planner";
@@ -12,7 +12,7 @@ export interface CopilotResponse {
   answer: string;
   evidence: string[];
   suggestedActions: string[];
-  generatedDocument?: AiActionResult;
+  generatedDocument?: AiGeneratedDocument;
 }
 
 export function buildCopilotResponse(

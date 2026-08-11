@@ -46,6 +46,10 @@ export function AICommandCenter() {
                     response.success
                         ? response.document
                         : undefined,
+                metadata:
+                    response.success
+                        ? response.metadata
+                        : undefined,
             });
         });
     }

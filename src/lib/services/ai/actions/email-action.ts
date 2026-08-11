@@ -1,6 +1,6 @@
 import { askWithPrompt } from "../ai-service";
 
-import type { AiActionResult } from "./action-types";
+import type { AiGeneratedDocument } from "./action-types";
 
 export interface EmailActionParams {
   title: string;
@@ -10,7 +10,7 @@ export interface EmailActionParams {
 
 export async function generateEmailAction(
   params: EmailActionParams,
-): Promise<AiActionResult> {
+): Promise<AiGeneratedDocument> {
   const content = await askWithPrompt(params.prompt);
 
   return {

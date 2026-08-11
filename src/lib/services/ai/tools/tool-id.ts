@@ -1,6 +1,0 @@
-export type ToolId =
-  | "DRAFT_EMAIL"
-  | "CREATE_BOOKING"
-  | "CREATE_TASK"
-  | "CREATE_INVOICE"
-  | "UPDATE_PROJECT";

@@ -1,17 +1,13 @@
-export type AiActionType =
+export type AiGeneratedDocumentType =
   | "EMAIL"
   | "INVOICE"
   | "BOOKING"
   | "PROPOSAL";
 
-export interface AiActionResult {
-  type: AiActionType;
-
+export interface AiGeneratedDocument {
+  type: AiGeneratedDocumentType;
   title: string;
-
   content: string;
-
   preview: string;
-
   metadata?: Record<string, unknown>;
 }

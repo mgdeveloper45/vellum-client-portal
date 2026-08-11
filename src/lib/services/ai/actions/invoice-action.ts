@@ -1,7 +1,7 @@
 import { generateEmailAction } from "./email-action";
 import { buildInvoiceReminderPrompt } from "../prompts/email-prompt-builder";
 
-import type { AiActionResult } from "./action-types";
+import type { AiGeneratedDocument } from "./action-types";
 
 export interface InvoiceReminderActionParams {
   clientName: string;
@@ -13,7 +13,7 @@ export interface InvoiceReminderActionParams {
 
 export async function generateInvoiceReminderAction(
   params: InvoiceReminderActionParams,
-): Promise<AiActionResult> {
+): Promise<AiGeneratedDocument> {
   const prompt = buildInvoiceReminderPrompt(params);
 
   return generateEmailAction({
