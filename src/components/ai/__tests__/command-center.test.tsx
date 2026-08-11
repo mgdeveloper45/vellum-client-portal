@@ -1,21 +1,45 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+    cleanup,
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+} from "@testing-library/react";
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    vi,
+} from "vitest";
 
-import { runAICommandAction } from "@/actions/ai-command-actions";
+import {
+    confirmAICommandAction,
+    runAICommandAction,
+} from "@/actions/ai-command-actions";
 import { AICommandCenter } from "../command-center";
 
 vi.mock("@/actions/ai-command-actions", () => ({
     runAICommandAction: vi.fn(),
+    confirmAICommandAction: vi.fn(),
 }));
 
 const mockedRunAICommandAction =
     vi.mocked(runAICommandAction);
 
+const mockedConfirmAICommandAction =
+    vi.mocked(confirmAICommandAction);
+
 describe("AICommandCenter", () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        vi.resetAllMocks();
+    });
+
+    afterEach(() => {
+        cleanup();
     });
 
     it("renders a normal Copilot answer", async () => {
@@ -49,7 +73,9 @@ describe("AICommandCenter", () => {
             ),
         ).toBeTruthy();
 
-        expect(mockedRunAICommandAction).toHaveBeenCalledWith(
+        expect(
+            mockedRunAICommandAction,
+        ).toHaveBeenCalledWith(
             "How is revenue doing?",
         );
     });
@@ -60,6 +86,7 @@ describe("AICommandCenter", () => {
             action: "CREATE_BOOKING",
             message:
                 'I can perform the action "CREATE_BOOKING". Would you like me to continue?',
+            command: "Schedule a booking for tomorrow.",
         });
 
         render(<AICommandCenter />);
@@ -70,7 +97,8 @@ describe("AICommandCenter", () => {
             }),
             {
                 target: {
-                    value: "Schedule a booking for tomorrow.",
+                    value:
+                        "Schedule a booking for tomorrow.",
                 },
             },
         );
@@ -82,17 +110,19 @@ describe("AICommandCenter", () => {
         );
 
         expect(
-            await screen.findByText("Confirmation required"),
+            await screen.findByText(
+                "Confirmation required",
+            ),
         ).toBeTruthy();
 
         expect(
-            screen.getByRole("button", {
+            await screen.findByRole("button", {
                 name: "Cancel",
             }),
         ).toBeTruthy();
 
         expect(
-            screen.getByRole("button", {
+            await screen.findByRole("button", {
                 name: "Confirm",
             }),
         ).toBeTruthy();
@@ -104,6 +134,7 @@ describe("AICommandCenter", () => {
             action: "CREATE_BOOKING",
             message:
                 'I can perform the action "CREATE_BOOKING". Would you like me to continue?',
+            command: "Schedule a booking for tomorrow.",
         });
 
         render(<AICommandCenter />);
@@ -125,17 +156,21 @@ describe("AICommandCenter", () => {
             }),
         );
 
-        await screen.findByText("Confirmation required");
+        await screen.findByText(
+            "Confirmation required",
+        );
 
         fireEvent.click(
-            screen.getByRole("button", {
+            await screen.findByRole("button", {
                 name: "Cancel",
             }),
         );
 
         await waitFor(() => {
             expect(
-                screen.queryByText("Confirmation required"),
+                screen.queryByText(
+                    "Confirmation required",
+                ),
             ).toBeNull();
         });
     });
@@ -146,6 +181,13 @@ describe("AICommandCenter", () => {
             action: "UPDATE_PROJECT",
             message:
                 'I can perform the action "UPDATE_PROJECT". Would you like me to continue?',
+            command: "Update this project.",
+        });
+
+        mockedConfirmAICommandAction.mockResolvedValue({
+            success: false,
+            message:
+                "Confirmed UPDATE_PROJECT, but execution is not enabled for this action yet.",
         });
 
         render(<AICommandCenter />);
@@ -167,22 +209,34 @@ describe("AICommandCenter", () => {
             }),
         );
 
-        await screen.findByText("Confirmation required");
+        await screen.findByText(
+            "Confirmation required",
+        );
 
         fireEvent.click(
-            screen.getByRole("button", {
+            await screen.findByRole("button", {
                 name: "Confirm",
             }),
         );
 
+        await waitFor(() => {
+            expect(
+                mockedConfirmAICommandAction,
+            ).toHaveBeenCalledWith(
+                "Update this project.",
+            );
+        });
+
         expect(
             await screen.findByText(
-                "This action is ready for execution, but automatic execution is not enabled yet.",
+                "Confirmed UPDATE_PROJECT, but execution is not enabled for this action yet.",
             ),
         ).toBeTruthy();
 
         expect(
-            screen.queryByText("Confirmation required"),
+            screen.queryByText(
+                "Confirmation required",
+            ),
         ).toBeNull();
     });
 
@@ -210,7 +264,9 @@ describe("AICommandCenter", () => {
             }),
         );
 
-        await screen.findByText("Workspace looks healthy.");
+        await screen.findByText(
+            "Workspace looks healthy.",
+        );
 
         expect(
             (input as HTMLInputElement).value,

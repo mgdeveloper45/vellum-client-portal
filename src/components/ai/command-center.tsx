@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import {
+    confirmAICommandAction,
     runAICommandAction,
     type AICommandResult,
 } from "@/actions/ai-command-actions";
@@ -24,6 +25,28 @@ export function AICommandCenter() {
 
             setResult(response);
             setInput("");
+        });
+    }
+
+    function handleConfirmCommand() {
+        if (result?.type !== "CONFIRMATION") {
+            return;
+        }
+
+        const command = result.command;
+
+        startTransition(async () => {
+            const response =
+                await confirmAICommandAction(command);
+
+            setResult({
+                type: "ANSWER",
+                message: response.message,
+                document:
+                    response.success
+                        ? response.document
+                        : undefined,
+            });
         });
     }
 
@@ -83,6 +106,23 @@ export function AICommandCenter() {
                 </div>
             )}
 
+            {result?.type === "ANSWER" &&
+                result.document && (
+                    <div className="mt-6 rounded-2xl border border-border bg-background p-5">
+                        <p className="text-xs font-medium uppercase tracking-wide text-foreground/50">
+                            Generated Draft
+                        </p>
+
+                        <h3 className="mt-2 text-lg font-medium">
+                            {result.document.title}
+                        </h3>
+
+                        <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-foreground/80">
+                            {result.document.content}
+                        </div>
+                    </div>
+                )}
+
             {result?.type === "CONFIRMATION" && (
                 <div className="mt-6 rounded-2xl border border-border bg-background p-5">
                     <p className="text-sm font-medium">
@@ -97,6 +137,7 @@ export function AICommandCenter() {
                         <button
                             type="button"
                             onClick={() => setResult(null)}
+                            disabled={isPending}
                             className="rounded-full border border-border px-5 py-2 text-sm font-medium"
                         >
                             Cancel
@@ -104,16 +145,11 @@ export function AICommandCenter() {
 
                         <button
                             type="button"
-                            onClick={() => {
-                                setResult({
-                                    type: "ANSWER",
-                                    message:
-                                        "This action is ready for execution, but automatic execution is not enabled yet.",
-                                });
-                            }}
+                            onClick={handleConfirmCommand}
+                            disabled={isPending}
                             className="workspace-accent-button rounded-full px-5 py-2 text-sm font-medium"
                         >
-                            Confirm
+                            {isPending ? "Confirming..." : "Confirm"}
                         </button>
                     </div>
                 </div>

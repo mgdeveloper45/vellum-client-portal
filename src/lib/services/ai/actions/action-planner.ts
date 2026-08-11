@@ -43,11 +43,10 @@ export function buildActionPlan(
 
     default:
       return {
-        type: "CREATE_TASK",
-        executor: "TASK",
-        confidence: 75,
-        explanation:
-          "The user requested an action but no specialized executor was selected.",
+        type: "NONE",
+        executor: null,
+        confidence: 100,
+        explanation: "No supported executable action was identified.",
       };
   }
 }

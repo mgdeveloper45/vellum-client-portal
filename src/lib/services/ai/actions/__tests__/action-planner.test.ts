@@ -30,13 +30,12 @@ describe("buildActionPlan", () => {
     });
   });
 
-  it("uses the task executor for unspecialized actions", () => {
+  it("returns no action when no supported executor matches", () => {
     expect(buildActionPlan("ACTION", "RECOMMENDATIONS")).toEqual({
-      type: "CREATE_TASK",
-      executor: "TASK",
-      confidence: 75,
-      explanation:
-        "The user requested an action but no specialized executor was selected.",
+      type: "NONE",
+      executor: null,
+      confidence: 100,
+      explanation: "No supported executable action was identified.",
     });
   });
 

@@ -11,6 +11,17 @@ describe("planCopilotAction", () => {
     expect(result.message).toBe("");
   });
 
+  it("does not handle unsupported recommendation actions", () => {
+    const result = planCopilotAction("Recommend what I should focus on next.");
+
+    expect(result).toEqual({
+      handled: false,
+      action: "NONE",
+      message: "",
+      requiresConfirmation: false,
+    });
+  });
+
   it("requires confirmation for booking actions", () => {
     const result = planCopilotAction("Schedule a booking for tomorrow.");
 

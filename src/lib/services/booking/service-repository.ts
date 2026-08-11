@@ -11,4 +11,6 @@ export interface ServiceRepository {
     serviceId: string,
     workspaceId: string,
   ): Promise<BookableService | null>;
+
+  findActiveServices(workspaceId: string): Promise<BookableService[]>;
 }

@@ -21,6 +21,25 @@ export class PrismaServiceRepository implements ServiceRepository {
       },
     });
   }
+
+  async findActiveServices(workspaceId: string): Promise<BookableService[]> {
+    return prisma.service.findMany({
+      where: {
+        workspaceId,
+        active: true,
+      },
+      select: {
+        id: true,
+        workspaceId: true,
+        name: true,
+        duration: true,
+        price: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+  }
 }
 
 export const prismaServiceRepository = new PrismaServiceRepository();
