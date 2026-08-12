@@ -21,5 +21,6 @@ export const getDepositPaymentForEditService =
   });
 
 export const updateDepositPaymentService = createUpdateDepositPaymentService({
+  depositRepository: prismaDepositRepository,
   depositPaymentRepository: prismaDepositPaymentRepository,
 });

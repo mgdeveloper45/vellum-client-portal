@@ -128,8 +128,19 @@ export default async function BookingDetailsPage({
                             countdown={
                                 bookingIntelligence.countdown.label
                             }
-                            paymentStatus={
-                                flags.invoicePaid ? "Paid" : "Pending"
+                            invoiceStatus={
+                                !flags.hasInvoice
+                                    ? "Not Created"
+                                    : flags.invoicePaid
+                                        ? "Paid"
+                                        : "Outstanding"
+                            }
+                            depositStatus={
+                                !flags.hasDeposit
+                                    ? "Not Requested"
+                                    : flags.depositPaid
+                                        ? "Paid"
+                                        : "Outstanding"
                             }
                             projectStatus={
                                 flags.hasProject

@@ -1,12 +1,24 @@
 import type { BookingHealthResult } from "@/lib/services/bookings/booking-health";
 
-export type BookingRecommendedAction = {
+type BookingActionPriority = "HIGH" | "MEDIUM" | "LOW";
+
+type BookingRecommendedActionBase = {
   id: string;
   title: string;
   description: string;
-  href: string;
-  priority: "HIGH" | "MEDIUM" | "LOW";
+  priority: BookingActionPriority;
 };
+
+export type BookingRecommendedAction =
+  | (BookingRecommendedActionBase & {
+      type: "NAVIGATION";
+      href: string;
+    })
+  | (BookingRecommendedActionBase & {
+      type: "COMMAND";
+      command: "CREATE_PROJECT";
+      bookingId: string;
+    });
 
 type BuildBookingActionsParams = {
   bookingId: string;
@@ -32,9 +44,11 @@ export function buildBookingRecommendedActions({
   if (!hasProject) {
     actions.push({
       id: "create-project",
+      type: "COMMAND",
+      command: "CREATE_PROJECT",
+      bookingId,
       title: "Create project",
       description: "Turn this booking into a client project.",
-      href: `/bookings/${bookingId}`,
       priority: "HIGH",
     });
   }
@@ -42,6 +56,7 @@ export function buildBookingRecommendedActions({
   if (!hasMessages) {
     actions.push({
       id: "message-client",
+      type: "NAVIGATION",
       title: "Message client",
       description: "Send a quick follow-up or preparation note.",
       href: `/bookings/${bookingId}`,
@@ -52,6 +67,7 @@ export function buildBookingRecommendedActions({
   if (!hasFiles) {
     actions.push({
       id: "request-files",
+      type: "NAVIGATION",
       title: "Request files",
       description: "Ask the client to upload any needed materials.",
       href: `/bookings/${bookingId}`,
@@ -62,6 +78,7 @@ export function buildBookingRecommendedActions({
   if (!hasInvoice) {
     actions.push({
       id: "create-invoice",
+      type: "NAVIGATION",
       title: "Create invoice",
       description: "Prepare billing for this booking.",
       href: `/bookings/${bookingId}`,
@@ -72,6 +89,7 @@ export function buildBookingRecommendedActions({
   if (hasInvoice && !invoicePaid) {
     actions.push({
       id: "follow-up-payment",
+      type: "NAVIGATION",
       title: "Follow up on payment",
       description: "Invoice exists but has not been paid yet.",
       href: "/invoices",
@@ -82,6 +100,7 @@ export function buildBookingRecommendedActions({
   if (health.label === "HEALTHY" && actions.length === 0) {
     actions.push({
       id: "all-clear",
+      type: "NAVIGATION",
       title: "Booking is on track",
       description: "No urgent follow-up needed right now.",
       href: `/bookings/${bookingId}`,

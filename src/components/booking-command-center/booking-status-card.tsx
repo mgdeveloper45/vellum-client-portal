@@ -2,7 +2,8 @@ type BookingStatusCardProps = {
     lifecycle: string;
     health: number;
     countdown: string;
-    paymentStatus: string;
+    invoiceStatus: string;
+    depositStatus: string;
     projectStatus: string;
     calendarSynced: boolean;
 };
@@ -11,7 +12,8 @@ export function BookingStatusCard({
     lifecycle,
     health,
     countdown,
-    paymentStatus,
+    invoiceStatus,
+    depositStatus,
     projectStatus,
     calendarSynced,
 }: BookingStatusCardProps) {
@@ -25,8 +27,10 @@ export function BookingStatusCard({
                 <StatusRow label="Lifecycle" value={lifecycle} />
                 <StatusRow label="Health" value={`${health}%`} />
                 <StatusRow label="Countdown" value={countdown} />
-                <StatusRow label="Payment" value={paymentStatus} />
+                <StatusRow label="Invoice" value={invoiceStatus} />
+                <StatusRow label="Deposit" value={depositStatus} />
                 <StatusRow label="Project" value={projectStatus} />
+
                 <StatusRow
                     label="Calendar"
                     value={calendarSynced ? "Synced" : "Not Synced"}

@@ -49,6 +49,8 @@ function createDependencies(overrides?: {
           }
         : overrides.service,
     ),
+
+    findActiveServices: vi.fn().mockResolvedValue([]),
   };
 
   const bookingRepository: BookingRepository = {
@@ -69,6 +71,9 @@ function createDependencies(overrides?: {
     updateStatus: vi.fn().mockResolvedValue({
       id: "booking-1",
     }),
+
+    findForProjectCreation: vi.fn().mockResolvedValue(null),
+    linkToProject: vi.fn().mockResolvedValue(false),
   };
 
   const bookingRuleProvider = {

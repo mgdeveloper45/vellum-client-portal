@@ -57,6 +57,12 @@ class InMemoryClientRepository implements ClientRepository {
       : null;
   }
 
+  async findWorkspaceClientByEmail(): Promise<{
+    id: string;
+  } | null> {
+    return null;
+  }
+
   async create(input: CreateClientRecordInput): Promise<{
     id: string;
   }> {

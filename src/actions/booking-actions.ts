@@ -1,7 +1,9 @@
 "use server";
 
 import { auth } from "@/auth";
-import { canManageWorkspace } from "@/lib/permissions";
+import { createAuditLog } from "@/lib/audit";
+import { canManageProjects, canManageWorkspace } from "@/lib/permissions";
+import { createProjectFromBookingService } from "@/lib/services/booking/composition/booking-services";
 import { prismaUserWorkspaceRepository } from "@/lib/repositories/prisma-user-workspace-repository";
 import {
   createBookingCalendarEvent,
@@ -288,4 +290,58 @@ export async function rescheduleBookingAction(formData: FormData) {
   });
 
   redirect(`/bookings/${updatedBooking.id}`);
+}
+
+export async function createProjectFromBookingAction(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user || !canManageProjects(session.user.role)) {
+    return;
+  }
+
+  const bookingId = formData.get("bookingId");
+
+  if (typeof bookingId !== "string" || !bookingId.trim()) {
+    return;
+  }
+
+  const workspaceId =
+    await prismaUserWorkspaceRepository.findWorkspaceIdByUserId(
+      session.user.id,
+    );
+
+  if (!workspaceId) {
+    return;
+  }
+
+  const result = await createProjectFromBookingService({
+    bookingId: bookingId.trim(),
+    workspaceId,
+    ownerId: session.user.id,
+  });
+
+  if (!result.success) {
+    console.warn("Project creation from booking failed", {
+      bookingId,
+      workspaceId,
+      reason: result.reason,
+    });
+
+    return;
+  }
+
+  if (!result.alreadyExisted) {
+    await createAuditLog({
+      action: "PROJECT_CREATED",
+      entity: "PROJECT",
+      entityId: result.projectId,
+      userId: session.user.id,
+      metadata: {
+        bookingId: bookingId.trim(),
+        source: "BOOKING_COMMAND_CENTER",
+      },
+    });
+  }
+
+  redirect(`/projects/${result.projectId}`);
 }

@@ -10,6 +10,7 @@ import type {
   FindClientByEmailInput,
   FindClientInput,
   FindClientsInput,
+  FindWorkspaceClientByEmailInput,
   UpdateClientRecordInput,
 } from "./client-repository";
 
@@ -22,9 +23,7 @@ export const prismaClientRepository: ClientRepository = {
       where: {
         workspaceId,
         role: "CLIENT",
-        ...(clientId
-          ? { id: clientId }
-          : {}),  
+        ...(clientId ? { id: clientId } : {}),
       },
       select: {
         id: true,
@@ -59,77 +58,77 @@ export const prismaClientRepository: ClientRepository = {
   },
 
   async findDetail({
-  workspaceId,
-  clientId,
-}: FindClientInput): Promise<ClientDetailRecord | null> {
-  const client = await prisma.user.findFirst({
-    where: {
-      id: clientId,
-      workspaceId,
-      role: "CLIENT",
-    },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      email: true,
-      notes: true,
-      clientStatus: true,
-      isBlacklisted: true,
-      clientProjects: {
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          createdAt: true,
-          messages: {
-            select: {
-              id: true,
-            },
-          },
-          invoices: {
-            select: {
-              id: true,
-              amount: true,
-              paid: true,
-            },
-          },
-          proposals: {
-            select: {
-              id: true,
-            },
-          },
-        },
-        orderBy: [
-          {
-            createdAt: "desc",
-          },
-          {
-            id: "asc",
-          },
-        ],
+    workspaceId,
+    clientId,
+  }: FindClientInput): Promise<ClientDetailRecord | null> {
+    const client = await prisma.user.findFirst({
+      where: {
+        id: clientId,
+        workspaceId,
+        role: "CLIENT",
       },
-    },
-  });
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        notes: true,
+        clientStatus: true,
+        isBlacklisted: true,
+        clientProjects: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            messages: {
+              select: {
+                id: true,
+              },
+            },
+            invoices: {
+              select: {
+                id: true,
+                amount: true,
+                paid: true,
+              },
+            },
+            proposals: {
+              select: {
+                id: true,
+              },
+            },
+          },
+          orderBy: [
+            {
+              createdAt: "desc",
+            },
+            {
+              id: "asc",
+            },
+          ],
+        },
+      },
+    });
 
-  if (!client) {
-    return null;
-  }
+    if (!client) {
+      return null;
+    }
 
-  return {
-    ...client,
+    return {
+      ...client,
 
-    clientProjects: client.clientProjects.map((project) => ({
-      ...project,
+      clientProjects: client.clientProjects.map((project) => ({
+        ...project,
 
-      invoices: project.invoices.map((invoice) => ({
-        ...invoice,
+        invoices: project.invoices.map((invoice) => ({
+          ...invoice,
 
-        amount: Number(invoice.amount),
+          amount: Number(invoice.amount),
+        })),
       })),
-    })),
-  };
-},
+    };
+  },
 
   async findForEdit({
     workspaceId,
@@ -169,6 +168,25 @@ export const prismaClientRepository: ClientRepository = {
               },
             }
           : {}),
+      },
+      select: {
+        id: true,
+      },
+    });
+  },
+
+  async findWorkspaceClientByEmail({
+    workspaceId,
+    email,
+  }: FindWorkspaceClientByEmailInput): Promise<{
+    id: string;
+  } | null> {
+    return prisma.user.findFirst({
+      where: {
+        workspaceId,
+        email,
+        role: "CLIENT",
+        isActive: true,
       },
       select: {
         id: true,

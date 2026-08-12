@@ -35,6 +35,9 @@ function createBookingRepository(overrides?: {
       : vi.fn().mockResolvedValue({
           id: "booking-1",
         }),
+
+    findForProjectCreation: vi.fn().mockResolvedValue(null),
+    linkToProject: vi.fn().mockResolvedValue(false),
   };
 }
 

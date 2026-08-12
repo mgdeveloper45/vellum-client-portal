@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type {
   BookingCommandCenterBooking,
-  BookingCommandCenterProject,
   BookingCommandCenterRepository,
 } from "./booking-command-center-repository";
 
@@ -10,7 +9,7 @@ export class PrismaBookingCommandCenterRepository implements BookingCommandCente
     bookingId: string;
     workspaceId: string;
   }): Promise<BookingCommandCenterBooking | null> {
-    return prisma.booking.findFirst({
+    const booking = await prisma.booking.findFirst({
       where: {
         id: input.bookingId,
         workspaceId: input.workspaceId,
@@ -18,27 +17,45 @@ export class PrismaBookingCommandCenterRepository implements BookingCommandCente
       include: {
         service: true,
         workspace: true,
-      },
-    });
-  }
-
-  async findRelatedProjects(input: {
-    workspaceId: string;
-    customerEmail: string;
-  }): Promise<BookingCommandCenterProject[]> {
-    return prisma.project.findMany({
-      where: {
-        workspaceId: input.workspaceId,
-        client: {
-          email: input.customerEmail,
+        project: {
+          include: {
+            invoices: true,
+            messages: true,
+            files: true,
+            deposits: {
+              include: {
+                payments: true,
+              },
+            },
+          },
         },
       },
-      include: {
-        invoices: true,
-        messages: true,
-        files: true,
-      },
     });
+
+    if (!booking) {
+      return null;
+    }
+
+    return {
+      ...booking,
+      depositAmount: Number(booking.depositAmount),
+      project: booking.project
+        ? {
+            invoices: booking.project.invoices.map((invoice) => ({
+              paid: invoice.paid,
+            })),
+            messages: booking.project.messages,
+            files: booking.project.files,
+            deposits: booking.project.deposits.map((deposit) => ({
+              amount: Number(deposit.amount),
+              status: deposit.status,
+              payments: deposit.payments.map((payment) => ({
+                amount: Number(payment.amount),
+              })),
+            })),
+          }
+        : null,
+    };
   }
 }
 

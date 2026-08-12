@@ -24,24 +24,48 @@ export function createGetBookingCommandCenter(
       return null;
     }
 
-    const relatedProjects =
-      await dependencies.bookingCommandCenterRepository.findRelatedProjects({
-        workspaceId: input.workspaceId,
-        customerEmail: booking.customerEmail,
-      });
+    const project = booking.project;
 
-    const hasProject = relatedProjects.length > 0;
+    const invoices = project?.invoices ?? [];
+    const messages = project?.messages ?? [];
+    const files = project?.files ?? [];
+    const deposits = project?.deposits ?? [];
 
-    const invoices = relatedProjects.flatMap((project) => project.invoices);
-
-    const messages = relatedProjects.flatMap((project) => project.messages);
-
-    const files = relatedProjects.flatMap((project) => project.files);
+    const hasProject = project !== null;
 
     const hasInvoice = invoices.length > 0;
-    const invoicePaid = invoices.some((invoice) => invoice.paid);
+    const invoicePaid = hasInvoice && invoices.every((invoice) => invoice.paid);
+
     const hasMessages = messages.length > 0;
     const hasFiles = files.length > 0;
+
+    const hasDeposit = deposits.length > 0;
+
+    const depositRequired = booking.depositRequired;
+    const depositAmount = booking.depositAmount;
+
+    const depositTotalRequested = deposits.reduce(
+      (sum, deposit) => sum + deposit.amount,
+      0,
+    );
+
+    const depositTotalPaid = deposits.reduce(
+      (depositSum, deposit) =>
+        depositSum +
+        deposit.payments.reduce(
+          (paymentSum, payment) => paymentSum + payment.amount,
+          0,
+        ),
+      0,
+    );
+
+    const depositPaid =
+      hasDeposit && deposits.every((deposit) => deposit.status === "PAID");
+
+    const depositOutstanding = Math.max(
+      0,
+      depositTotalRequested - depositTotalPaid,
+    );
 
     const intelligence = buildBookingEngine({
       bookingId: booking.id,
@@ -60,16 +84,28 @@ export function createGetBookingCommandCenter(
 
     return {
       booking,
-      relatedProjects,
+      project,
       invoices,
       messages,
       files,
+      deposits,
+      financials: {
+        depositRequired,
+        depositAmount,
+        hasDeposit,
+        depositTotalRequested,
+        depositTotalPaid,
+        depositOutstanding,
+        depositPaid,
+      },
       flags: {
         hasProject,
         hasInvoice,
         invoicePaid,
         hasMessages,
         hasFiles,
+        hasDeposit,
+        depositPaid,
         calendarSynced: Boolean(booking.googleCalendarEventId),
       },
       intelligence,

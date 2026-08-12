@@ -223,6 +223,7 @@ export type ProjectWhereInput = {
   client?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
+  booking?: Prisma.XOR<Prisma.BookingNullableScalarRelationFilter, Prisma.BookingWhereInput> | null
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -244,6 +245,7 @@ export type ProjectOrderByWithRelationInput = {
   client?: Prisma.UserOrderByWithRelationInput
   owner?: Prisma.UserOrderByWithRelationInput
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  booking?: Prisma.BookingOrderByWithRelationInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -268,6 +270,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   client?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
+  booking?: Prisma.XOR<Prisma.BookingNullableScalarRelationFilter, Prisma.BookingWhereInput> | null
 }, "id">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -316,6 +319,7 @@ export type ProjectCreateInput = {
   client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -334,6 +338,7 @@ export type ProjectUncheckedCreateInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -352,6 +357,7 @@ export type ProjectUpdateInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -370,6 +376,7 @@ export type ProjectUncheckedUpdateInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -454,6 +461,11 @@ export type ProjectMinOrderByAggregateInput = {
 export type ProjectScalarRelationFilter = {
   is?: Prisma.ProjectWhereInput
   isNot?: Prisma.ProjectWhereInput
+}
+
+export type ProjectNullableScalarRelationFilter = {
+  is?: Prisma.ProjectWhereInput | null
+  isNot?: Prisma.ProjectWhereInput | null
 }
 
 export type ProjectCreateNestedManyWithoutClientInput = {
@@ -670,6 +682,22 @@ export type ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput = {
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
+export type ProjectCreateNestedOneWithoutBookingInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutBookingInput, Prisma.ProjectUncheckedCreateWithoutBookingInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutBookingInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutBookingNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutBookingInput, Prisma.ProjectUncheckedCreateWithoutBookingInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutBookingInput
+  upsert?: Prisma.ProjectUpsertWithoutBookingInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutBookingInput, Prisma.ProjectUpdateWithoutBookingInput>, Prisma.ProjectUncheckedUpdateWithoutBookingInput>
+}
+
 export type ProjectCreateWithoutClientInput = {
   id?: string
   name: string
@@ -685,6 +713,7 @@ export type ProjectCreateWithoutClientInput = {
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutClientInput = {
@@ -702,6 +731,7 @@ export type ProjectUncheckedCreateWithoutClientInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutClientInput = {
@@ -729,6 +759,7 @@ export type ProjectCreateWithoutOwnerInput = {
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
   client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutOwnerInput = {
@@ -746,6 +777,7 @@ export type ProjectUncheckedCreateWithoutOwnerInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutOwnerInput = {
@@ -820,6 +852,7 @@ export type ProjectCreateWithoutFilesInput = {
   client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutFilesInput = {
@@ -837,6 +870,7 @@ export type ProjectUncheckedCreateWithoutFilesInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutFilesInput = {
@@ -870,6 +904,7 @@ export type ProjectUpdateWithoutFilesInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutFilesInput = {
@@ -887,6 +922,7 @@ export type ProjectUncheckedUpdateWithoutFilesInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutMilestonesInput = {
@@ -904,6 +940,7 @@ export type ProjectCreateWithoutMilestonesInput = {
   client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutMilestonesInput = {
@@ -921,6 +958,7 @@ export type ProjectUncheckedCreateWithoutMilestonesInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutMilestonesInput = {
@@ -954,6 +992,7 @@ export type ProjectUpdateWithoutMilestonesInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutMilestonesInput = {
@@ -971,6 +1010,7 @@ export type ProjectUncheckedUpdateWithoutMilestonesInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutMessagesInput = {
@@ -988,6 +1028,7 @@ export type ProjectCreateWithoutMessagesInput = {
   client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutMessagesInput = {
@@ -1005,6 +1046,7 @@ export type ProjectUncheckedCreateWithoutMessagesInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutMessagesInput = {
@@ -1038,6 +1080,7 @@ export type ProjectUpdateWithoutMessagesInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutMessagesInput = {
@@ -1055,6 +1098,7 @@ export type ProjectUncheckedUpdateWithoutMessagesInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutProposalsInput = {
@@ -1072,6 +1116,7 @@ export type ProjectCreateWithoutProposalsInput = {
   client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutProposalsInput = {
@@ -1089,6 +1134,7 @@ export type ProjectUncheckedCreateWithoutProposalsInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutProposalsInput = {
@@ -1122,6 +1168,7 @@ export type ProjectUpdateWithoutProposalsInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutProposalsInput = {
@@ -1139,6 +1186,7 @@ export type ProjectUncheckedUpdateWithoutProposalsInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutDepositsInput = {
@@ -1156,6 +1204,7 @@ export type ProjectCreateWithoutDepositsInput = {
   client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutDepositsInput = {
@@ -1173,6 +1222,7 @@ export type ProjectUncheckedCreateWithoutDepositsInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutDepositsInput = {
@@ -1206,6 +1256,7 @@ export type ProjectUpdateWithoutDepositsInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutDepositsInput = {
@@ -1223,6 +1274,7 @@ export type ProjectUncheckedUpdateWithoutDepositsInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutInvoicesInput = {
@@ -1240,6 +1292,7 @@ export type ProjectCreateWithoutInvoicesInput = {
   client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutInvoicesInput = {
@@ -1257,6 +1310,7 @@ export type ProjectUncheckedCreateWithoutInvoicesInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutInvoicesInput = {
@@ -1290,6 +1344,7 @@ export type ProjectUpdateWithoutInvoicesInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutInvoicesInput = {
@@ -1307,6 +1362,7 @@ export type ProjectUncheckedUpdateWithoutInvoicesInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutWorkspaceInput = {
@@ -1324,6 +1380,7 @@ export type ProjectCreateWithoutWorkspaceInput = {
   proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
   client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
+  booking?: Prisma.BookingCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutWorkspaceInput = {
@@ -1341,6 +1398,7 @@ export type ProjectUncheckedCreateWithoutWorkspaceInput = {
   milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
   files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+  booking?: Prisma.BookingUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutWorkspaceInput = {
@@ -1367,6 +1425,94 @@ export type ProjectUpdateWithWhereUniqueWithoutWorkspaceInput = {
 export type ProjectUpdateManyWithWhereWithoutWorkspaceInput = {
   where: Prisma.ProjectScalarWhereInput
   data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutWorkspaceInput>
+}
+
+export type ProjectCreateWithoutBookingInput = {
+  id?: string
+  name: string
+  description: string
+  status: $Enums.ProjectStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deposits?: Prisma.DepositCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutProjectInput
+  client: Prisma.UserCreateNestedOneWithoutClientProjectsInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedProjectsInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+}
+
+export type ProjectUncheckedCreateWithoutBookingInput = {
+  id?: string
+  name: string
+  description: string
+  status: $Enums.ProjectStatus
+  ownerId: string
+  clientId: string
+  workspaceId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutProjectInput
+  milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutProjectInput
+  files?: Prisma.ProjectFileUncheckedCreateNestedManyWithoutProjectInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutBookingInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutBookingInput, Prisma.ProjectUncheckedCreateWithoutBookingInput>
+}
+
+export type ProjectUpsertWithoutBookingInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutBookingInput, Prisma.ProjectUncheckedUpdateWithoutBookingInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutBookingInput, Prisma.ProjectUncheckedCreateWithoutBookingInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutBookingInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutBookingInput, Prisma.ProjectUncheckedUpdateWithoutBookingInput>
+}
+
+export type ProjectUpdateWithoutBookingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deposits?: Prisma.DepositUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
+  client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutBookingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deposits?: Prisma.DepositUncheckedUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutProjectNestedInput
+  milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
+  files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyClientInput = {
@@ -1406,6 +1552,7 @@ export type ProjectUpdateWithoutClientInput = {
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutClientInput = {
@@ -1423,6 +1570,7 @@ export type ProjectUncheckedUpdateWithoutClientInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutClientInput = {
@@ -1451,6 +1599,7 @@ export type ProjectUpdateWithoutOwnerInput = {
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
   client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutOwnerInput = {
@@ -1468,6 +1617,7 @@ export type ProjectUncheckedUpdateWithoutOwnerInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutOwnerInput = {
@@ -1507,6 +1657,7 @@ export type ProjectUpdateWithoutWorkspaceInput = {
   proposals?: Prisma.ProposalUpdateManyWithoutProjectNestedInput
   client?: Prisma.UserUpdateOneRequiredWithoutClientProjectsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedProjectsNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
@@ -1524,6 +1675,7 @@ export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
   milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutProjectNestedInput
   files?: Prisma.ProjectFileUncheckedUpdateManyWithoutProjectNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutProjectNestedInput
+  booking?: Prisma.BookingUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -1632,6 +1784,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
+  booking?: boolean | Prisma.Project$bookingArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1688,6 +1841,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.Project$workspaceArgs<ExtArgs>
+  booking?: boolean | Prisma.Project$bookingArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1713,6 +1867,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     client: Prisma.$UserPayload<ExtArgs>
     owner: Prisma.$UserPayload<ExtArgs>
     workspace: Prisma.$WorkspacePayload<ExtArgs> | null
+    booking: Prisma.$BookingPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2127,6 +2282,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   client<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   workspace<T extends Prisma.Project$workspaceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$workspaceArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  booking<T extends Prisma.Project$bookingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$bookingArgs<ExtArgs>>): Prisma.Prisma__BookingClient<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2726,6 +2882,25 @@ export type Project$workspaceArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   include?: Prisma.WorkspaceInclude<ExtArgs> | null
   where?: Prisma.WorkspaceWhereInput
+}
+
+/**
+ * Project.booking
+ */
+export type Project$bookingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Booking
+   */
+  select?: Prisma.BookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Booking
+   */
+  omit?: Prisma.BookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingInclude<ExtArgs> | null
+  where?: Prisma.BookingWhereInput
 }
 
 /**

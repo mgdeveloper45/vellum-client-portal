@@ -1,12 +1,12 @@
 export type ClientStatus =
-    | "LEAD"
-    | "WAITLIST"
-    | "CONSULTATION"
-    | "DEPOSIT_PENDING"
-    | "ACTIVE"
-    | "COMPLETED"
-    | "ARCHIVED"
-    | "BANNED";
+  | "LEAD"
+  | "WAITLIST"
+  | "CONSULTATION"
+  | "DEPOSIT_PENDING"
+  | "ACTIVE"
+  | "COMPLETED"
+  | "ARCHIVED"
+  | "BANNED";
 export interface ClientSummaryRecord {
   id: string;
   firstName: string;
@@ -89,6 +89,11 @@ export interface FindClientByEmailInput {
   excludeClientId?: string;
 }
 
+export interface FindWorkspaceClientByEmailInput {
+  workspaceId: string;
+  email: string;
+}
+
 export interface ClientRepository {
   findMany(input: FindClientsInput): Promise<ClientSummaryRecord[]>;
 
@@ -97,6 +102,10 @@ export interface ClientRepository {
   findForEdit(input: FindClientInput): Promise<ClientEditRecord | null>;
 
   findByEmail(input: FindClientByEmailInput): Promise<{
+    id: string;
+  } | null>;
+
+  findWorkspaceClientByEmail(input: FindWorkspaceClientByEmailInput): Promise<{
     id: string;
   } | null>;
 

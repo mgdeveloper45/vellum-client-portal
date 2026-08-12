@@ -1,18 +1,15 @@
 import { isValidMoneyAmount, normalizeMoneyAmount } from "@/lib/money";
+import type { DepositRepository } from "@/lib/services/deposits/deposit-repository";
 import type {
   DepositPaymentRepository,
   PaymentMethod,
 } from "./deposit-payment-repository";
 import { buildDepositFinancialSummary } from "./financial-engine";
-import type { DepositRepository } from "@/lib/services/deposits/deposit-repository";
 
 export interface RecordDepositPaymentRequest {
   depositId: string;
-
   amount: number;
-
   paymentMethod: PaymentMethod;
-
   notes: string;
 }
 
@@ -24,13 +21,11 @@ export type RecordDepositPaymentResult =
   | {
       success: false;
       reason: "INVALID_DEPOSIT" | "INVALID_AMOUNT" | "NOT_FOUND";
-
       message: string;
     };
 
 interface RecordDepositPaymentServiceDependencies {
   depositRepository: DepositRepository;
-
   depositPaymentRepository: DepositPaymentRepository;
 }
 
@@ -59,13 +54,6 @@ export function createRecordDepositPaymentService({
       };
     }
 
-    const payment = await depositPaymentRepository.create({
-      depositId,
-      amount: normalizeMoneyAmount(request.amount),
-      paymentMethod: request.paymentMethod,
-      notes: request.notes.trim(),
-    });
-
     const deposit = await depositRepository.findFinancialRecord(depositId);
 
     if (!deposit) {
@@ -75,6 +63,13 @@ export function createRecordDepositPaymentService({
         message: "Deposit not found.",
       };
     }
+
+    const payment = await depositPaymentRepository.create({
+      depositId,
+      amount: normalizeMoneyAmount(request.amount),
+      paymentMethod: request.paymentMethod,
+      notes: request.notes.trim(),
+    });
 
     const payments = await depositPaymentRepository.listByDeposit(depositId);
 

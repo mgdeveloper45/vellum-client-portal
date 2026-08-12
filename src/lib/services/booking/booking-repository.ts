@@ -40,8 +40,32 @@ export interface RescheduledBookingRecord {
   id: string;
 }
 
+export interface BookingForProjectCreation {
+  id: string;
+  workspaceId: string;
+  customerName: string;
+  customerEmail: string;
+  projectId: string | null;
+  service: {
+    name: string;
+  };
+}
+
+export interface LinkBookingToProjectInput {
+  bookingId: string;
+  workspaceId: string;
+  projectId: string;
+}
+
 export interface BookingRepository {
   create(input: CreateBookingRecordInput): Promise<CreatedBookingRecord>;
+
+  findForProjectCreation(
+    bookingId: string,
+    workspaceId: string,
+  ): Promise<BookingForProjectCreation | null>;
+
+  linkToProject(input: LinkBookingToProjectInput): Promise<boolean>;
 
   findForReschedule(
     bookingId: string,

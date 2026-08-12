@@ -354,6 +354,7 @@ export const BookingScalarFieldEnum = {
   status: 'status',
   serviceId: 'serviceId',
   workspaceId: 'workspaceId',
+  projectId: 'projectId',
   depositRequired: 'depositRequired',
   depositAmount: 'depositAmount',
   depositPaid: 'depositPaid',

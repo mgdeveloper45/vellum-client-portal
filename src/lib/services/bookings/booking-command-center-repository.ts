@@ -1,3 +1,24 @@
+export type BookingCommandCenterInvoice = {
+  paid: boolean;
+};
+
+export type BookingCommandCenterDepositPayment = {
+  amount: number;
+};
+
+export type BookingCommandCenterDeposit = {
+  amount: number;
+  status: "REQUESTED" | "PARTIALLY_PAID" | "PAID" | "REFUNDED" | "CANCELLED";
+  payments: BookingCommandCenterDepositPayment[];
+};
+
+export type BookingCommandCenterProject = {
+  invoices: BookingCommandCenterInvoice[];
+  messages: unknown[];
+  files: unknown[];
+  deposits: BookingCommandCenterDeposit[];
+};
+
 export type BookingCommandCenterBooking = {
   id: string;
   customerName: string;
@@ -6,25 +27,25 @@ export type BookingCommandCenterBooking = {
   notes: string | null;
   status: string;
   createdAt: Date;
+
+  depositRequired: boolean;
+  depositAmount: number;
+
   date: Date;
   startTime: string;
   endTime: string;
   googleCalendarEventId: string | null;
+
   service: {
     name: string;
   };
+
   workspace: {
     name: string;
     companyName: string | null;
   };
-};
 
-export type BookingCommandCenterProject = {
-  invoices: {
-    paid: boolean;
-  }[];
-  messages: unknown[];
-  files: unknown[];
+  project: BookingCommandCenterProject | null;
 };
 
 export interface BookingCommandCenterRepository {
@@ -32,9 +53,4 @@ export interface BookingCommandCenterRepository {
     bookingId: string;
     workspaceId: string;
   }): Promise<BookingCommandCenterBooking | null>;
-
-  findRelatedProjects(input: {
-    workspaceId: string;
-    customerEmail: string;
-  }): Promise<BookingCommandCenterProject[]>;
 }
