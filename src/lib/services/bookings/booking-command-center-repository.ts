@@ -13,6 +13,7 @@ export type BookingCommandCenterDeposit = {
 };
 
 export type BookingCommandCenterProject = {
+  id: string;
   invoices: BookingCommandCenterInvoice[];
   messages: unknown[];
   files: unknown[];

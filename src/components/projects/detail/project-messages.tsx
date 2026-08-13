@@ -12,7 +12,7 @@ export function ProjectMessages({
     messages,
 }: ProjectMessagesProps) {
     return (
-        <section className="mt-10">
+        <section id="messages" className="mt-10 scroll-mt-24">
             <h2 className="text-xl font-medium">
                 Messages
             </h2>

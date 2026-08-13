@@ -18,7 +18,7 @@ export function ProjectInvoices({
     canManageProject,
 }: ProjectInvoicesProps) {
     return (
-        <section className="mt-10">
+        <section id="invoices" className="mt-10 scroll-mt-6">
             <h2 className="text-xl font-medium">
                 Invoices
             </h2>

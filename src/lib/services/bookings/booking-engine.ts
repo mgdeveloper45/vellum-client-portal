@@ -8,6 +8,7 @@ import { buildBookingRecommendedActions } from "@/lib/services/bookings/booking-
 
 type BuildBookingEngineParams = {
   bookingId: string;
+  projectId: string | null;
   customerName: string;
   serviceName: string;
   status: string;
@@ -23,6 +24,7 @@ type BuildBookingEngineParams = {
 
 export function buildBookingEngine({
   bookingId,
+  projectId,
   customerName,
   serviceName,
   status,
@@ -57,6 +59,7 @@ export function buildBookingEngine({
 
   const actions = buildBookingRecommendedActions({
     bookingId,
+    projectId,
     health,
     hasProject,
     hasInvoice,

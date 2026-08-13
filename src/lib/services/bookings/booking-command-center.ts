@@ -69,6 +69,7 @@ export function createGetBookingCommandCenter(
 
     const intelligence = buildBookingEngine({
       bookingId: booking.id,
+      projectId: project?.id ?? null,
       customerName: booking.customerName,
       serviceName: booking.service.name,
       status: booking.status,

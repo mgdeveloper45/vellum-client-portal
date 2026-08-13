@@ -17,7 +17,7 @@ export function ProjectFiles({
     canManageProject,
 }: ProjectFilesProps) {
     return (
-        <section className="mt-10">
+        <section id="files" className="mt-10 scroll-mt-24">
             <h2 className="text-xl font-medium">
                 Files
             </h2>

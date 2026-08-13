@@ -41,6 +41,7 @@ export class PrismaBookingCommandCenterRepository implements BookingCommandCente
       depositAmount: Number(booking.depositAmount),
       project: booking.project
         ? {
+            id: booking.project.id,
             invoices: booking.project.invoices.map((invoice) => ({
               paid: invoice.paid,
             })),

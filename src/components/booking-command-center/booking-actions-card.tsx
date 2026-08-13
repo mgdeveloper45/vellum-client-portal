@@ -37,36 +37,43 @@ export function BookingActionsCard({ actions }: Props) {
             <div className="mt-5 grid gap-3">
                 {actions.map((action) => {
                     if (action.type === "COMMAND") {
-                        return (
-                            <form
-                                key={action.id}
-                                action={createProjectFromBookingAction}
-                            >
-                                <input
-                                    type="hidden"
-                                    name="bookingId"
-                                    value={action.bookingId}
-                                />
+                        switch (action.command) {
+                            case "CREATE_PROJECT":
+                                return (
+                                    <form
+                                        key={action.id}
+                                        action={createProjectFromBookingAction}
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="bookingId"
+                                            value={action.bookingId}
+                                        />
 
-                                <button
-                                    type="submit"
-                                    className="w-full rounded-2xl border border-border bg-background p-4 text-left transition hover:border-accent"
-                                >
-                                    <ActionContent action={action} />
-                                </button>
-                            </form>
+                                        <button
+                                            type="submit"
+                                            className="w-full rounded-2xl border border-border bg-background p-4 text-left transition hover:border-accent"
+                                        >
+                                            <ActionContent action={action} />
+                                        </button>
+                                    </form>
+                                );
+                        }
+                    }
+
+                    if (action.type === "NAVIGATION") {
+                        return (
+                            <Link
+                                key={action.id}
+                                href={action.href}
+                                className="rounded-2xl border border-border bg-background p-4 transition hover:border-accent"
+                            >
+                                <ActionContent action={action} />
+                            </Link>
                         );
                     }
 
-                    return (
-                        <Link
-                            key={action.id}
-                            href={action.href}
-                            className="rounded-2xl border border-border bg-background p-4 transition hover:border-accent"
-                        >
-                            <ActionContent action={action} />
-                        </Link>
-                    );
+                    return null;
                 })}
             </div>
         </section>

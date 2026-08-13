@@ -22,6 +22,7 @@ export type BookingRecommendedAction =
 
 type BuildBookingActionsParams = {
   bookingId: string;
+  projectId: string | null;
   health: BookingHealthResult;
   hasProject: boolean;
   hasInvoice: boolean;
@@ -32,6 +33,7 @@ type BuildBookingActionsParams = {
 
 export function buildBookingRecommendedActions({
   bookingId,
+  projectId,
   health,
   hasProject,
   hasInvoice,
@@ -53,35 +55,35 @@ export function buildBookingRecommendedActions({
     });
   }
 
-  if (!hasMessages) {
+  if (hasProject && projectId && !hasMessages) {
     actions.push({
       id: "message-client",
       type: "NAVIGATION",
       title: "Message client",
       description: "Send a quick follow-up or preparation note.",
-      href: `/bookings/${bookingId}`,
+      href: `/projects/${projectId}#messages`,
       priority: "MEDIUM",
     });
   }
 
-  if (!hasFiles) {
+  if (hasProject && projectId && !hasFiles) {
     actions.push({
       id: "request-files",
       type: "NAVIGATION",
       title: "Request files",
-      description: "Ask the client to upload any needed materials.",
-      href: `/bookings/${bookingId}`,
+      description: "Upload or manage files for this booking's project.",
+      href: `/projects/${projectId}#files`,
       priority: "MEDIUM",
     });
   }
 
-  if (!hasInvoice) {
+  if (hasProject && projectId && !hasInvoice) {
     actions.push({
       id: "create-invoice",
       type: "NAVIGATION",
       title: "Create invoice",
       description: "Prepare billing for this booking.",
-      href: `/bookings/${bookingId}`,
+      href: `/projects/${projectId}#invoices`,
       priority: "MEDIUM",
     });
   }

@@ -120,14 +120,8 @@ describe("getBookingCommandCenter", () => {
     const repository = createRepository(
       buildBooking({
         project: {
-          invoices: [
-            {
-              paid: true,
-            },
-            {
-              paid: true,
-            },
-          ],
+          id: "project-1",
+          invoices: [{ paid: true }, { paid: true }],
           messages: [{ id: "message-1" }],
           files: [{ id: "file-1" }],
           deposits: [],
@@ -161,14 +155,8 @@ describe("getBookingCommandCenter", () => {
     const repository = createRepository(
       buildBooking({
         project: {
-          invoices: [
-            {
-              paid: true,
-            },
-            {
-              paid: false,
-            },
-          ],
+          id: "project-1",
+          invoices: [{ paid: true }, { paid: false }],
           messages: [],
           files: [],
           deposits: [],
@@ -196,6 +184,7 @@ describe("getBookingCommandCenter", () => {
         depositAmount: 300,
 
         project: {
+          id: "project-1",
           invoices: [],
           messages: [],
           files: [],
@@ -253,6 +242,7 @@ describe("getBookingCommandCenter", () => {
     const repository = createRepository(
       buildBooking({
         project: {
+          id: "project-1",
           invoices: [],
           messages: [],
           files: [],
