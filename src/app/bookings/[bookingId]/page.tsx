@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { auth } from "@/auth";
+import { updateBookingStatusAction } from "@/actions/booking-actions";
 import { BookingAICard } from "@/components/booking-command-center/booking-ai-card";
 import { BookingActionsCard } from "@/components/booking-command-center/booking-actions-card";
 import { BookingCommandCenter } from "@/components/booking-command-center/booking-command-center";
@@ -158,12 +159,57 @@ export default async function BookingDetailsPage({
                             actions={bookingIntelligence.actions}
                         />
 
-                        <a
-                            href={`/bookings/${booking.id}/reschedule`}
-                            className="workspace-accent-button inline-block rounded-full px-4 py-2 text-center text-sm font-medium"
-                        >
-                            Reschedule
-                        </a>
+                        <div className="space-y-3">
+                            {booking.status !== "CANCELLED" &&
+                                booking.status !== "COMPLETED" && (
+                                    <a
+                                        href={`/bookings/${booking.id}/reschedule`}
+                                        className="workspace-accent-button block rounded-full px-4 py-2 text-center text-sm font-medium"
+                                    >
+                                        Reschedule
+                                    </a>
+                                )}
+
+                            <form
+                                action={updateBookingStatusAction}
+                                className="flex gap-2"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="bookingId"
+                                    value={booking.id}
+                                />
+
+                                <select
+                                    name="status"
+                                    defaultValue={booking.status}
+                                    className="min-w-0 flex-1 rounded-xl border border-border bg-card px-3 py-2 text-sm"
+                                >
+                                    <option value="PENDING">
+                                        Pending
+                                    </option>
+
+                                    <option value="CONFIRMED">
+                                        Confirmed
+                                    </option>
+
+                                    <option value="COMPLETED">
+                                        Completed
+                                    </option>
+
+                                    <option value="CANCELLED">
+                                        Cancelled
+                                    </option>
+                                </select>
+
+                                <button
+                                    type="submit"
+                                    className="workspace-accent-button rounded-xl px-4 py-2 text-sm font-medium"
+                                >
+                                    Save
+                                </button>
+                            </form>
+                        </div>
                     </aside>
                 </section>
             </BookingCommandCenter>
