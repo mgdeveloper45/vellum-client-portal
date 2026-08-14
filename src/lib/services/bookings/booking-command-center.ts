@@ -36,6 +36,13 @@ export function createGetBookingCommandCenter(
     const hasInvoice = invoices.length > 0;
     const invoicePaid = hasInvoice && invoices.every((invoice) => invoice.paid);
 
+    const unpaidInvoices = invoices.filter((invoice) => !invoice.paid);
+
+    const unpaidInvoiceId =
+      unpaidInvoices.length === 1 ? unpaidInvoices[0].id : null;
+
+    const hasMultipleUnpaidInvoices = unpaidInvoices.length > 1;
+
     const hasMessages = messages.length > 0;
     const hasFiles = files.length > 0;
 
@@ -70,6 +77,8 @@ export function createGetBookingCommandCenter(
     const intelligence = buildBookingEngine({
       bookingId: booking.id,
       projectId: project?.id ?? null,
+      unpaidInvoiceId,
+      hasMultipleUnpaidInvoices,
       customerName: booking.customerName,
       serviceName: booking.service.name,
       status: booking.status,

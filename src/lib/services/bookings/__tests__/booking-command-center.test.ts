@@ -121,7 +121,10 @@ describe("getBookingCommandCenter", () => {
       buildBooking({
         project: {
           id: "project-1",
-          invoices: [{ paid: true }, { paid: true }],
+          invoices: [
+            { id: "invoice-1", paid: true },
+            { id: "invoice-2", paid: true },
+          ],
           messages: [{ id: "message-1" }],
           files: [{ id: "file-1" }],
           deposits: [],
@@ -156,7 +159,10 @@ describe("getBookingCommandCenter", () => {
       buildBooking({
         project: {
           id: "project-1",
-          invoices: [{ paid: true }, { paid: false }],
+          invoices: [
+            { id: "invoice-1", paid: true },
+            { id: "invoice-2", paid: false },
+          ],
           messages: [],
           files: [],
           deposits: [],

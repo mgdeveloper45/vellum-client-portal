@@ -18,6 +18,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: null,
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: buildHealth(),
       hasProject: false,
       hasInvoice: false,
@@ -45,6 +47,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: "project-1",
+      unpaidInvoiceId: "invoice-1",
+      hasMultipleUnpaidInvoices: false,
       health: buildHealth(),
       hasProject: true,
       hasInvoice: false,
@@ -71,6 +75,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: null,
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: buildHealth(),
       hasProject: true,
       hasInvoice: false,
@@ -88,6 +94,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: "project-1",
+      unpaidInvoiceId: "invoice-1",
+      hasMultipleUnpaidInvoices: false,
       health: buildHealth(),
       hasProject: true,
       hasInvoice: true,
@@ -101,7 +109,7 @@ describe("buildBookingRecommendedActions", () => {
       type: "NAVIGATION",
       title: "Follow up on payment",
       description: "Invoice exists but has not been paid yet.",
-      href: "/invoices",
+      href: "/ai/invoice-reminder/invoice-1",
       priority: "HIGH",
     });
 
@@ -110,10 +118,36 @@ describe("buildBookingRecommendedActions", () => {
     );
   });
 
+  it("links to project invoices when multiple invoices are unpaid", () => {
+    const actions = buildBookingRecommendedActions({
+      bookingId: "booking-1",
+      projectId: "project-1",
+      unpaidInvoiceId: "invoice-1",
+      hasMultipleUnpaidInvoices: true,
+      health: buildHealth(),
+      hasProject: true,
+      hasInvoice: true,
+      invoicePaid: false,
+      hasMessages: true,
+      hasFiles: true,
+    });
+
+    expect(actions).toContainEqual({
+      id: "follow-up-payment",
+      type: "NAVIGATION",
+      title: "Follow up on payment",
+      description: "Invoice exists but has not been paid yet.",
+      href: "/projects/project-1#invoices",
+      priority: "HIGH",
+    });
+  });
+
   it("does not recommend messaging before a project exists", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: null,
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: {
         score: 100,
         label: "HEALTHY",
@@ -139,6 +173,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: {
         score: 100,
         label: "HEALTHY",
@@ -166,6 +202,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: buildHealth(),
       hasProject: true,
       hasInvoice: true,
@@ -188,6 +226,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: buildHealth(),
       hasProject: true,
       hasInvoice: true,
@@ -210,6 +250,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: buildHealth("HEALTHY"),
       hasProject: true,
       hasInvoice: true,
@@ -234,6 +276,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: null,
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: {
         score: 100,
         label: "HEALTHY",
@@ -259,6 +303,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: {
         score: 100,
         label: "HEALTHY",
@@ -286,6 +332,8 @@ describe("buildBookingRecommendedActions", () => {
     const actions = buildBookingRecommendedActions({
       bookingId: "booking-1",
       projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
       health: buildHealth("NEEDS_ATTENTION"),
       hasProject: true,
       hasInvoice: true,

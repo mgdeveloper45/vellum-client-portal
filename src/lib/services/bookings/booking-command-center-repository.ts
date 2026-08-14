@@ -1,4 +1,5 @@
 export type BookingCommandCenterInvoice = {
+  id: string;
   paid: boolean;
 };
 

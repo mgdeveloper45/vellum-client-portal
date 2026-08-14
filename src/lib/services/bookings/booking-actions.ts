@@ -23,6 +23,8 @@ export type BookingRecommendedAction =
 type BuildBookingActionsParams = {
   bookingId: string;
   projectId: string | null;
+  unpaidInvoiceId: string | null;
+  hasMultipleUnpaidInvoices: boolean;
   health: BookingHealthResult;
   hasProject: boolean;
   hasInvoice: boolean;
@@ -34,6 +36,8 @@ type BuildBookingActionsParams = {
 export function buildBookingRecommendedActions({
   bookingId,
   projectId,
+  unpaidInvoiceId,
+  hasMultipleUnpaidInvoices,
   health,
   hasProject,
   hasInvoice,
@@ -89,15 +93,20 @@ export function buildBookingRecommendedActions({
   }
 
   if (hasInvoice && !invoicePaid) {
-    actions.push({
-      id: "follow-up-payment",
-      type: "NAVIGATION",
-      title: "Follow up on payment",
-      description: "Invoice exists but has not been paid yet.",
-      href: "/invoices",
-      priority: "HIGH",
-    });
-  }
+  actions.push({
+    id: "follow-up-payment",
+    type: "NAVIGATION",
+    title: "Follow up on payment",
+    description: "Invoice exists but has not been paid yet.",
+    href:
+      unpaidInvoiceId && !hasMultipleUnpaidInvoices
+        ? `/ai/invoice-reminder/${unpaidInvoiceId}`
+        : projectId
+          ? `/projects/${projectId}#invoices`
+          : "/invoices",
+    priority: "HIGH",
+  });
+}
 
   if (health.label === "HEALTHY" && actions.length === 0) {
     actions.push({

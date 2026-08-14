@@ -43,6 +43,7 @@ export class PrismaBookingCommandCenterRepository implements BookingCommandCente
         ? {
             id: booking.project.id,
             invoices: booking.project.invoices.map((invoice) => ({
+              id: invoice.id,
               paid: invoice.paid,
             })),
             messages: booking.project.messages,
