@@ -1,7 +1,12 @@
+import Link from "next/link";
+
+import { createProjectFromBookingAction } from "@/actions/booking-actions";
+import type { BookingRecommendedAction } from "@/lib/services/bookings/booking-actions";
 import type { BookingMission } from "@/lib/services/bookings/booking-mission";
 
 type Props = {
   mission: BookingMission;
+  action?: BookingRecommendedAction;
 };
 
 const priorityConfig = {
@@ -22,8 +27,57 @@ const priorityConfig = {
   },
 };
 
+function MissionAction({
+  action,
+}: {
+  action?: BookingRecommendedAction;
+}) {
+  if (!action) {
+    return null;
+  }
+
+  const className =
+    "workspace-accent-button mt-8 block w-full rounded-2xl py-3 text-center font-medium transition hover:opacity-90";
+
+  if (action.type === "COMMAND") {
+    switch (action.command) {
+      case "CREATE_PROJECT":
+        return (
+          <form action={createProjectFromBookingAction}>
+            <input
+              type="hidden"
+              name="bookingId"
+              value={action.bookingId}
+            />
+
+            <button
+              type="submit"
+              className={className}
+            >
+              Start Mission
+            </button>
+          </form>
+        );
+    }
+  }
+
+  if (action.type === "NAVIGATION") {
+    return (
+      <Link
+        href={action.href}
+        className={className}
+      >
+        Start Mission
+      </Link>
+    );
+  }
+
+  return null;
+}
+
 export function BookingMissionCard({
   mission,
+  action,
 }: Props) {
   const config = priorityConfig[mission.priority];
 
@@ -75,9 +129,7 @@ export function BookingMissionCard({
         </div>
       </div>
 
-      <button className="workspace-accent-button mt-8 w-full rounded-2xl py-3 font-medium transition hover:opacity-90">
-        Start Mission
-      </button>
+      <MissionAction action={action} />
     </section>
   );
 }

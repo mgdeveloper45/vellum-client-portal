@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { WorkspaceRevenueOpportunity } from "@/lib/services/workspace/workspace-revenue-opportunity";
 import { CommandCard } from "@/components/ui/command-card";
 import { ExecutiveCallout } from "@/components/ui/executive-callout";
@@ -46,9 +47,12 @@ export function WorkspaceRevenueOpportunityCard({
             />
 
             {opportunity.invoices > 0 && (
-                <button className="workspace-accent-button mt-6 w-full rounded-2xl py-3 font-medium transition hover:opacity-90">
+                <Link
+                    href="/invoices"
+                    className="workspace-accent-button mt-6 block w-full rounded-2xl py-3 text-center font-medium transition hover:opacity-90"
+                >
                     Review Opportunity
-                </button>
+                </Link>
             )}
         </CommandCard>
     );

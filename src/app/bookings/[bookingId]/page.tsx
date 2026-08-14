@@ -91,6 +91,7 @@ export default async function BookingDetailsPage({
                 <section className="mt-8 grid gap-6 xl:grid-cols-2">
                     <BookingMissionCard
                         mission={bookingIntelligence.mission}
+                        action={bookingIntelligence.actions[0]}
                     />
 
                     <BookingCountdownCard
