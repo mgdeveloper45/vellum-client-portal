@@ -8,16 +8,15 @@ export type BookingTimelineEvent = {
 
 type BuildBookingTimelineParams = {
   bookingCreatedAt: Date;
-
   hasProject: boolean;
-
   hasInvoice: boolean;
-
   invoicePaid: boolean;
-
   hasMessages: boolean;
-
   hasFiles: boolean;
+  depositRequired: boolean;
+  hasDeposit: boolean;
+  depositPaid: boolean;
+  depositOutstanding: number;
 };
 
 export function buildBookingTimeline({
@@ -27,6 +26,10 @@ export function buildBookingTimeline({
   invoicePaid,
   hasMessages,
   hasFiles,
+  depositRequired,
+  hasDeposit,
+  depositPaid,
+  depositOutstanding,
 }: BuildBookingTimelineParams): BookingTimelineEvent[] {
   const events: BookingTimelineEvent[] = [];
 
@@ -46,6 +49,25 @@ export function buildBookingTimeline({
       : "Project has not been created yet.",
     completed: hasProject,
   });
+
+  if (depositRequired) {
+    let description = "Required deposit has not been requested.";
+    let completed = false;
+
+    if (hasDeposit && depositPaid) {
+      description = "Required deposit has been paid.";
+      completed = true;
+    } else if (hasDeposit && depositOutstanding > 0) {
+      description = `Required deposit has $${depositOutstanding.toLocaleString()} outstanding.`;
+    }
+
+    events.push({
+      id: "deposit",
+      title: "Deposit",
+      description,
+      completed,
+    });
+  }
 
   events.push({
     id: "client-communication",

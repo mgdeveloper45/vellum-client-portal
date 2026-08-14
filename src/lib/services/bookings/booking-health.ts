@@ -9,6 +9,10 @@ export type BookingHealthInput = {
   hasMessages: boolean;
   hasFiles: boolean;
   bookingDate: Date;
+  depositRequired: boolean;
+  hasDeposit: boolean;
+  depositPaid: boolean;
+  depositOutstanding: number;
 };
 
 export type BookingHealthResult = {
@@ -26,6 +30,10 @@ export function calculateBookingHealth({
   hasMessages,
   hasFiles,
   bookingDate,
+  depositRequired,
+  hasDeposit,
+  depositPaid,
+  depositOutstanding,
 }: BookingHealthInput): BookingHealthResult {
   let score = 100;
   const reasons: string[] = [];
@@ -71,6 +79,16 @@ export function calculateBookingHealth({
   if (hasInvoice && !invoicePaid) {
     score -= 15;
     reasons.push("Invoice is still unpaid.");
+  }
+
+  if (depositRequired && !hasDeposit) {
+    score -= 15;
+    reasons.push("Required deposit has not been requested.");
+  }
+
+  if (depositRequired && hasDeposit && !depositPaid && depositOutstanding > 0) {
+    score -= 15;
+    reasons.push("Required deposit still has an outstanding balance.");
   }
 
   if (daysUntilBooking <= 1 && !hasMessages) {

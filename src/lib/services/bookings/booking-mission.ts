@@ -14,6 +14,11 @@ type BookingMissionInput = {
   health: BookingHealthResult;
   countdown: BookingCountdown;
   actions: BookingRecommendedAction[];
+
+  depositRequired: boolean;
+  hasDeposit: boolean;
+  depositPaid: boolean;
+  depositOutstanding: number;
 };
 
 export function determineBookingMission({
@@ -21,6 +26,10 @@ export function determineBookingMission({
   health,
   countdown,
   actions,
+  depositRequired,
+  hasDeposit,
+  depositPaid,
+  depositOutstanding,
 }: BookingMissionInput): BookingMission {
   if (health.score < 50) {
     return {
@@ -28,6 +37,23 @@ export function determineBookingMission({
       description:
         health.reasons[0] ??
         "This booking has multiple issues that should be resolved.",
+      priority: "HIGH",
+    };
+  }
+
+  if (depositRequired && !hasDeposit) {
+    return {
+      title: "Request Required Deposit",
+      description:
+        "Request the required deposit before continuing the booking workflow.",
+      priority: "HIGH",
+    };
+  }
+
+  if (depositRequired && hasDeposit && !depositPaid && depositOutstanding > 0) {
+    return {
+      title: "Collect Outstanding Deposit",
+      description: `Collect the remaining $${depositOutstanding.toLocaleString()} deposit balance.`,
       priority: "HIGH",
     };
   }

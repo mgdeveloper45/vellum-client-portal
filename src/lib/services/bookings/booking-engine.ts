@@ -22,6 +22,11 @@ type BuildBookingEngineParams = {
   invoicePaid: boolean;
   hasMessages: boolean;
   hasFiles: boolean;
+
+  depositRequired: boolean;
+  hasDeposit: boolean;
+  depositPaid: boolean;
+  depositOutstanding: number;
 };
 
 export function buildBookingEngine({
@@ -40,6 +45,10 @@ export function buildBookingEngine({
   invoicePaid,
   hasMessages,
   hasFiles,
+  depositRequired,
+  hasDeposit,
+  depositPaid,
+  depositOutstanding,
 }: BuildBookingEngineParams) {
   const timeline = buildBookingTimeline({
     bookingCreatedAt,
@@ -48,6 +57,10 @@ export function buildBookingEngine({
     invoicePaid,
     hasMessages,
     hasFiles,
+    depositRequired,
+    hasDeposit,
+    depositPaid,
+    depositOutstanding,
   });
 
   const health = calculateBookingHealth({
@@ -59,6 +72,10 @@ export function buildBookingEngine({
     invoicePaid,
     hasMessages,
     hasFiles,
+    depositRequired,
+    hasDeposit,
+    depositPaid,
+    depositOutstanding,
   });
 
   const actions = buildBookingRecommendedActions({
@@ -72,6 +89,10 @@ export function buildBookingEngine({
     invoicePaid,
     hasMessages,
     hasFiles,
+    depositRequired,
+    hasDeposit,
+    depositPaid,
+    depositOutstanding,
   });
 
   const countdown = getBookingCountdown(bookingDate);
@@ -90,6 +111,10 @@ export function buildBookingEngine({
     health,
     countdown,
     actions,
+    depositRequired,
+    hasDeposit,
+    depositPaid,
+    depositOutstanding,
   });
 
   const aiSummary = buildBookingAISummary({

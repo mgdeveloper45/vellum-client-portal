@@ -13,6 +13,23 @@ function buildHealth(
   };
 }
 
+function buildDepositState(
+  overrides: Partial<{
+    depositRequired: boolean;
+    hasDeposit: boolean;
+    depositPaid: boolean;
+    depositOutstanding: number;
+  }> = {},
+) {
+  return {
+    depositRequired: false,
+    hasDeposit: false,
+    depositPaid: false,
+    depositOutstanding: 0,
+    ...overrides,
+  };
+}
+
 describe("buildBookingRecommendedActions", () => {
   it("recommends creating a project when the booking has no project", () => {
     const actions = buildBookingRecommendedActions({
@@ -26,6 +43,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: false,
       hasMessages: true,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions).toContainEqual({
@@ -55,6 +73,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: false,
       hasMessages: true,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions).toContainEqual({
@@ -83,6 +102,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: false,
       hasMessages: true,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions.some((action) => action.id === "create-invoice")).toBe(
@@ -102,6 +122,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: false,
       hasMessages: true,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions).toContainEqual({
@@ -130,6 +151,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: false,
       hasMessages: true,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions).toContainEqual({
@@ -158,6 +180,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: false,
       hasMessages: false,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions).not.toEqual(
@@ -185,6 +208,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: true,
       hasMessages: false,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions).toEqual(
@@ -210,6 +234,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: true,
       hasMessages: false,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions).toContainEqual({
@@ -234,6 +259,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: true,
       hasMessages: true,
       hasFiles: false,
+      ...buildDepositState(),
     });
 
     expect(actions).toContainEqual({
@@ -258,6 +284,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: true,
       hasMessages: true,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions).toEqual([
@@ -288,6 +315,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: false,
       hasMessages: true,
       hasFiles: false,
+      ...buildDepositState(),
     });
 
     expect(actions).not.toEqual(
@@ -315,6 +343,7 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: true,
       hasMessages: true,
       hasFiles: false,
+      ...buildDepositState(),
     });
 
     expect(actions).toEqual(
@@ -340,8 +369,150 @@ describe("buildBookingRecommendedActions", () => {
       invoicePaid: true,
       hasMessages: true,
       hasFiles: true,
+      ...buildDepositState(),
     });
 
     expect(actions).toEqual([]);
+  });
+
+  it("recommends requesting a required deposit when none exists", () => {
+    const actions = buildBookingRecommendedActions({
+      bookingId: "booking-1",
+      projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
+      health: buildHealth(),
+      hasProject: true,
+      hasInvoice: true,
+      invoicePaid: true,
+      hasMessages: true,
+      hasFiles: true,
+      ...buildDepositState({
+        depositRequired: true,
+      }),
+    });
+
+    expect(actions).toContainEqual({
+      id: "request-deposit",
+      type: "NAVIGATION",
+      title: "Request deposit",
+      description: "Request the required deposit for this booking.",
+      href: "/projects/project-1#deposits",
+      priority: "HIGH",
+    });
+  });
+
+  it("recommends collecting an outstanding required deposit", () => {
+    const actions = buildBookingRecommendedActions({
+      bookingId: "booking-1",
+      projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
+      health: buildHealth(),
+      hasProject: true,
+      hasInvoice: true,
+      invoicePaid: true,
+      hasMessages: true,
+      hasFiles: true,
+      ...buildDepositState({
+        depositRequired: true,
+        hasDeposit: true,
+        depositOutstanding: 250,
+      }),
+    });
+
+    expect(actions).toContainEqual({
+      id: "collect-deposit",
+      type: "NAVIGATION",
+      title: "Collect deposit",
+      description: "Collect the outstanding deposit balance.",
+      href: "/projects/project-1#deposits",
+      priority: "HIGH",
+    });
+  });
+
+  it("does not recommend a deposit action when the required deposit is paid", () => {
+    const actions = buildBookingRecommendedActions({
+      bookingId: "booking-1",
+      projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
+      health: buildHealth(),
+      hasProject: true,
+      hasInvoice: true,
+      invoicePaid: true,
+      hasMessages: true,
+      hasFiles: true,
+      ...buildDepositState({
+        depositRequired: true,
+        hasDeposit: true,
+        depositPaid: true,
+        depositOutstanding: 0,
+      }),
+    });
+
+    expect(
+      actions.some(
+        (action) =>
+          action.id === "request-deposit" || action.id === "collect-deposit",
+      ),
+    ).toBe(false);
+  });
+
+  it("does not recommend a deposit action when a deposit is not required", () => {
+    const actions = buildBookingRecommendedActions({
+      bookingId: "booking-1",
+      projectId: "project-1",
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
+      health: buildHealth(),
+      hasProject: true,
+      hasInvoice: true,
+      invoicePaid: true,
+      hasMessages: true,
+      hasFiles: true,
+      ...buildDepositState(),
+    });
+
+    expect(
+      actions.some(
+        (action) =>
+          action.id === "request-deposit" || action.id === "collect-deposit",
+      ),
+    ).toBe(false);
+  });
+
+  it("does not recommend a deposit action before a project exists", () => {
+    const actions = buildBookingRecommendedActions({
+      bookingId: "booking-1",
+      projectId: null,
+      unpaidInvoiceId: null,
+      hasMultipleUnpaidInvoices: false,
+      health: buildHealth(),
+      hasProject: false,
+      hasInvoice: false,
+      invoicePaid: false,
+      hasMessages: true,
+      hasFiles: true,
+      ...buildDepositState({
+        depositRequired: true,
+      }),
+    });
+
+    expect(
+      actions.some(
+        (action) =>
+          action.id === "request-deposit" || action.id === "collect-deposit",
+      ),
+    ).toBe(false);
+
+    expect(actions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "create-project",
+          command: "CREATE_PROJECT",
+        }),
+      ]),
+    );
   });
 });

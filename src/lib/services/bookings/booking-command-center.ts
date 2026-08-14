@@ -90,6 +90,10 @@ export function createGetBookingCommandCenter(
       invoicePaid,
       hasMessages,
       hasFiles,
+      depositRequired,
+      hasDeposit,
+      depositPaid,
+      depositOutstanding,
     });
 
     return {

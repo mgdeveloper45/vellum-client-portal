@@ -8,7 +8,10 @@ export function RequestDepositForm({
     projectId,
 }: RequestDepositFormProps) {
     return (
-        <section className="mt-8 rounded-2xl border border-border bg-card p-6">
+        <section
+            id="deposits"
+            className="mt-8 scroll-mt-24 rounded-2xl border border-border bg-card p-6"
+        >
             <h2 className="text-xl font-medium">
                 Request Deposit
             </h2>

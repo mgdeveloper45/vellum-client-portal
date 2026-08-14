@@ -31,6 +31,10 @@ type BuildBookingActionsParams = {
   invoicePaid: boolean;
   hasMessages: boolean;
   hasFiles: boolean;
+  depositRequired: boolean;
+  hasDeposit: boolean;
+  depositPaid: boolean;
+  depositOutstanding: number;
 };
 
 export function buildBookingRecommendedActions({
@@ -44,6 +48,10 @@ export function buildBookingRecommendedActions({
   invoicePaid,
   hasMessages,
   hasFiles,
+  depositRequired,
+  hasDeposit,
+  depositPaid,
+  depositOutstanding,
 }: BuildBookingActionsParams): BookingRecommendedAction[] {
   const actions: BookingRecommendedAction[] = [];
 
@@ -81,6 +89,35 @@ export function buildBookingRecommendedActions({
     });
   }
 
+  if (hasProject && projectId && depositRequired && !hasDeposit) {
+    actions.push({
+      id: "request-deposit",
+      type: "NAVIGATION",
+      title: "Request deposit",
+      description: "Request the required deposit for this booking.",
+      href: `/projects/${projectId}#deposits`,
+      priority: "HIGH",
+    });
+  }
+
+  if (
+    hasProject &&
+    projectId &&
+    depositRequired &&
+    hasDeposit &&
+    !depositPaid &&
+    depositOutstanding > 0
+  ) {
+    actions.push({
+      id: "collect-deposit",
+      type: "NAVIGATION",
+      title: "Collect deposit",
+      description: "Collect the outstanding deposit balance.",
+      href: `/projects/${projectId}#deposits`,
+      priority: "HIGH",
+    });
+  }
+
   if (hasProject && projectId && !hasInvoice) {
     actions.push({
       id: "create-invoice",
@@ -93,20 +130,20 @@ export function buildBookingRecommendedActions({
   }
 
   if (hasInvoice && !invoicePaid) {
-  actions.push({
-    id: "follow-up-payment",
-    type: "NAVIGATION",
-    title: "Follow up on payment",
-    description: "Invoice exists but has not been paid yet.",
-    href:
-      unpaidInvoiceId && !hasMultipleUnpaidInvoices
-        ? `/ai/invoice-reminder/${unpaidInvoiceId}`
-        : projectId
-          ? `/projects/${projectId}#invoices`
-          : "/invoices",
-    priority: "HIGH",
-  });
-}
+    actions.push({
+      id: "follow-up-payment",
+      type: "NAVIGATION",
+      title: "Follow up on payment",
+      description: "Invoice exists but has not been paid yet.",
+      href:
+        unpaidInvoiceId && !hasMultipleUnpaidInvoices
+          ? `/ai/invoice-reminder/${unpaidInvoiceId}`
+          : projectId
+            ? `/projects/${projectId}#invoices`
+            : "/invoices",
+      priority: "HIGH",
+    });
+  }
 
   if (health.label === "HEALTHY" && actions.length === 0) {
     actions.push({
