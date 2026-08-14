@@ -30,7 +30,7 @@ export function WorkspaceRiskCard({
             key={risk.title}
             title={risk.title}
             description={risk.description}
-            href="/dashboard"
+            href={risk.href}
             priority={risk.severity}
           />
         ))}

@@ -2,6 +2,7 @@ export type WorkspaceRisk = {
   title: string;
   description: string;
   severity: "HIGH" | "MEDIUM" | "LOW";
+  href: string | null;
 };
 
 type Input = {
@@ -18,16 +19,22 @@ export function calculateWorkspaceRisks({
   if (overdueInvoices > 0) {
     risks.push({
       title: "Outstanding payments",
-      description: `${overdueInvoices} invoice${overdueInvoices === 1 ? "" : "s"} need follow-up.`,
+      description: `${overdueInvoices} invoice${
+        overdueInvoices === 1 ? "" : "s"
+      } need follow-up.`,
       severity: "HIGH",
+      href: "/invoices",
     });
   }
 
   if (bookingsNeedingAttention > 0) {
     risks.push({
       title: "Bookings need attention",
-      description: `${bookingsNeedingAttention} booking${bookingsNeedingAttention === 1 ? "" : "s"} may require preparation.`,
+      description: `${bookingsNeedingAttention} booking${
+        bookingsNeedingAttention === 1 ? "" : "s"
+      } may require preparation.`,
       severity: "MEDIUM",
+      href: "/bookings",
     });
   }
 
@@ -36,6 +43,7 @@ export function calculateWorkspaceRisks({
       title: "No major risks detected",
       description: "Your workspace looks stable right now.",
       severity: "LOW",
+      href: null,
     });
   }
 

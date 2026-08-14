@@ -28,7 +28,7 @@ export function WorkspaceOpportunityCard({
             key={opportunity.title}
             title={opportunity.title}
             description={`${opportunity.description} ${opportunity.valueLabel}`}
-            href="/dashboard"
+            href={opportunity.href}
             priority={opportunity.priority}
           />
         ))}

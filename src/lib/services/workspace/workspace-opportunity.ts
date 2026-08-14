@@ -3,6 +3,7 @@ export type WorkspaceOpportunity = {
   description: string;
   valueLabel: string;
   priority: "HIGH" | "MEDIUM" | "LOW";
+  href: string | null;
 };
 
 type Input = {
@@ -24,6 +25,7 @@ export function calculateWorkspaceOpportunities({
       description: "Follow up on unpaid invoices that are ready to collect.",
       valueLabel: `$${outstandingRevenue.toLocaleString()}`,
       priority: "HIGH",
+      href: "/invoices",
     });
   }
 
@@ -33,8 +35,11 @@ export function calculateWorkspaceOpportunities({
       description: `${pendingProposals} proposal${
         pendingProposals === 1 ? "" : "s"
       } may be ready for approval follow-up.`,
-      valueLabel: `${pendingProposals} proposal${pendingProposals === 1 ? "" : "s"}`,
+      valueLabel: `${pendingProposals} proposal${
+        pendingProposals === 1 ? "" : "s"
+      }`,
       priority: "MEDIUM",
+      href: "/proposals",
     });
   }
 
@@ -45,6 +50,7 @@ export function calculateWorkspaceOpportunities({
         "Completed projects are strong moments to ask for testimonials or referrals.",
       valueLabel: `${completedProjects} completed`,
       priority: "LOW",
+      href: "/projects",
     });
   }
 
@@ -55,6 +61,7 @@ export function calculateWorkspaceOpportunities({
         "Your workspace looks stable. Continue monitoring bookings, proposals, and invoices.",
       valueLabel: "All clear",
       priority: "LOW",
+      href: null,
     });
   }
 

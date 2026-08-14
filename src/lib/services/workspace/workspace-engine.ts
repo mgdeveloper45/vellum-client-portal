@@ -48,34 +48,34 @@ export function buildWorkspaceEngine({
     bookingsNeedingAttention,
   });
   const opportunities = calculateWorkspaceOpportunities({
-  pendingProposals,
-  completedProjects,
-  outstandingRevenue,
-});
-const recommendations: Recommendation[] = [
-  ...risks.map((risk): Recommendation => ({
-    id: `risk-${risk.title}`,
-    title: risk.title,
-    description: risk.description,
-    priority:
-      risk.severity === "HIGH"
-        ? "HIGH"
-        : risk.severity === "MEDIUM"
-          ? "MEDIUM"
-          : "LOW",
-    href: "/dashboard",
-    category: "WORKSPACE",
-  })),
+    pendingProposals,
+    completedProjects,
+    outstandingRevenue,
+  });
+  const recommendations: Recommendation[] = [
+    ...risks.map((risk): Recommendation => ({
+      id: `risk-${risk.title}`,
+      title: risk.title,
+      description: risk.description,
+      priority:
+        risk.severity === "HIGH"
+          ? "HIGH"
+          : risk.severity === "MEDIUM"
+            ? "MEDIUM"
+            : "LOW",
+      href: risk.href ?? "/dashboard",
+      category: "WORKSPACE",
+    })),
 
-  ...opportunities.map((opportunity): Recommendation => ({
-    id: `opportunity-${opportunity.title}`,
-    title: opportunity.title,
-    description: opportunity.description,
-    priority: opportunity.priority,
-    href: "/dashboard",
-    category: "GROWTH",
-  })),
-];
+    ...opportunities.map((opportunity): Recommendation => ({
+      id: `opportunity-${opportunity.title}`,
+      title: opportunity.title,
+      description: opportunity.description,
+      priority: opportunity.priority,
+      href: opportunity.href ?? "/dashboard",
+      category: "GROWTH",
+    })),
+  ];
 
   return {
     mission,
