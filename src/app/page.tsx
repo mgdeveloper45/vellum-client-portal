@@ -48,9 +48,12 @@ export default function HomePage() {
               <button className="rounded-full bg-foreground px-6 py-3 font-medium text-background">
                 Start Portal
               </button>
-              <button className="rounded-full border border-border px-6 py-3 text-foreground">
+              <Link
+                href="/demo"
+                className="rounded-full border border-border px-6 py-3 text-foreground transition hover:bg-muted"
+              >
                 View Demo
-              </button>
+              </Link>
             </div>
           </div>
 

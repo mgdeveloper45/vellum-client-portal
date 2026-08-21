@@ -3,6 +3,7 @@ import { createRequestId } from "@/lib/request-id";
 import { NextResponse } from "next/server";
 
 const publicApiPrefixes = ["/api/auth", "/api/stripe/webhook"];
+const publicPagePrefixes = ["/demo"];
 
 export default auth((request) => {
   const pathname = request.nextUrl.pathname;
@@ -17,7 +18,11 @@ export default auth((request) => {
    * API routes enforce their own authentication or signature checks.
    * Stripe webhooks and Auth.js must remain publicly reachable.
    */
-  if (!request.auth && !isApiRoute && !isPublicApiRoute) {
+  const isPublicPageRoute = publicPagePrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+
+  if (!request.auth && !isApiRoute && !isPublicApiRoute && !isPublicPageRoute) {
     const redirectResponse = NextResponse.redirect(
       new URL("/sign-in", request.url),
     );
@@ -48,6 +53,7 @@ export default auth((request) => {
 
 export const config = {
   matcher: [
+    "/demo/:path*",
     "/dashboard/:path*",
     "/projects/:path*",
     "/messages/:path*",
