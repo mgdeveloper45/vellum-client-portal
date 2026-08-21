@@ -4,6 +4,7 @@ import { BrandedDashboardShell } from "@/components/layout/branded-dashboard-she
 import { getCurrentUserWorkspaceQuery } from "@/lib/queries/users/get-current-user-workspace-query";
 import { getAIInvoiceReminderQuery } from "@/lib/queries/invoices/get-ai-invoice-reminder-query";
 import { draftInvoiceReminderEmail } from "@/lib/services/ai/email-drafter";
+import { InvoiceReminderActions } from "@/components/invoices/invoice-reminder-actions";
 
 type AIInvoiceReminderPageProps = {
   params: Promise<{
@@ -87,15 +88,7 @@ export default async function AIInvoiceReminderPage({
           </pre>
         </div>
 
-        <div className="mt-6 flex gap-3">
-          <button className="workspace-accent-button rounded-full px-5 py-3">
-            Copy
-          </button>
-
-          <button className="rounded-full border border-border px-5 py-3">
-            Send Later
-          </button>
-        </div>
+        <InvoiceReminderActions draft={draft} />
       </div>
     </BrandedDashboardShell>
   );
