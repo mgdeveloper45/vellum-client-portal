@@ -269,6 +269,7 @@ model Workspace {
   subscription        Subscription?
   users               User[]
   invitations         WorkspaceInvitation[]
+  waitlistEntries     WaitlistEntry[]
 }
 
 model WorkspaceInvitation {
@@ -321,9 +322,10 @@ model Service {
   workspaceId  String
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  bookings     Booking[]
-  bookingRules BookingRule[]
-  workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  bookings        Booking[]
+  bookingRules    BookingRule[]
+  waitlistEntries WaitlistEntry[]
+  workspace       Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
 model Booking {
@@ -366,6 +368,49 @@ model Booking {
   @@index([status])
   @@index([workspaceId, date])
   @@index([depositPaid])
+}
+
+model WaitlistEntry {
+  id String @id @default(cuid())
+
+  workspaceId String
+  serviceId   String
+
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  notes         String?
+
+  requestedDate      DateTime
+  preferredStartTime String?
+  preferredEndTime   String?
+
+  status WaitlistStatus @default(WAITING)
+
+  notifiedAt DateTime?
+  bookedAt   DateTime?
+  expiresAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  service   Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([serviceId])
+  @@index([requestedDate])
+  @@index([status])
+  @@index([workspaceId, serviceId, requestedDate, status])
+  @@index([customerEmail])
+}
+
+enum WaitlistStatus {
+  WAITING
+  NOTIFIED
+  BOOKED
+  EXPIRED
+  CANCELLED
 }
 
 model BusinessHour {
