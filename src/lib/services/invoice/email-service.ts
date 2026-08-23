@@ -23,6 +23,6 @@ export async function sendInvoiceReceipt({
     businessName,
     projectName,
     amount: `$${amount.toLocaleString()}`,
-    invoiceUrl: `${process.env.NEXTAUTH_URL}/invoices/${invoiceId}/pdf`,
+    invoiceUrl: `${process.env.APP_URL}/invoices/${invoiceId}/pdf`,
   });
 }

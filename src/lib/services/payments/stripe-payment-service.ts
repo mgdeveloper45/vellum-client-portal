@@ -28,8 +28,8 @@ export async function createInvoiceCheckoutSession({
       },
     ],
 
-    success_url: `${process.env.NEXTAUTH_URL}/payments/success?invoice=${invoiceId}`,
-    cancel_url: `${process.env.NEXTAUTH_URL}/payments/cancel?invoice=${invoiceId}`,
+    success_url: `${process.env.APP_URL}/payments/success?invoice=${invoiceId}`,
+    cancel_url: `${process.env.APP_URL}/payments/cancel?invoice=${invoiceId}`,
 
     metadata: {
       invoiceId,

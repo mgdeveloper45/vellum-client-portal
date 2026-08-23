@@ -5,6 +5,21 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 
+const microsoftEntraClientId =
+  process.env.AUTH_MICROSOFT_ENTRA_ID_ID?.trim();
+
+const microsoftEntraClientSecret =
+  process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET?.trim();
+
+const microsoftEntraIssuer =
+  process.env.AUTH_MICROSOFT_ENTRA_ID_ISSUER?.trim();
+
+const microsoftEntraConfigured = Boolean(
+  microsoftEntraClientId &&
+    microsoftEntraClientSecret &&
+    microsoftEntraIssuer,
+);
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
 
@@ -82,11 +97,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
 
-    MicrosoftEntraID({
-      clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID!,
-      clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET!,
-      issuer: process.env.AUTH_MICROSOFT_ENTRA_ID_ISSUER!,
-    }),
+    ...(microsoftEntraConfigured
+      ? [
+          MicrosoftEntraID({
+            clientId: microsoftEntraClientId!,
+            clientSecret: microsoftEntraClientSecret!,
+            issuer: microsoftEntraIssuer!,
+          }),
+        ]
+      : []),
 
     Credentials({
       credentials: {

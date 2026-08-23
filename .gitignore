@@ -53,3 +53,6 @@ test-results/
 /src/lib/generated/prisma
 prisma/dev.db
 prisma/dev.db-journal
+
+# Keep the documented environment contract in version control.
+!/.env.example
