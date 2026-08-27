@@ -5,6 +5,8 @@ import { ServiceSelector } from "@/components/booking/service-selector";
 import { CalendarDateSelector } from "@/components/booking/calendar-date-selector";
 import { getPublicBookingPageQuery } from "@/lib/queries/bookings/get-public-booking-page-query";
 import { getAvailableSlotsService } from "@/lib/services/availability/composition/availability-service";
+import { bookingRuleRepository } from "@/lib/repositories/booking-rule-repository";
+import { isWaitlistAllowed } from "@/lib/services/waitlist/is-waitlist-allowed";
 
 type PublicBookingPageProps = {
   params: Promise<{
@@ -14,6 +16,8 @@ type PublicBookingPageProps = {
     serviceId?: string;
     date?: string;
     time?: string;
+    waitlist?: string;
+    waitlistError?: string;
   }>;
 };
 
@@ -38,6 +42,18 @@ export default async function PublicBookingPage({
     workspace.services.find(
       (service) => service.id === resolvedSearchParams.serviceId,
     ) ?? workspace.services[0];
+
+  const bookingRules =
+    await bookingRuleRepository.getWorkspaceRules(
+      workspace.id,
+    );
+
+  const waitlistAllowed = selectedService
+    ? isWaitlistAllowed(
+        bookingRules,
+        selectedService.id,
+      )
+    : false;
 
   const selectedDate =
     resolvedSearchParams.date ?? new Date().toISOString().slice(0, 10);
@@ -105,6 +121,13 @@ export default async function PublicBookingPage({
                 selectedDate={selectedDate}
                 selectedTime={selectedTime}
                 availableSlots={availableSlots}
+                waitlistAllowed={waitlistAllowed}
+                waitlistStatus={
+                  resolvedSearchParams.waitlist
+                }
+                waitlistError={
+                  resolvedSearchParams.waitlistError
+                }
               />
             )}
           </div>

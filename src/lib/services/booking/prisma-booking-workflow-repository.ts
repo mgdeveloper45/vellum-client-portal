@@ -24,6 +24,7 @@ export class PrismaBookingWorkflowRepository implements BookingWorkflowRepositor
         startTime: true,
         endTime: true,
         googleCalendarEventId: true,
+        serviceId: true,
         service: {
           select: {
             name: true,
@@ -33,6 +34,7 @@ export class PrismaBookingWorkflowRepository implements BookingWorkflowRepositor
           select: {
             name: true,
             companyName: true,
+            slug: true,
           },
         },
       },

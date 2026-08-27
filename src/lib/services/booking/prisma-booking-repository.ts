@@ -84,6 +84,8 @@ export class PrismaBookingRepository implements BookingRepository {
         id: true,
         workspaceId: true,
         serviceId: true,
+        date: true,
+        startTime: true,
         service: {
           select: {
             duration: true,

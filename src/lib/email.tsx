@@ -3,6 +3,7 @@ import { render } from "@react-email/render";
 import { InvoicePaidEmail } from "@/emails/invoice-paid-email";
 import { BookingRescheduledEmail } from "@/emails/booking-rescheduled-email";
 import { BookingConfirmationEmail } from "@/emails/booking-confirmation-email";
+import { WaitlistOpeningEmail } from "@/emails/waitlist-opening-email";
 
 type SendPasswordResetEmailParams = {
   email: string;
@@ -225,5 +226,44 @@ export async function sendBookingRescheduledEmail({
     to: email,
     subject: "Your appointment has been rescheduled",
     html,
+  });
+}
+
+type SendWaitlistOpeningEmailParams = {
+  email: string;
+  customerName: string;
+  businessName: string;
+  serviceName: string;
+  bookingDate: string;
+  availableTime: string;
+  bookingUrl: string;
+  expiresAt: string;
+};
+
+export async function sendWaitlistOpeningEmail({
+  email,
+  customerName,
+  businessName,
+  serviceName,
+  bookingDate,
+  availableTime,
+  bookingUrl,
+  expiresAt,
+}: SendWaitlistOpeningEmailParams) {
+  await resend.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to: email,
+    subject: `An appointment opened with ${businessName}`,
+    react: (
+      <WaitlistOpeningEmail
+        customerName={customerName}
+        businessName={businessName}
+        serviceName={serviceName}
+        bookingDate={bookingDate}
+        availableTime={availableTime}
+        bookingUrl={bookingUrl}
+        expiresAt={expiresAt}
+      />
+    ),
   });
 }

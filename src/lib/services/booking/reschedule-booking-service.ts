@@ -110,9 +110,22 @@ export function createRescheduleBookingService(
           endTime,
         });
 
+        const slotChanged =
+          booking.date.getTime() !== bookingDate.getTime() ||
+          booking.startTime !== request.startTime;
+
         return {
           success: true,
           bookingId: updatedBooking.id,
+          ...(slotChanged
+            ? {
+                freedSlot: {
+                  serviceId: booking.serviceId,
+                  date: booking.date,
+                  startTime: booking.startTime,
+                },
+              }
+            : {}),
         };
       } catch (error) {
         console.error("Booking reschedule persistence failed", {

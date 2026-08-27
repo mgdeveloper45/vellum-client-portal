@@ -38,6 +38,8 @@ function createDependencies(overrides?: {
             id: "booking-1",
             workspaceId: "workspace-1",
             serviceId: "service-1",
+            date: new Date("2026-07-23T00:00:00"),
+            startTime: "09:00",
             service: {
               duration: 60,
               price: 120,
@@ -95,6 +97,11 @@ describe("rescheduleBookingService", () => {
     expect(result).toEqual({
       success: true,
       bookingId: "booking-1",
+      freedSlot: {
+        serviceId: "service-1",
+        date: new Date("2026-07-23T00:00:00"),
+        startTime: "09:00",
+      },
     });
 
     expect(
@@ -122,6 +129,24 @@ describe("rescheduleBookingService", () => {
       startTime: "10:00",
       endTime: "11:00",
     });
+  });
+
+  it("does not report a freed slot when the booking keeps the same slot", async () => {
+    const dependencies = createDependencies();
+
+    const service = createRescheduleBookingService(dependencies);
+
+    const sameSlotRequest = {
+      ...request,
+      date: "2026-07-23",
+      startTime: "09:00",
+    };
+
+    const result = await service.execute(sameSlotRequest);
+
+    expect(result.success).toBe(true);
+    expect(result.bookingId).toBe("booking-1");
+    expect(result.freedSlot).toBeUndefined();
   });
 
   it("returns BOOKING_NOT_FOUND when the booking does not exist", async () => {
@@ -188,6 +213,8 @@ describe("rescheduleBookingService", () => {
         id: "booking-1",
         workspaceId: "workspace-1",
         serviceId: "service-1",
+        date: new Date("2026-07-23T00:00:00"),
+        startTime: "09:00",
         service: {
           duration: 90,
           price: 120,

@@ -7,12 +7,14 @@ export type BookingWorkflowRecord = {
   startTime: string;
   endTime: string;
   googleCalendarEventId: string | null;
+  serviceId: string;
   service: {
     name: string;
   };
   workspace: {
     name: string;
     companyName: string | null;
+    slug: string | null;
   };
 };
 

@@ -23,6 +23,8 @@ export interface ReschedulableBooking {
   id: string;
   workspaceId: string;
   serviceId: string;
+  date: Date;
+  startTime: string;
   service: {
     duration: number;
     price: number;

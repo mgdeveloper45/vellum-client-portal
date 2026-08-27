@@ -20,6 +20,7 @@ import {
   sendBookingRescheduled,
 } from "@/lib/services/booking/email-service";
 import { prismaBookingWorkflowRepository } from "@/lib/services/booking/prisma-booking-workflow-repository";
+import { deliverWaitlistOpeningService } from "@/lib/services/waitlist/composition/waitlist-services";
 import {
   createBookingSchema,
   rescheduleBookingSchema,
@@ -185,17 +186,85 @@ export async function updateBookingStatusAction(formData: FormData) {
     return;
   }
 
-  if (result.status === "CANCELLED" && result.previousGoogleCalendarEventId) {
-    await deleteBookingCalendarEvent(result.previousGoogleCalendarEventId);
-  }
-
   if (result.status === "CANCELLED") {
-    await prismaBookingWorkflowRepository.createUserNotification({
-      userId: session.user.id,
-      title: "Booking cancelled",
-      message: "A booking was cancelled and removed from the active calendar.",
-      href: `/bookings/${result.bookingId}`,
-    });
+    if (result.previousGoogleCalendarEventId) {
+      try {
+        await deleteBookingCalendarEvent(
+          result.previousGoogleCalendarEventId,
+        );
+      } catch (error) {
+        console.error("Booking calendar deletion failed", {
+          bookingId: result.bookingId,
+          error,
+        });
+      }
+    }
+
+    try {
+      const cancelledBooking =
+        await prismaBookingWorkflowRepository.findBookingForWorkflow({
+          bookingId: result.bookingId,
+          workspaceId,
+        });
+
+      if (
+        cancelledBooking &&
+        cancelledBooking.workspace.slug
+      ) {
+        const waitlistResult =
+          await deliverWaitlistOpeningService.execute({
+            workspaceId,
+            serviceId: cancelledBooking.serviceId,
+            workspaceSlug: cancelledBooking.workspace.slug,
+            businessName:
+              cancelledBooking.workspace.companyName ||
+              cancelledBooking.workspace.name ||
+              "Vellum",
+            serviceName: cancelledBooking.service.name,
+            requestedDate: cancelledBooking.date,
+            availableStartTime: cancelledBooking.startTime,
+          });
+
+        if (
+          !waitlistResult.ok &&
+          waitlistResult.reason === "DELIVERY_FAILED"
+        ) {
+          console.error(
+            "Waitlist opening delivery failed after booking cancellation",
+            {
+              bookingId: result.bookingId,
+              workspaceId,
+              serviceId: cancelledBooking.serviceId,
+            },
+          );
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Waitlist notification failed after booking cancellation",
+        {
+          bookingId: result.bookingId,
+          workspaceId,
+          error,
+        },
+      );
+    }
+
+    try {
+      await prismaBookingWorkflowRepository.createUserNotification({
+        userId: session.user.id,
+        title: "Booking cancelled",
+        message:
+          "A booking was cancelled and removed from the active calendar.",
+        href: `/bookings/${result.bookingId}`,
+      });
+    } catch (error) {
+      console.error("Booking cancellation notification failed", {
+        bookingId: result.bookingId,
+        workspaceId,
+        error,
+      });
+    }
   }
 
   redirect("/bookings");
@@ -254,6 +323,33 @@ export async function rescheduleBookingAction(formData: FormData) {
     });
 
     return;
+  }
+
+  if (result.freedSlot && updatedBooking.workspace.slug) {
+    try {
+      await deliverWaitlistOpeningService.execute({
+        workspaceId,
+        serviceId: result.freedSlot.serviceId,
+        workspaceSlug: updatedBooking.workspace.slug,
+        businessName:
+          updatedBooking.workspace.companyName ||
+          updatedBooking.workspace.name ||
+          "Vellum",
+        serviceName: updatedBooking.service.name,
+        requestedDate: result.freedSlot.date,
+        availableStartTime: result.freedSlot.startTime,
+      });
+    } catch (error) {
+      console.error(
+        "Waitlist opening delivery failed after booking reschedule",
+        {
+          bookingId: result.bookingId,
+          workspaceId,
+          serviceId: result.freedSlot.serviceId,
+          error,
+        },
+      );
+    }
   }
 
   const startDateTime = buildBookingDateTime(
