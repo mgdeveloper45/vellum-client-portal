@@ -12,12 +12,18 @@ export function RecordDepositPaymentDialog({
     depositId,
 }: RecordDepositPaymentDialogProps) {
     const [open, setOpen] = useState(false);
+    const [operationKey, setOperationKey] = useState("");
+
+    function openPaymentForm() {
+        setOperationKey(crypto.randomUUID());
+        setOpen(true);
+    }
 
     if (!open) {
         return (
             <button
                 type="button"
-                onClick={() => setOpen(true)}
+                onClick={openPaymentForm}
                 className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
             >
                 Record Payment
@@ -34,6 +40,12 @@ export function RecordDepositPaymentDialog({
                 type="hidden"
                 name="depositId"
                 value={depositId}
+            />
+
+            <input
+                type="hidden"
+                name="operationKey"
+                value={operationKey}
             />
 
             <div>

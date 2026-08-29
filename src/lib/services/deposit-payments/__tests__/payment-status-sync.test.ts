@@ -2,21 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import { createRecordDepositPaymentService } from "../record-deposit-payment-service";
 import { createUpdateDepositPaymentService } from "../update-deposit-payment-service";
 
-function createDepositRepository() {
-  return {
-    create: vi.fn(),
-    findFinancialRecord: vi.fn(),
-    updateStatus: vi.fn(),
-    update: vi.fn(),
-    markPaid: vi.fn(),
-    findForEdit: vi.fn(),
-    listByProject: vi.fn(),
-  };
-}
-
 function createDepositPaymentRepository() {
   return {
-    create: vi.fn(),
+    recordAndSynchronize: vi.fn(),
+    updateAndSynchronize: vi.fn(),
     findForEdit: vi.fn(),
     listByDeposit: vi.fn(),
     listByProject: vi.fn(),
@@ -25,39 +14,21 @@ function createDepositPaymentRepository() {
 }
 
 describe("deposit payment status synchronization", () => {
-  it("marks a deposit PARTIALLY_PAID after recording a partial payment", async () => {
-    const depositRepository = createDepositRepository();
+  it("records a partial payment through the atomic repository operation", async () => {
     const depositPaymentRepository = createDepositPaymentRepository();
 
-    depositRepository.findFinancialRecord.mockResolvedValue({
-      id: "deposit-1",
-      amount: 100,
-      status: "REQUESTED",
+    depositPaymentRepository.recordAndSynchronize.mockResolvedValue({
+      success: true,
+      paymentId: "payment-1",
     });
-
-    depositPaymentRepository.create.mockResolvedValue({
-      id: "payment-1",
-    });
-
-    depositPaymentRepository.listByDeposit.mockResolvedValue([
-      {
-        id: "payment-1",
-        depositId: "deposit-1",
-        amount: 40,
-        paymentMethod: "CREDIT_CARD",
-        receivedAt: new Date(),
-        notes: "",
-      },
-    ]);
-
-    depositRepository.updateStatus.mockResolvedValue(true);
 
     const service = createRecordDepositPaymentService({
-      depositRepository,
       depositPaymentRepository,
     });
 
     const result = await service({
+      workspaceId: "workspace-1",
+      operationKey: "00000000-0000-4000-8000-000000000001",
       depositId: "deposit-1",
       amount: 40,
       paymentMethod: "CREDIT_CARD",
@@ -69,97 +40,69 @@ describe("deposit payment status synchronization", () => {
       paymentId: "payment-1",
     });
 
-    expect(depositRepository.updateStatus).toHaveBeenCalledWith(
-      "deposit-1",
-      "PARTIALLY_PAID",
-    );
+    expect(
+      depositPaymentRepository.recordAndSynchronize,
+    ).toHaveBeenCalledWith({
+      workspaceId: "workspace-1",
+      operationKey: "00000000-0000-4000-8000-000000000001",
+      depositId: "deposit-1",
+      amount: 40,
+      paymentMethod: "CREDIT_CARD",
+      notes: "",
+    });
   });
 
-  it("marks a deposit PAID after recording payment in full", async () => {
-    const depositRepository = createDepositRepository();
+  it("records a full payment through the atomic repository operation", async () => {
     const depositPaymentRepository = createDepositPaymentRepository();
 
-    depositRepository.findFinancialRecord.mockResolvedValue({
-      id: "deposit-1",
-      amount: 100,
-      status: "REQUESTED",
+    depositPaymentRepository.recordAndSynchronize.mockResolvedValue({
+      success: true,
+      paymentId: "payment-1",
     });
-
-    depositPaymentRepository.create.mockResolvedValue({
-      id: "payment-1",
-    });
-
-    depositPaymentRepository.listByDeposit.mockResolvedValue([
-      {
-        id: "payment-1",
-        depositId: "deposit-1",
-        amount: 100,
-        paymentMethod: "CREDIT_CARD",
-        receivedAt: new Date(),
-        notes: "",
-      },
-    ]);
-
-    depositRepository.updateStatus.mockResolvedValue(true);
 
     const service = createRecordDepositPaymentService({
-      depositRepository,
-      depositPaymentRepository,
-    });
-
-    await service({
-      depositId: "deposit-1",
-      amount: 100,
-      paymentMethod: "CREDIT_CARD",
-      notes: "",
-    });
-
-    expect(depositRepository.updateStatus).toHaveBeenCalledWith(
-      "deposit-1",
-      "PAID",
-    );
-  });
-
-  it("recalculates deposit status after editing a payment downward", async () => {
-    const depositRepository = createDepositRepository();
-    const depositPaymentRepository = createDepositPaymentRepository();
-
-    depositPaymentRepository.findForEdit.mockResolvedValue({
-      id: "payment-1",
-      depositId: "deposit-1",
-      amount: 100,
-      paymentMethod: "CREDIT_CARD",
-      receivedAt: new Date(),
-      notes: "",
-    });
-
-    depositPaymentRepository.update.mockResolvedValue(true);
-
-    depositRepository.findFinancialRecord.mockResolvedValue({
-      id: "deposit-1",
-      amount: 100,
-      status: "PAID",
-    });
-
-    depositPaymentRepository.listByDeposit.mockResolvedValue([
-      {
-        id: "payment-1",
-        depositId: "deposit-1",
-        amount: 40,
-        paymentMethod: "CREDIT_CARD",
-        receivedAt: new Date(),
-        notes: "",
-      },
-    ]);
-
-    depositRepository.updateStatus.mockResolvedValue(true);
-
-    const service = createUpdateDepositPaymentService({
-      depositRepository,
       depositPaymentRepository,
     });
 
     const result = await service({
+      workspaceId: "workspace-1",
+      operationKey: "00000000-0000-4000-8000-000000000001",
+      depositId: "deposit-1",
+      amount: 100,
+      paymentMethod: "CREDIT_CARD",
+      notes: "Paid in full",
+    });
+
+    expect(result).toEqual({
+      success: true,
+      paymentId: "payment-1",
+    });
+
+    expect(
+      depositPaymentRepository.recordAndSynchronize,
+    ).toHaveBeenCalledWith({
+      workspaceId: "workspace-1",
+      operationKey: "00000000-0000-4000-8000-000000000001",
+      depositId: "deposit-1",
+      amount: 100,
+      paymentMethod: "CREDIT_CARD",
+      notes: "Paid in full",
+    });
+  });
+
+  it("updates a payment downward through the atomic repository operation", async () => {
+    const depositPaymentRepository = createDepositPaymentRepository();
+
+    depositPaymentRepository.updateAndSynchronize.mockResolvedValue({
+      success: true,
+    });
+
+    const service = createUpdateDepositPaymentService({
+      depositPaymentRepository,
+    });
+
+    const result = await service({
+      workspaceId: "workspace-1",
       paymentId: "payment-1",
       amount: 40,
       paymentMethod: "CREDIT_CARD",
@@ -170,76 +113,94 @@ describe("deposit payment status synchronization", () => {
       success: true,
     });
 
-    expect(depositRepository.updateStatus).toHaveBeenCalledWith(
-      "deposit-1",
-      "PARTIALLY_PAID",
-    );
-  });
-
-  it("recalculates deposit status after editing a payment upward to full payment", async () => {
-    const depositRepository = createDepositRepository();
-    const depositPaymentRepository = createDepositPaymentRepository();
-
-    depositPaymentRepository.findForEdit.mockResolvedValue({
-      id: "payment-1",
-      depositId: "deposit-1",
+    expect(
+      depositPaymentRepository.updateAndSynchronize,
+    ).toHaveBeenCalledWith({
+      workspaceId: "workspace-1",
+      paymentId: "payment-1",
       amount: 40,
       paymentMethod: "CREDIT_CARD",
-      receivedAt: new Date(),
       notes: "",
     });
+  });
 
-    depositPaymentRepository.update.mockResolvedValue(true);
+  it("updates a payment upward through the atomic repository operation", async () => {
+    const depositPaymentRepository = createDepositPaymentRepository();
 
-    depositRepository.findFinancialRecord.mockResolvedValue({
-      id: "deposit-1",
-      amount: 100,
-      status: "PARTIALLY_PAID",
+    depositPaymentRepository.updateAndSynchronize.mockResolvedValue({
+      success: true,
     });
 
-    depositPaymentRepository.listByDeposit.mockResolvedValue([
-      {
-        id: "payment-1",
-        depositId: "deposit-1",
-        amount: 100,
-        paymentMethod: "CREDIT_CARD",
-        receivedAt: new Date(),
-        notes: "",
-      },
-    ]);
-
-    depositRepository.updateStatus.mockResolvedValue(true);
-
     const service = createUpdateDepositPaymentService({
-      depositRepository,
       depositPaymentRepository,
     });
 
-    await service({
+    const result = await service({
+      workspaceId: "workspace-1",
       paymentId: "payment-1",
       amount: 100,
       paymentMethod: "CREDIT_CARD",
       notes: "",
     });
 
-    expect(depositRepository.updateStatus).toHaveBeenCalledWith(
-      "deposit-1",
-      "PAID",
-    );
+    expect(result).toEqual({
+      success: true,
+    });
+
+    expect(
+      depositPaymentRepository.updateAndSynchronize,
+    ).toHaveBeenCalledWith({
+      workspaceId: "workspace-1",
+      paymentId: "payment-1",
+      amount: 100,
+      paymentMethod: "CREDIT_CARD",
+      notes: "",
+    });
   });
 
-  it("does not create a payment when the deposit does not exist", async () => {
-    const depositRepository = createDepositRepository();
+  it("returns an idempotency conflict when an operation key is reused incorrectly", async () => {
     const depositPaymentRepository = createDepositPaymentRepository();
 
-    depositRepository.findFinancialRecord.mockResolvedValue(null);
+    depositPaymentRepository.recordAndSynchronize.mockResolvedValue({
+      success: false,
+      reason: "IDEMPOTENCY_CONFLICT",
+    });
 
     const service = createRecordDepositPaymentService({
-      depositRepository,
       depositPaymentRepository,
     });
 
     const result = await service({
+      workspaceId: "workspace-1",
+      operationKey: "00000000-0000-4000-8000-000000000001",
+      depositId: "deposit-1",
+      amount: 100,
+      paymentMethod: "CREDIT_CARD",
+      notes: "Paid in full",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      reason: "IDEMPOTENCY_CONFLICT",
+      message: "This payment operation conflicts with an existing payment.",
+    });
+  });
+
+  it("returns NOT_FOUND when the atomic record operation cannot find the deposit", async () => {
+    const depositPaymentRepository = createDepositPaymentRepository();
+
+    depositPaymentRepository.recordAndSynchronize.mockResolvedValue({
+      success: false,
+      reason: "NOT_FOUND",
+    });
+
+    const service = createRecordDepositPaymentService({
+      depositPaymentRepository,
+    });
+
+    const result = await service({
+      workspaceId: "workspace-1",
+      operationKey: "00000000-0000-4000-8000-000000000001",
       depositId: "missing-deposit",
       amount: 50,
       paymentMethod: "CREDIT_CARD",
@@ -252,6 +213,15 @@ describe("deposit payment status synchronization", () => {
       message: "Deposit not found.",
     });
 
-    expect(depositPaymentRepository.create).not.toHaveBeenCalled();
+    expect(
+      depositPaymentRepository.recordAndSynchronize,
+    ).toHaveBeenCalledWith({
+      workspaceId: "workspace-1",
+      operationKey: "00000000-0000-4000-8000-000000000001",
+      depositId: "missing-deposit",
+      amount: 50,
+      paymentMethod: "CREDIT_CARD",
+      notes: "",
+    });
   });
 });

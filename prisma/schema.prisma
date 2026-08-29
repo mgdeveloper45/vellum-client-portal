@@ -213,6 +213,7 @@ model DepositPayment {
   id             String         @id @default(cuid())
 
   depositId      String
+  operationKey   String         @unique
 
   amount         Decimal        @db.Decimal(10,2)
 

@@ -4,6 +4,7 @@ import type {
 } from "./deposit-payment-repository";
 
 export interface GetDepositPaymentForEditRequest {
+  workspaceId: string;
   paymentId: string;
 }
 
@@ -38,7 +39,10 @@ export function createGetDepositPaymentForEditService({
       };
     }
 
-    const payment = await depositPaymentRepository.findForEdit(paymentId);
+    const payment = await depositPaymentRepository.findForEdit({
+      workspaceId: request.workspaceId,
+      paymentId,
+    });
 
     if (!payment) {
       return {

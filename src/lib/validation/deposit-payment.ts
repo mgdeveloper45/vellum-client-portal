@@ -5,6 +5,8 @@ import { entityIdSchema } from "@/lib/validation/common";
 export const recordDepositPaymentSchema = z.object({
   depositId: entityIdSchema,
 
+  operationKey: z.string().uuid("Invalid payment operation key."),
+
   amount: z.coerce
     .number()
     .positive("Payment amount must be greater than zero."),

@@ -10,6 +10,13 @@ export interface DepositFinancialRecord {
   amount: number;
 
   status: DepositStatus;
+
+  projectId: string;
+
+  project: {
+    name: string;
+    ownerId: string;
+  };
 }
 export interface DepositSummaryRecord {
   id: string;
@@ -87,11 +94,21 @@ export interface DepositRepository {
     id: string;
   }>;
 
-  findFinancialRecord(
-    depositId: string,
-  ): Promise<DepositFinancialRecord | null>;
+  findFinancialRecord(input: {
+    workspaceId: string;
+    depositId: string;
+  }): Promise<DepositFinancialRecord | null>;
 
   updateStatus(depositId: string, status: DepositStatus): Promise<boolean>;
+
+  synchronizeFinancialStatus(input: {
+    depositId: string;
+    status: DepositStatus;
+    paidAt: Date | null;
+    projectId: string;
+    projectName: string;
+    ownerId: string;
+  }): Promise<boolean>;
 
   update(input: UpdateDepositRecordInput): Promise<boolean>;
 

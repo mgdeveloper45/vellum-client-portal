@@ -1,13 +1,13 @@
 import { isValidMoneyAmount, normalizeMoneyAmount } from "@/lib/money";
-import type { DepositRepository } from "@/lib/services/deposits/deposit-repository";
 import type {
   DepositPaymentRepository,
   PaymentMethod,
 } from "./deposit-payment-repository";
-import { buildDepositFinancialSummary } from "./financial-engine";
 
 export interface RecordDepositPaymentRequest {
+  workspaceId: string;
   depositId: string;
+  operationKey: string;
   amount: number;
   paymentMethod: PaymentMethod;
   notes: string;
@@ -20,23 +20,26 @@ export type RecordDepositPaymentResult =
     }
   | {
       success: false;
-      reason: "INVALID_DEPOSIT" | "INVALID_AMOUNT" | "NOT_FOUND";
+      reason:
+        | "INVALID_DEPOSIT"
+        | "INVALID_AMOUNT"
+        | "NOT_FOUND"
+        | "IDEMPOTENCY_CONFLICT";
       message: string;
     };
 
 interface RecordDepositPaymentServiceDependencies {
-  depositRepository: DepositRepository;
   depositPaymentRepository: DepositPaymentRepository;
 }
 
 export function createRecordDepositPaymentService({
-  depositRepository,
   depositPaymentRepository,
 }: RecordDepositPaymentServiceDependencies) {
   return async function recordDepositPayment(
     request: RecordDepositPaymentRequest,
   ): Promise<RecordDepositPaymentResult> {
     const depositId = request.depositId.trim();
+    const operationKey = request.operationKey.trim();
 
     if (!depositId) {
       return {
@@ -54,9 +57,24 @@ export function createRecordDepositPaymentService({
       };
     }
 
-    const deposit = await depositRepository.findFinancialRecord(depositId);
+    const result = await depositPaymentRepository.recordAndSynchronize({
+      workspaceId: request.workspaceId,
+      depositId,
+      operationKey,
+      amount: normalizeMoneyAmount(request.amount),
+      paymentMethod: request.paymentMethod,
+      notes: request.notes.trim(),
+    });
 
-    if (!deposit) {
+    if (!result.success) {
+      if (result.reason === "IDEMPOTENCY_CONFLICT") {
+        return {
+          success: false,
+          reason: "IDEMPOTENCY_CONFLICT",
+          message: "This payment operation conflicts with an existing payment.",
+        };
+      }
+
       return {
         success: false,
         reason: "NOT_FOUND",
@@ -64,29 +82,9 @@ export function createRecordDepositPaymentService({
       };
     }
 
-    const payment = await depositPaymentRepository.create({
-      depositId,
-      amount: normalizeMoneyAmount(request.amount),
-      paymentMethod: request.paymentMethod,
-      notes: request.notes.trim(),
-    });
-
-    const payments = await depositPaymentRepository.listByDeposit(depositId);
-
-    const financialSummary = buildDepositFinancialSummary({
-      depositAmount: deposit.amount,
-      payments,
-    });
-
-    await depositRepository.updateStatus(depositId, financialSummary.status);
-
-    // TODO:
-    // When financialSummary.status becomes "PAID",
-    // publish a DEPOSIT_PAID workflow event.
-
     return {
       success: true,
-      paymentId: payment.id,
+      paymentId: result.paymentId,
     };
   };
 }
